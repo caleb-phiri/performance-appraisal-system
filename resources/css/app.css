@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --moic-navy: #110484;
+    --moic-accent: #e7581c;
+    --moic-gradient: linear-gradient(135deg, #110484, #e7581c);
+}
+
+/* Password setup modal z-index fix */
+.z-modal {
+    z-index: 1000;
+}
+
+/* New Logo container with gradient border */
+.logo-container {
+    position: relative;
+    padding: 2px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #110484, #e7581c);
+}
+
+.logo-inner {
+    background: white;
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Status badges */
+.status-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* Gradient header animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gradient-header {
+    background: linear-gradient(135deg, #110484, #1a0c9e, #110484, #e7581c);
+    background-size: 300% 300%;
+    animation: gradientShift 15s ease infinite;
+}
+
+/* Mobile menu animations */
+.mobile-menu-enter {
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
