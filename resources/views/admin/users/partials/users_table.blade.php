@@ -1,283 +1,204 @@
 <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-    @if($users->count() > 0)
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gradient-to-r from-gray-800 to-gray-900">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                            Employee Details
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                            Position & Department
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                            User Type
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100" id="usersTableBody">
-                    @php
-                        $initialUsers = $users->take(10);
-                        $remainingUsers = $users->skip(10);
-                    @endphp
-                    
-                    @foreach($initialUsers as $user)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200 {{ $user->left_company ? 'bg-red-50' : '' }}">
-                        <!-- Employee Details -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                @foreach($users->take(10) as $user)
+                <tr class="user-row hover:bg-gray-50 transition-all duration-200">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ $user->employee_number }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                <div class="text-xs text-gray-500">{{ $user->employee_number }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ $user->email }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ $user->department ?? 'N/A' }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @if($user->user_type === 'admin')
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-crown mr-1 text-xs"></i> Admin
+                            </span>
+                        @elseif($user->user_type === 'supervisor')
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                <i class="fas fa-user-shield mr-1 text-xs"></i> Supervisor
+                            </span>
+                        @else
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <i class="fas fa-user mr-1 text-xs"></i> Employee
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @if($user->left_company_at)
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-user-slash mr-1 text-xs"></i> Left Company
+                            </span>
+                        @else
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-circle mr-1 text-xs" style="font-size: 8px;"></i> Active
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex space-x-2">
+                            @if($user->left_company_at)
+                                <!-- Reactivate Button -->
+                                <button onclick="openReactivateModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
+                                        class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-xs flex items-center">
+                                    <i class="fas fa-user-check mr-1"></i> Reactivate
+                                </button>
+                            @else
+                                <!-- Make Supervisor Button (Only for non-supervisors) -->
+                                @if($user->user_type !== 'supervisor' && $user->user_type !== 'admin')
+                                <button onclick="openMakeSupervisorModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}', '{{ $user->user_type }}')"
+                                        class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition text-xs flex items-center">
+                                    <i class="fas fa-user-shield mr-1"></i> Make Supervisor
+                                </button>
+                                @endif
+                                
+                                <!-- Mark as Left Button -->
+                                <button onclick="openMarkAsLeftModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
+                                        class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-xs flex items-center">
+                                    <i class="fas fa-user-slash mr-1"></i> Mark as Left
+                                </button>
+                                
+                                <!-- View Details Button -->
+                                <a href="{{ route('admin.users.show', $user->employee_number) }}" 
+                                   class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs flex items-center">
+                                    <i class="fas fa-eye mr-1"></i> View
+                                </a>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+            
+            <!-- Hidden rows for remaining users (for load more functionality) -->
+            @if($users->count() > 10)
+                <tbody id="remainingUsers" class="hidden">
+                    @foreach($users->skip(10) as $user)
+                    <tr class="user-row hover:bg-gray-50 transition-all duration-200">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                                    <span class="text-white font-semibold text-sm">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                            <div class="text-sm font-medium text-gray-900">{{ $user->employee_number }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
-                                <div>
-                                    <div class="text-sm font-bold text-gray-900">{{ $user->name }}</div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
                                     <div class="text-xs text-gray-500">{{ $user->employee_number }}</div>
-                                    <div class="text-xs text-gray-400 mt-1">{{ $user->email ?? 'No email' }}</div>
                                 </div>
                             </div>
                         </td>
-                        
-                        <!-- Position & Department -->
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900">{{ $user->job_title }}</div>
-                            <div class="text-sm text-gray-600">{{ $user->department }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ $user->workstation_type }}</div>
-                        </td>
-                        
-                        <!-- User Type -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                                {{ $user->user_type === 'supervisor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                <i class="{{ $user->user_type === 'supervisor' ? 'fas fa-user-shield' : 'fas fa-user-tie' }} mr-1"></i>
-                                {{ ucfirst($user->user_type) }}
-                            </span>
+                            <div class="text-sm text-gray-900">{{ $user->email }}</div>
                         </td>
-                        
-                        <!-- Status -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->left_company)
-                                <div class="flex items-center">
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                        <i class="fas fa-user-slash mr-1"></i> Left Company
-                                    </span>
-                                    @if($user->left_at)
-                                        <div class="ml-2 text-xs text-gray-500">
-                                            {{ \Carbon\Carbon::parse($user->left_at)->format('M d') }}
-                                        </div>
-                                    @endif
-                                </div>
-                            @elseif($user->password)
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <i class="fas fa-key mr-1"></i> Active
+                            <div class="text-sm text-gray-900">{{ $user->department ?? 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($user->user_type === 'admin')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    <i class="fas fa-crown mr-1 text-xs"></i> Admin
+                                </span>
+                            @elseif($user->user_type === 'supervisor')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    <i class="fas fa-user-shield mr-1 text-xs"></i> Supervisor
                                 </span>
                             @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i> No Password
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <i class="fas fa-user mr-1 text-xs"></i> Employee
                                 </span>
                             @endif
                         </td>
-                        
-                        <!-- Actions -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <!-- View Button -->
-                                <a href="{{ route('admin.users.show', $user->employee_number) }}" 
-                                   class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
-                                   title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                
-                                <!-- Reset Password Button -->
-                                <a href="{{ route('admin.users.reset-password', $user->employee_number) }}" 
-                                   class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
-                                   title="Reset Password">
-                                    <i class="fas fa-key"></i>
-                                </a>
-                                
-                                @if(!$user->left_company)
-                                    <!-- Mark as Left Button -->
-                                    <button type="button" 
-                                            onclick="openMarkAsLeftModal('{{ $user->employee_number }}', '{{ $user->name }}')"
-                                            class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
-                                            title="Mark as Left Company">
-                                        <i class="fas fa-user-slash"></i>
+                            @if($user->left_company_at)
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    <i class="fas fa-user-slash mr-1 text-xs"></i> Left Company
+                                </span>
+                            @else
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-circle mr-1 text-xs" style="font-size: 8px;"></i> Active
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <div class="flex space-x-2">
+                                @if($user->left_company_at)
+                                    <button onclick="openReactivateModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
+                                            class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-xs flex items-center">
+                                        <i class="fas fa-user-check mr-1"></i> Reactivate
                                     </button>
                                 @else
-                                    <!-- Reactivate Button -->
-                                    <button type="button" 
-                                            onclick="openReactivateModal('{{ $user->employee_number }}', '{{ $user->name }}')"
-                                            class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
-                                            title="Reactivate Account">
-                                        <i class="fas fa-user-check"></i>
+                                    @if($user->user_type !== 'supervisor' && $user->user_type !== 'admin')
+                                    <button onclick="openMakeSupervisorModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}', '{{ $user->user_type }}')"
+                                            class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition text-xs flex items-center">
+                                        <i class="fas fa-user-shield mr-1"></i> Make Supervisor
                                     </button>
+                                    @endif
+                                    
+                                    <button onclick="openMarkAsLeftModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
+                                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-xs flex items-center">
+                                        <i class="fas fa-user-slash mr-1"></i> Mark as Left
+                                    </button>
+                                    
+                                    <a href="{{ route('admin.users.show', $user->employee_number) }}" 
+                                       class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs flex items-center">
+                                        <i class="fas fa-eye mr-1"></i> View
+                                    </a>
                                 @endif
-                                
-                              
                             </div>
                         </td>
                     </tr>
                     @endforeach
-                    
-                    <!-- Hidden rows for remaining users -->
-                    <div id="remainingUsers" style="display: none;">
-                        @foreach($remainingUsers as $user)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200 {{ $user->left_company ? 'bg-red-50' : '' }}">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                                        <span class="text-white font-semibold text-sm">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-bold text-gray-900">{{ $user->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $user->employee_number }}</div>
-                                        <div class="text-xs text-gray-400 mt-1">{{ $user->email ?? 'No email' }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $user->job_title }}</div>
-                                <div class="text-sm text-gray-600">{{ $user->department }}</div>
-                                <div class="text-xs text-gray-500 mt-1">{{ $user->workstation_type }}</div>
-                            </td>
-                            
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                                    {{ $user->user_type === 'supervisor' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                    <i class="{{ $user->user_type === 'supervisor' ? 'fas fa-user-shield' : 'fas fa-user-tie' }} mr-1"></i>
-                                    {{ ucfirst($user->user_type) }}
-                                </span>
-                            </td>
-                            
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($user->left_company)
-                                    <div class="flex items-center">
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            <i class="fas fa-user-slash mr-1"></i> Left Company
-                                        </span>
-                                        @if($user->left_at)
-                                            <div class="ml-2 text-xs text-gray-500">
-                                                {{ \Carbon\Carbon::parse($user->left_at)->format('M d') }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                @elseif($user->password)
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        <i class="fas fa-key mr-1"></i> Active
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i> No Password
-                                    </span>
-                                @endif
-                            </td>
-                            
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.users.show', $user->employee_number) }}" 
-                                       class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
-                                       title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    
-                                    <a href="{{ route('admin.users.reset-password', $user->employee_number) }}" 
-                                       class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
-                                       title="Reset Password">
-                                        <i class="fas fa-key"></i>
-                                    </a>
-                                    
-                                    @if(!$user->left_company)
-                                        <button type="button" 
-                                                onclick="openMarkAsLeftModal('{{ $user->employee_number }}', '{{ $user->name }}')"
-                                                class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
-                                                title="Mark as Left Company">
-                                            <i class="fas fa-user-slash"></i>
-                                        </button>
-                                    @else
-                                        <button type="button" 
-                                                onclick="openReactivateModal('{{ $user->employee_number }}', '{{ $user->name }}')"
-                                                class="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
-                                                title="Reactivate Account">
-                                            <i class="fas fa-user-check"></i>
-                                        </button>
-                                    @endif
-                                    
-                                    <a href="{{ route('admin.users.edit', $user->employee_number) }}" 
-                                       class="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors duration-200"
-                                       title="Edit User">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </div>
                 </tbody>
-            </table>
+            @endif
+        </table>
+    </div>
+    
+    <!-- Load More Controls -->
+    @if($users->count() > 10)
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+        <div class="text-sm text-gray-700">
+            Showing <span id="showingCount">10</span> of {{ $users->count() }} users
         </div>
-        
-        <!-- User Count -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div class="flex justify-between items-center">
-                <div class="text-sm text-gray-600">
-                    Showing <span id="showingCount">{{ $initialUsers->count() }}</span> of {{ $users->total() }} users
-                </div>
-                <div>
-                    @if($users->count() > 10)
-                        <!-- Load More Button -->
-                        <button id="loadMoreBtn" 
-                                onclick="loadMoreUsers()"
-                                class="px-4 py-2 bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white rounded-lg hover:shadow transition flex items-center">
-                            <i class="fas fa-plus mr-2"></i> Load More ({{ $remainingUsers->count() }} remaining)
-                        </button>
-                        
-                        <!-- Show All Button -->
-                        <button id="showAllBtn" 
-                                onclick="showAllUsers()"
-                                class="ml-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow transition flex items-center"
-                                style="display: none;">
-                            <i class="fas fa-list mr-2"></i> Show All Users
-                        </button>
-                    @endif
-                </div>
-            </div>
+        <div class="flex space-x-3">
+            <button id="loadMoreBtn" 
+                    onclick="loadMoreUsers()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center text-sm">
+                <i class="fas fa-plus mr-2"></i> Load More
+            </button>
+            <button id="showAllBtn" 
+                    onclick="showAllUsers()"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center text-sm">
+                <i class="fas fa-list mr-2"></i> Show All
+            </button>
         </div>
-        
-        <!-- Pagination -->
-        @if($users->hasPages())
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-sm text-gray-600">
-                    Page {{ $users->currentPage() }} of {{ $users->lastPage() }}
-                </div>
-                <div>
-                    {{ $users->links() }}
-                </div>
-            </div>
-        </div>
-        @endif
-        
-    @else
-        <!-- Empty State -->
-        <div class="p-12 text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 mb-4">
-                <i class="fas fa-users text-3xl text-blue-600"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-2">No Users Found</h3>
-            <p class="text-gray-500 mb-6">No users match your search criteria.</p>
-            <div class="flex justify-center space-x-3">
-                <a href="{{ route('admin.users.index') }}" 
-                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
-                    <i class="fas fa-sync-alt mr-2"></i> Reset Search
-                </a>
-                
-            </div>
-        </div>
+    </div>
     @endif
 </div>

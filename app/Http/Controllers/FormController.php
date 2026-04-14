@@ -78,6 +78,11 @@ class FormController extends Controller
     {
         return view('forms.hr-assistant-form');
     }
+ public function verificationclerk()
+    {
+        
+        return view('forms.verification-clerk-form');
+    }
 
     /**
      * Store appraisal data (common for all forms)

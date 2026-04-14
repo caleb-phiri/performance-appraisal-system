@@ -766,4 +766,52 @@ private function calculateFullStats()
             'users' => $users
         ]);
     }
+    public function makeSupervisor(Request $request, $employeeNumber)
+{
+    try {
+        $user = User::where('employee_number', $employeeNumber)->firstOrFail();
+        
+        // Check if already a supervisor
+        if ($user->user_type === 'supervisor') {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is already a supervisor.'
+            ], 400);
+        }
+        
+        // Check if admin (can't demote admin)
+        if ($user->user_type === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot change admin role.'
+            ], 400);
+        }
+        
+        // Only update the user_type, don't update department
+        $user->user_type = 'supervisor';
+        
+        // Only update department if it's provided and not empty
+        if ($request->has('department') && !empty($request->department)) {
+            $user->department = $request->department;
+        }
+        // If no department provided, keep the existing department or set a default
+        // else, leave it as is (don't update)
+        
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "{$user->name} is now a supervisor.",
+            'user' => $user
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Failed to promote user to supervisor: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to promote user: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

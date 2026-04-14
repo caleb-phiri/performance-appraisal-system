@@ -3,54 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appraisal Forms - MOIC</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Appraisal Forms - MOIC Performance Appraisal System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
     <style>
+        /* MOIC Brand Colors */
         :root {
             --moic-navy: #110484;
+            --moic-navy-light: #3328a5;
             --moic-accent: #e7581c;
-            --moic-gradient: linear-gradient(135deg, #110484, #e7581c);
-        }
-        .form-card-selected {
-            box-shadow: 0 0 0 3px #110484, 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-color: #110484;
-        }
-        .form-card-disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .form-card-disabled:hover {
-            transform: none;
-            box-shadow: none;
+            --moic-accent-light: #ff6b2d;
+            --moic-blue: #1a0c9e;
+            --moic-blue-light: #2d1fd1;
+            --moic-gradient: linear-gradient(135deg, var(--moic-navy), var(--moic-blue));
+            --moic-gradient-accent: linear-gradient(135deg, var(--moic-accent), #ff7c45);
         }
         
-        /* Logo container with gradient border */
-        .logo-container {
-            position: relative;
-            padding: 2px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #110484, #e7581c);
+     body {
+    background: #f0f3f8;
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(17, 4, 132, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(231, 88, 28, 0.03) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 10px);
+    min-height: 100vh;
+}
+
+/* Add depth to cards */
+.card-moic {
+    border: none;
+    box-shadow: 
+        0 5px 10px rgba(0, 0, 0, 0.05),
+        0 15px 25px rgba(0, 0, 0, 0.02),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-moic:hover {
+    box-shadow: 
+        0 10px 20px rgba(17, 4, 132, 0.08),
+        0 20px 30px rgba(0, 0, 0, 0.05),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+/* Optional: Add subtle pattern to cards for depth */
+.card-moic {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
+}
+        
+        /* Custom Color Classes */
+        .moic-navy { color: var(--moic-navy) !important; }
+        .moic-navy-bg { background-color: var(--moic-navy) !important; }
+        .moic-accent { color: var(--moic-accent) !important; }
+        .moic-accent-bg { background-color: var(--moic-accent) !important; }
+        
+        /* MOIC Buttons */
+        .btn-moic {
+            background: var(--moic-gradient);
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
         
-        .logo-inner {
-            background: white;
-            border-radius: 6px;
-            padding: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .btn-moic:hover {
+            background: linear-gradient(135deg, var(--moic-navy-light), var(--moic-blue-light));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(17, 4, 132, 0.3);
         }
         
-        .status-badge {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            padding: 2px 8px;
-            border-radius: 12px;
+        .btn-accent {
+            background: var(--moic-gradient-accent);
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
         
-        /* Animated gradient for header */
+        .btn-accent:hover {
+            background: linear-gradient(135deg, var(--moic-accent-light), #ff8d5c);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(231, 88, 28, 0.3);
+        }
+        
+        /* Animated Gradient Header */
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -61,13 +106,156 @@
             background: linear-gradient(135deg, #110484, #1a0c9e, #110484, #e7581c);
             background-size: 300% 300%;
             animation: gradientShift 15s ease infinite;
+            box-shadow: 0 2px 10px rgba(17, 4, 132, 0.15);
         }
+        
+        /* Logo Container */
+        .logo-container {
+            position: relative;
+            padding: 2px;
+            border-radius: 0.5rem;
+            background: linear-gradient(135deg, #110484, #e7581c);
+        }
+        
+        .logo-inner {
+            background: white;
+            border-radius: 0.375rem;
+            padding: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .status-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        /* Card Styling */
+        .card-moic {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-moic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Form Card Styling */
+        .form-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: white;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(17, 4, 132, 0.1);
+        }
+        
+        .form-card-selected {
+            border: 2px solid var(--moic-navy);
+            box-shadow: 0 0 0 3px rgba(17, 4, 132, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-card-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .form-card-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Progress Bar */
+        .progress-bar-custom {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Quarter Status */
+        .quarter-completed {
+            background-color: #d1fae5;
+            border-color: #34d399;
+            color: #065f46;
+        }
+        
+        .quarter-missed {
+            background-color: #fee2e2;
+            border-color: #f87171;
+            color: #991b1b;
+        }
+        
+        .quarter-current {
+            background-color: #dbeafe;
+            border-color: #60a5fa;
+            color: #1e40af;
+        }
+        
+        .quarter-future {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+            color: #4b5563;
+        }
+        
+        /* Responsive container */
+        .container-custom {
+            max-width: 80rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Form Icon Colors */
+        .icon-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .icon-green { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .icon-orange { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+        .icon-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+        .icon-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+        .icon-indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+        .icon-pink { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+        
+        /* Badge Colors */
+        .badge-blue { background-color: #dbeafe !important; color: #1e40af !important; }
+        .badge-purple { background-color: #e9d5ff !important; color: #6b21a8 !important; }
+        .badge-green { background-color: #d1fae5 !important; color: #065f46 !important; }
+        .badge-orange { background-color: #fed7aa !important; color: #9a3412 !important; }
+        .badge-teal { background-color: #99f6e4 !important; color: #115e59 !important; }
+        .badge-cyan { background-color: #cffafe !important; color: #155e75 !important; }
+        .badge-pink { background-color: #fce7f3 !important; color: #9d174d !important; }
+        
+        /* Background Colors */
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        .bg-green-50 { background-color: #f0fdf4 !important; }
+        .bg-orange-50 { background-color: #fff7ed !important; }
+        .bg-purple-50 { background-color: #faf5ff !important; }
+        .bg-cyan-50 { background-color: #ecfeff !important; }
+        .bg-pink-50 { background-color: #fdf2f8 !important; }
+        .bg-gray-100 { background-color: #f3f4f6 !important; }
+        
+        /* Text Colors */
+        .text-cyan-800 { color: #155e75 !important; }
+        .text-pink-800 { color: #9d174d !important; }
         
         /* Mobile menu animations */
-        .mobile-menu-enter {
-            animation: slideDown 0.3s ease forwards;
-        }
-        
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -79,1550 +267,2234 @@
             }
         }
         
-        /* Progress bar styles */
-        .progress-bar {
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
+        .mobile-menu-enter {
+            animation: slideDown 0.3s ease forwards;
         }
         
-        .progress-fill {
-            height: 100%;
-            transition: width 0.3s ease;
+        /* Avatar Styles */
+        .avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
         }
         
-        /* Quarter status styles */
-        .quarter-missed {
-            background-color: #fee2e2;
-            border-color: #f87171;
-            color: #dc2626;
+        .avatar-gradient {
+            background: linear-gradient(135deg, #110484, #e7581c);
         }
         
-        .quarter-completed {
-            background-color: #d1fae5;
-            border-color: #34d399;
-            color: #059669;
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container-custom {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .form-card {
+                margin-bottom: 1rem;
+            }
         }
-        
-        .quarter-pending {
-            background-color: #fef3c7;
-            border-color: #fbbf24;
-            color: #d97706;
-        }
-        
-        .quarter-current {
-            background-color: #dbeafe;
-            border-color: #60a5fa;
-            color: #2563eb;
-        }
-        
-        .quarter-future {
-            background-color: #f3f4f6;
-            border-color: #9ca3af;
-            color: #6b7280;
-        }
+        /* Prevent flex overflow */
+.min-w-0{
+    min-width:0;
+}
+
+/* Premium stat cards */
+.stat-card{
+    border-radius:14px;
+    border:none;
+    box-shadow:0 4px 14px rgba(0,0,0,0.04);
+    transition:.25s;
+}
+
+.stat-card:hover{
+    transform:translateY(-6px);
+}
+
+/* Icon container */
+.stat-icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-right:12px;
+}
+
+.stat-icon i{
+    font-size:20px;
+}
+
+/* Numbers */
+.stat-number{
+    font-size:22px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width:576px){
+
+    .stat-card .card-body{
+        padding:12px;
+    }
+
+    .stat-number{
+        font-size:18px;
+    }
+
+    .stat-icon{
+        width:38px;
+        height:38px;
+    }
+
+    .stat-icon i{
+        font-size:16px;
+    }
+}
+.icon-pink { 
+    background: linear-gradient(135deg, #ec4899, #db2777); 
+    color: white; 
+}
+.badge-pink { 
+    background-color: #fce7f3 !important; 
+    color: #9d174d !important; 
+}
+
+/* Button group styling */
+.btn-group-flex {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-group-flex .btn {
+    flex: 1;
+}
+/* Grace Period Quarter Status */
+.quarter-grace {
+    background-color: #fef3c7;
+    border-color: #fbbf24;
+    color: #92400e;
+}
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    @php
-        use App\Models\Appraisal;
+<body class="bg-gray-50">
+   @php
+    use App\Models\Appraisal;
+    
+    // Define job title mappings to forms
+    $jobTitleMappings = [
+        'Plaza Manager' => 'plaza-manager',
+        'Admin Clerk' => 'admin-clerk',
+        'E&M Technician' => 'em-technician',
+        'Shift Manager' => 'shift-manager',
+        'Senior Toll Collector' => 'senior-toll-collector',
+        'Toll Collector' => 'toll-collector',
+        'TCE Technician' => 'tce',
+        'Route Patrol Driver' => 'route-patrol-driver',
+        'Plaza Attendant' => 'plaza-attendant',
+        'Lane Attendant' => 'lane-attendant',
+        'HR Assistant' => 'hr-assistant',
+        'HR Advisor' => 'hr-advisor',
+        'Verification Clerk' => 'verification-clerk',
+        'Admin Manager' => 'admin-manager',
+        'Trainer' => 'trainer',
+        'Senior Trainer' => 'senior-trainer',
+        'Senior TCE' => 'senior-tce',
+        'Media and Customer Coordinator' => 'media-coordinator',
+    ];
+    
+    $user = Auth::user();
+    $userJobTitle = $user->job_title ?? 'Employee';
+    $employeeNumber = $user->employee_number;
+    
+    // Check if user's job title matches any form
+    $selectedForm = null;
+    $isManualSelection = request()->has('manual_select') || !array_key_exists($userJobTitle, $jobTitleMappings);
+    
+    if (!$isManualSelection) {
+        $selectedForm = $jobTitleMappings[$userJobTitle] ?? null;
+    }
+    
+    /**
+ * ENHANCED QUARTER FUNCTION WITH GRACE PERIOD
+ * A quarter remains OPEN until the 20th of the month following its end.
+ */
+function getQuarterInfoWithGrace($year = null, $quarter = null) {
+    $now = now();
+    $currentYear = $year ?? $now->year;
+    $today = $now->copy()->startOfDay();
+    
+    $quarters = [
+        'Q1' => [
+            'name' => 'Quarter 1',
+            'months' => 'January - March',
+            'period_start' => $currentYear . '-01-01',
+            'period_end' => $currentYear . '-03-31',
+            'grace_end' => $currentYear . '-04-20',
+            'due_date_display' => 'Apr 20',
+            'due_date_full' => 'April 20',
+        ],
+        'Q2' => [
+            'name' => 'Quarter 2',
+            'months' => 'April - June',
+            'period_start' => $currentYear . '-04-01',
+            'period_end' => $currentYear . '-06-30',
+            'grace_end' => $currentYear . '-07-20',
+            'due_date_display' => 'Jul 20',
+            'due_date_full' => 'July 20',
+        ],
+        'Q3' => [
+            'name' => 'Quarter 3',
+            'months' => 'July - September',
+            'period_start' => $currentYear . '-07-01',
+            'period_end' => $currentYear . '-09-30',
+            'grace_end' => $currentYear . '-10-20',
+            'due_date_display' => 'Oct 20',
+            'due_date_full' => 'October 20',
+        ],
+        'Q4' => [
+            'name' => 'Quarter 4',
+            'months' => 'October - December',
+            'period_start' => $currentYear . '-10-01',
+            'period_end' => $currentYear . '-12-31',
+            'grace_end' => ($currentYear + 1) . '-01-20',
+            'due_date_display' => 'Jan 20',
+            'due_date_full' => 'January 20',
+        ],
+    ];
+    
+    // If a specific quarter is requested
+    if ($quarter && isset($quarters[$quarter])) {
+        $q = $quarters[$quarter];
+        $graceEndDate = \Carbon\Carbon::parse($q['grace_end']);
+        $periodEndDate = \Carbon\Carbon::parse($q['period_end']);
+        $periodStartDate = \Carbon\Carbon::parse($q['period_start']);
         
-        // Define job title mappings to forms
-        $jobTitleMappings = [
-            'Plaza Manager' => 'plaza-manager',
-            'Admin Clerk' => 'admin-clerk',
-            'E&M Technician' => 'em-technician',
-            'Shift Manager' => 'shift-manager',
-            'Senior Toll Collector' => 'senior-toll-collector',
-            'Toll Collector' => 'toll-collector',
-            'TCE Technician' => 'tce',
-            'Route Patrol Driver' => 'route-patrol-driver',
-            'Plaza Attendant' => 'plaza-attendant',
-            'Lane Attendant' => 'lane-attendant',
-            'HR Assistant' => 'hr-assistant',
-            'HR Advisor' => 'hr-advisor', // Add HR Advisor
+        $isPast = $today->gt($graceEndDate);
+        // A quarter is current ONLY if today is between period start and grace end
+        $isCurrent = $today->gte($periodStartDate) && $today->lte($graceEndDate);
+        $isFuture = $today->lt($periodStartDate);
+        $isInGrace = $today->gt($periodEndDate) && $today->lte($graceEndDate);
+        
+        return (object) [
+            'quarter' => $quarter,
+            'quarter_name' => $q['name'],
+            'quarter_months' => $q['months'],
+            'due_date' => $q['due_date_display'],
+            'due_date_formatted' => $q['due_date_full'],
+            'due_date_timestamp' => $graceEndDate->timestamp,
+            'period_start' => $periodStartDate->format('Y-m-d'),
+            'period_end' => $periodEndDate->format('Y-m-d'),
+            'grace_end' => $q['grace_end'],
+            'is_past' => $isPast,
+            'is_current' => $isCurrent,
+            'is_future' => $isFuture,
+            'is_in_grace' => $isInGrace,
+            'year' => $currentYear,
         ];
+    }
+    
+    // Determine current quarter based on today's date (grace period aware)
+    // Find the FIRST quarter where today is between period start and grace end
+    $currentQuarter = null;
+    foreach ($quarters as $qKey => $qData) {
+        $periodStart = \Carbon\Carbon::parse($qData['period_start']);
+        $graceEnd = \Carbon\Carbon::parse($qData['grace_end']);
         
-        $userJobTitle = Auth::user()->job_title ?? 'Employee';
-        $employeeNumber = Auth::user()->employee_number;
-        
-        // Check if user's job title matches any form
-        $selectedForm = null;
-        $isManualSelection = request()->has('manual_select') || !array_key_exists($userJobTitle, $jobTitleMappings);
-        
-        if (!$isManualSelection) {
-            $selectedForm = $jobTitleMappings[$userJobTitle] ?? null;
+        if ($today->gte($periodStart) && $today->lte($graceEnd)) {
+            $currentQuarter = $qKey;
+            break;
         }
-        
-        // Quarter calculation function with updated deadlines:
-        // Q1: April 20, Q2: July 20, Q3: October 20, Q4: January 20 (next year)
-        function getQuarterInfo($year = null, $quarter = null) {
-            $now = now();
-            $currentYear = $year ?? $now->year;
-            $currentMonth = $now->month;
-            
-            $quarterInfo = [
-                'current_date' => $now->format('Y-m-d'),
-                'year' => $currentYear,
-                'quarter' => '',
-                'quarter_name' => '',
-                'quarter_months' => '',
-                'due_date' => '',
-                'due_date_formatted' => '',
-                'due_date_timestamp' => '',
-                'appraisal_start' => '',
-                'appraisal_end' => '',
-                'review_start' => '',
-                'review_end' => '',
-                'is_past' => false,
-                'is_current' => false,
-                'is_future' => false
-            ];
-            
-            // If quarter is specified, use it
-            if ($quarter) {
-                $quarterInfo['quarter'] = $quarter;
-            } else {
-                // Determine current quarter based on month
-                if ($currentMonth >= 1 && $currentMonth <= 3) {
-                    $quarterInfo['quarter'] = 'Q1';
-                } elseif ($currentMonth >= 4 && $currentMonth <= 6) {
-                    $quarterInfo['quarter'] = 'Q2';
-                } elseif ($currentMonth >= 7 && $currentMonth <= 9) {
-                    $quarterInfo['quarter'] = 'Q3';
-                } else {
-                    $quarterInfo['quarter'] = 'Q4';
-                }
-            }
-            
-            // Set quarter details based on determined quarter
-            switch ($quarterInfo['quarter']) {
-                case 'Q1':
-                    $quarterInfo['quarter_name'] = 'Quarter 1';
-                    $quarterInfo['quarter_months'] = 'January - March';
-                    $quarterInfo['due_date'] = date('M d', strtotime("April 20, $currentYear"));
-                    $quarterInfo['due_date_formatted'] = "April 20";
-                    $quarterInfo['due_date_timestamp'] = strtotime("April 20, $currentYear");
-                    $quarterInfo['appraisal_start'] = date('M d', strtotime("January 1, $currentYear"));
-                    $quarterInfo['appraisal_end'] = date('M d', strtotime("April 15, $currentYear"));
-                    $quarterInfo['review_start'] = date('M d', strtotime("April 16, $currentYear"));
-                    $quarterInfo['review_end'] = date('M d', strtotime("April 20, $currentYear"));
-                    break;
-                    
-                case 'Q2':
-                    $quarterInfo['quarter_name'] = 'Quarter 2';
-                    $quarterInfo['quarter_months'] = 'April - June';
-                    $quarterInfo['due_date'] = date('M d', strtotime("July 20, $currentYear"));
-                    $quarterInfo['due_date_formatted'] = "July 20";
-                    $quarterInfo['due_date_timestamp'] = strtotime("July 20, $currentYear");
-                    $quarterInfo['appraisal_start'] = date('M d', strtotime("April 1, $currentYear"));
-                    $quarterInfo['appraisal_end'] = date('M d', strtotime("July 15, $currentYear"));
-                    $quarterInfo['review_start'] = date('M d', strtotime("July 16, $currentYear"));
-                    $quarterInfo['review_end'] = date('M d', strtotime("July 20, $currentYear"));
-                    break;
-                    
-                case 'Q3':
-                    $quarterInfo['quarter_name'] = 'Quarter 3';
-                    $quarterInfo['quarter_months'] = 'July - September';
-                    $quarterInfo['due_date'] = date('M d', strtotime("October 20, $currentYear"));
-                    $quarterInfo['due_date_formatted'] = "October 20";
-                    $quarterInfo['due_date_timestamp'] = strtotime("October 20, $currentYear");
-                    $quarterInfo['appraisal_start'] = date('M d', strtotime("July 1, $currentYear"));
-                    $quarterInfo['appraisal_end'] = date('M d', strtotime("October 15, $currentYear"));
-                    $quarterInfo['review_start'] = date('M d', strtotime("October 16, $currentYear"));
-                    $quarterInfo['review_end'] = date('M d', strtotime("October 20, $currentYear"));
-                    break;
-                    
-                case 'Q4':
-                    $quarterInfo['quarter_name'] = 'Quarter 4';
-                    $quarterInfo['quarter_months'] = 'October - December';
-                    $quarterInfo['due_date'] = date('M d', strtotime("January 20, " . ($currentYear + 1)));
-                    $quarterInfo['due_date_formatted'] = "January 20";
-                    $quarterInfo['due_date_timestamp'] = strtotime("January 20, " . ($currentYear + 1));
-                    $quarterInfo['appraisal_start'] = date('M d', strtotime("October 1, $currentYear"));
-                    $quarterInfo['appraisal_end'] = date('M d', strtotime("January 15, " . ($currentYear + 1)));
-                    $quarterInfo['review_start'] = date('M d', strtotime("January 16, " . ($currentYear + 1)));
-                    $quarterInfo['review_end'] = date('M d', strtotime("January 20, " . ($currentYear + 1)));
-                    break;
-            }
-            
-            // Determine if quarter is past, current, or future
-            $nowTimestamp = time();
-            $appraisalEndTimestamp = strtotime($quarterInfo['appraisal_end'] . ", " . ($quarterInfo['quarter'] === 'Q4' ? $currentYear + 1 : $currentYear));
-            $dueDateTimestamp = $quarterInfo['due_date_timestamp'];
-            
-            if ($nowTimestamp > $dueDateTimestamp) {
-                $quarterInfo['is_past'] = true;
-                $quarterInfo['is_current'] = false;
-                $quarterInfo['is_future'] = false;
-            } elseif ($nowTimestamp >= $appraisalEndTimestamp && $nowTimestamp <= $dueDateTimestamp) {
-                $quarterInfo['is_past'] = false;
-                $quarterInfo['is_current'] = true;
-                $quarterInfo['is_future'] = false;
-            } else {
-                $quarterInfo['is_past'] = false;
-                $quarterInfo['is_current'] = false;
-                $quarterInfo['is_future'] = true;
-            }
-            
-            return (object) $quarterInfo;
-        }
-        
-        // Get current quarter info
-        $quarterInfo = getQuarterInfo();
-        $currentQuarter = $quarterInfo->quarter;
-        $currentYear = $quarterInfo->year;
-        
-        // Get user's submission history for the current year
-        $userSubmissions = Appraisal::where('employee_number', $employeeNumber)
-            ->whereYear('created_at', $currentYear)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        // Get all quarters for the current year
-        $allQuarters = ['Q1', 'Q2', 'Q3', 'Q4'];
-        
-        // Track quarter statuses
-        $quarterStatuses = [];
-        $hasMissedQuarters = false;
-        $currentQuarterSubmission = null;
-        $canSubmitCurrentQuarter = true;
-        $missedQuarters = [];
-        $completedQuarters = [];
-        
-        foreach ($allQuarters as $quarter) {
-            $qInfo = getQuarterInfo($currentYear, $quarter);
-            $submission = $userSubmissions->first(function($appraisal) use ($quarter, $currentYear) {
-                // Check if appraisal was created during this quarter period
-                $createdAt = strtotime($appraisal->created_at);
-                
-                switch ($quarter) {
-                    case 'Q1':
-                        $start = strtotime("January 1, $currentYear");
-                        $end = strtotime("April 20, $currentYear");
-                        break;
-                    case 'Q2':
-                        $start = strtotime("April 1, $currentYear");
-                        $end = strtotime("July 20, $currentYear");
-                        break;
-                    case 'Q3':
-                        $start = strtotime("July 1, $currentYear");
-                        $end = strtotime("October 20, $currentYear");
-                        break;
-                    case 'Q4':
-                        $start = strtotime("October 1, $currentYear");
-                        $end = strtotime("January 20, " . ($currentYear + 1));
-                        break;
-                }
-                
-                return $createdAt >= $start && $createdAt <= $end;
-            });
-            
-            $status = 'future';
-            if ($submission) {
-                $status = 'completed';
-                $completedQuarters[] = $quarter;
-            } elseif ($qInfo->is_past) {
-                $status = 'missed';
-                $missedQuarters[] = $quarter;
-                $hasMissedQuarters = true;
-            } elseif ($qInfo->is_current) {
-                $status = 'current';
-                if ($submission) {
-                    $currentQuarterSubmission = $submission;
-                }
-            } elseif ($qInfo->is_future) {
-                $status = 'future';
-            }
-            
-            $quarterStatuses[$quarter] = [
-                'status' => $status,
-                'info' => $qInfo,
-                'submission' => $submission
-            ];
-        }
-        
-        // Check if user can submit for current quarter
-        // Rule: If there are missed quarters, user cannot submit for current quarter
-        if ($hasMissedQuarters && $quarterInfo->is_current) {
-            $canSubmitCurrentQuarter = false;
-        }
-        
-        // For form-specific checks
-        $isSelected = (!$isManualSelection && $selectedForm);
-        $isDisabled = ($isManualSelection === false && $selectedForm !== null && $selectedForm !== $selectedForm);
-        
-        // Now also check if user can submit based on quarter rules
-        if (!$canSubmitCurrentQuarter && $quarterInfo->is_current) {
-            $isDisabled = true;
-        }
-        
-        // Calculate submission statistics
-        $totalQuarters = count($allQuarters);
-        $completedCount = count($completedQuarters);
-        $missedCount = count($missedQuarters);
-        $submissionRate = $totalQuarters > 0 ? ($completedCount / $totalQuarters) * 100 : 0;
-    @endphp
+    }
+    
+    // If all quarters are past (after Q4 grace end), default to Q4
+    if (!$currentQuarter) {
+        $currentQuarter = 'Q4';
+    }
+    
+    return getQuarterInfoWithGrace($currentYear, $currentQuarter);
+}
+    
+    // Get current quarter info with grace period
+    $quarterInfo = getQuarterInfoWithGrace();
+    $currentQuarter = $quarterInfo->quarter;
+    $currentYear = $quarterInfo->year;
+    
+    // Get all quarters with their grace period info
+    $allQuartersWithInfo = [];
+    foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $q) {
+        $allQuartersWithInfo[$q] = getQuarterInfoWithGrace($currentYear, $q);
+    }
+    
+    // Get user's submission history for the current year
+    $userSubmissions = Appraisal::where('employee_number', $employeeNumber)
+        ->whereYear('created_at', $currentYear)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-    <!-- Updated Header with both logos -->
-    <header class="gradient-header text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <!-- Logo Section with both logos -->
-                <div class="flex items-center space-x-4">
-                    <!-- Dual Logo Container -->
-                    <div class="logo-container">
+    // Track quarter statuses with grace period awareness
+$quarterStatuses = [];
+$hasMissedQuarters = false;
+$currentQuarterSubmission = null;
+$missedQuarters = [];
+$completedQuarters = [];
+$gracePeriodQuarters = [];
+
+// Track submissions by quarter explicitly
+$submissionsByQuarter = [];
+
+foreach ($allQuartersWithInfo as $quarter => $qInfo) {
+    // Find submission for this quarter - using period_start instead of subtracting months
+    $submission = null;
+    $quarterStart = \Carbon\Carbon::parse($qInfo->period_start);
+    $quarterEnd = \Carbon\Carbon::parse($qInfo->grace_end);
+    
+    foreach ($userSubmissions as $appraisal) {
+        $createdAt = \Carbon\Carbon::parse($appraisal->created_at);
+        // Check if appraisal was created during this quarter's active period (from quarter start to grace end)
+        if ($createdAt->between($quarterStart, $quarterEnd)) {
+            $submission = $appraisal;
+            $submissionsByQuarter[$quarter] = $submission;
+            break;
+        }
+    }
+    
+    $status = 'future';
+    if ($submission) {
+        $status = 'completed';
+        $completedQuarters[] = $quarter;
+        // Only set as current quarter submission if this is the current quarter
+        if ($quarter === $currentQuarter) {
+            $currentQuarterSubmission = $submission;
+        }
+    } elseif ($qInfo->is_past) {
+        $status = 'missed';
+        $missedQuarters[] = $quarter;
+        $hasMissedQuarters = true;
+    } elseif ($qInfo->is_current) {
+        $status = $qInfo->is_in_grace ? 'grace' : 'current';
+        if ($status === 'grace') {
+            $gracePeriodQuarters[] = $quarter;
+        }
+    } else {
+        $status = 'future';
+    }
+    
+    $quarterStatuses[$quarter] = [
+        'status' => $status,
+        'info' => $qInfo,
+        'submission' => $submission
+    ];
+}
+
+// Calculate submission statistics
+$totalQuarters = count(['Q1', 'Q2', 'Q3', 'Q4']);
+$completedCount = count($completedQuarters);
+$missedCount = count($missedQuarters);
+$submissionRate = $totalQuarters > 0 ? ($completedCount / $totalQuarters) * 100 : 0;
+
+// Determine if user can submit for current quarter - check if they have NOT submitted for current quarter specifically
+$hasSubmittedCurrentQuarter = isset($submissionsByQuarter[$currentQuarter]);
+$hasAnySubmissionThisQuarter = $hasSubmittedCurrentQuarter;
+$canSubmitForCurrentQuarter = !$hasSubmittedCurrentQuarter && $quarterInfo->is_current;
+    
+    // Function to check if user can edit an appraisal
+    function canEditAppraisal($appraisal, $user) {
+        if (!$appraisal) return false;
+        
+        // Can't edit approved appraisals
+        if ($appraisal->status === 'approved') return false;
+        
+        // Employees can only edit their own appraisals
+        if ($user->user_type === 'employee') {
+            return $appraisal->employee_number === $user->employee_number;
+        }
+        
+        // Supervisors can edit appraisals of their team members
+        if ($user->user_type === 'supervisor') {
+            return true;
+        }
+        
+        return false;
+    }
+@endphp
+
+    <!-- Header with Animated Gradient -->
+    <div class="gradient-header text-white">
+        <div class="container-custom px-3 py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Logo Section -->
+                <div class="d-flex align-items-center">
+                    <div class="logo-container me-3">
                         <div class="logo-inner">
-                            <div class="flex items-center space-x-3">
-                                <!-- MOIC Logo -->
-                                <div class="flex flex-col items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex flex-column align-items-center">
                                     <div class="bg-white rounded p-1 mb-1">
-                                        <img class="h-7 w-auto" src="{{ asset('images/moic.png') }}" alt="MOIC Logo" 
-                                             onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23110484%22>MOIC</text></svg>';">
+                                        <img class="img-fluid" style="height: 1.5rem;" src="{{ asset('images/moic.png') }}" alt="MOIC Logo">
                                     </div>
-                                    <span class="status-badge bg-[#110484] text-white">MOIC</span>
+                                    <span class="status-badge moic-navy-bg text-white">MOIC</span>
                                 </div>
                                 
-                                <!-- Partnership Badge -->
-                                <div class="relative">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-[#110484] to-[#e7581c] rounded-full flex items-center justify-center">
-                                        <i class="fas fa-handshake text-white text-sm"></i>
+                                <div class="position-relative">
+                                    <div class="rounded-circle bg-gradient-to-br from-[#110484] to-[#e7581c]" style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-handshake text-white" style="font-size: 0.75rem;"></i>
                                     </div>
-                                    <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                                        <span class="status-badge bg-white text-[#110484]">PARTNERS</span>
+                                    <div class="position-absolute top-100 start-50 translate-middle mt-1">
+                                        <span class="status-badge bg-white moic-navy">PARTNERS</span>
                                     </div>
                                 </div>
                                 
-                                <!-- TKC Logo -->
-                                <div class="flex flex-col items-center">
+                                <div class="d-flex flex-column align-items-center">
                                     <div class="bg-white rounded p-1 mb-1">
-                                        <img class="h-7 w-auto" src="{{ asset('images/TKC.png') }}" alt="TKC Logo"
-                                             onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23e7581c%22>TKC</text></svg>';">
+                                        <img class="img-fluid" style="height: 1.5rem;" src="{{ asset('images/TKC.png') }}" alt="TKC Logo">
                                     </div>
-                                    <span class="status-badge bg-[#e7581c] text-white">TKC</span>
+                                    <span class="status-badge moic-accent-bg text-white">TKC</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Appraisal Forms Title -->
-                    <div class="flex items-center">
-                        <div class="h-8 w-[1px] bg-white/30 mx-4"></div>
+                    <div class="d-flex align-items-center">
+                        <div class="vr bg-white opacity-25 mx-3" style="height: 1.5rem;"></div>
                         <div>
-                            <h1 class="text-xl font-bold tracking-tight">Appraisal Forms</h1>
-                            <p class="text-xs text-blue-200/90 mt-0.5">
-                                <i class="fas fa-user mr-1"></i>
-                                {{ htmlspecialchars($userJobTitle) }}
-                                <span class="ml-3">
-                                    <i class="fas fa-calendar-alt mr-1"></i>
-                                    {{ $quarterInfo->quarter }} {{ $quarterInfo->year }}
-                                </span>
+                            <h1 class="h5 mb-0 fw-bold" style="font-size: 1rem;">Appraisal Forms</h1>
+                            <p class="mb-0 text-white-50" style="font-size: 0.75rem;">
+                                {{ $quarterInfo->quarter }} {{ $quarterInfo->year }} • {{ $userJobTitle }}
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- User Section -->
-                <div class="flex items-center space-x-4">
-                    <!-- User Info -->
-                    <div class="hidden md:flex flex-col items-end">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span class="font-medium">{{ Auth::user()->name }}</span>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-none d-lg-block">
+                        <a href="{{ route('dashboard') }}" class="btn btn-accent btn-sm">
+                            <i class="fas fa-home me-1"></i> Dashboard
+                        </a>
+                    </div>
+                    
+                    <div class="d-none d-md-flex flex-column align-items-end">
+                        <div class="d-flex align-items-center mb-1">
+                            <div class="bg-success rounded-circle me-1" style="width: 0.5rem; height: 0.5rem;"></div>
+                            <span class="fw-medium">{{ $user->name }}</span>
                         </div>
-                        <span class="text-blue-200 text-sm">{{ Auth::user()->job_title ?? 'Employee' }}</span>
+                        <span class="text-white-50" style="font-size: 0.75rem;">{{ $user->job_title ?? 'Employee' }}</span>
                     </div>
                     
-                    <!-- Dashboard Button -->
-                    <a href="{{ route('dashboard') }}" 
-                       class="bg-white text-[#110484] px-3 py-1.5 rounded text-sm hover:bg-gray-100 transition duration-200 font-medium">
-                        <i class="fas fa-home mr-1"></i> Dashboard
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="max-w-7xl mx-auto px-4 py-6">
-        <!-- Submission Progress Card -->
-        <div class="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-[#110484]">Quarterly Submission Progress - {{ $currentYear }}</h2>
-                <div class="text-right">
-                    <span class="text-2xl font-bold">{{ $completedCount }}/{{ $totalQuarters }}</span>
-                    <span class="text-gray-600 text-sm ml-1">Quarters Completed</span>
-                </div>
-            </div>
-            
-            <!-- Progress Bar -->
-            <div class="mb-6">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-700">Submission Rate</span>
-                    <span class="text-sm font-bold {{ $submissionRate >= 75 ? 'text-green-600' : ($submissionRate >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
-                        {{ round($submissionRate) }}%
-                    </span>
-                </div>
-                <div class="progress-bar bg-gray-200">
-                    <div class="progress-fill {{ $submissionRate >= 75 ? 'bg-green-500' : ($submissionRate >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
-                         style="width: {{ $submissionRate }}%"></div>
-                </div>
-            </div>
-            
-            <!-- Quarter Status Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                @foreach($quarterStatuses as $quarter => $statusData)
-                    @php
-                        $statusClass = '';
-                        $statusIcon = '';
-                        $statusText = '';
-                        
-                        switch($statusData['status']) {
-                            case 'completed':
-                                $statusClass = 'quarter-completed';
-                                $statusIcon = 'fa-check-circle';
-                                $statusText = 'Completed';
-                                break;
-                            case 'missed':
-                                $statusClass = 'quarter-missed';
-                                $statusIcon = 'fa-times-circle';
-                                $statusText = 'Missed';
-                                break;
-                            case 'current':
-                                $statusClass = 'quarter-current';
-                                $statusIcon = 'fa-clock';
-                                $statusText = 'In Progress';
-                                break;
-                            case 'future':
-                                $statusClass = 'quarter-future';
-                                $statusIcon = 'fa-calendar-alt';
-                                $statusText = 'Upcoming';
-                                break;
-                        }
-                    @endphp
-                    
-                    <div class="border rounded-lg p-4 {{ $statusClass }}">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-lg">{{ $quarter }}</span>
-                            <i class="fas {{ $statusIcon }} text-lg"></i>
-                        </div>
-                        <p class="text-sm mb-1">{{ $statusData['info']->quarter_months }}</p>
-                        <p class="text-xs font-medium">{{ $statusText }}</p>
-                        @if($statusData['status'] === 'completed' && $statusData['submission'])
-                            <p class="text-xs mt-1">
-                                Submitted: {{ \Carbon\Carbon::parse($statusData['submission']->created_at)->format('M d, Y') }}
-                            </p>
-                        @elseif($statusData['status'] === 'missed')
-                            <p class="text-xs mt-1 font-semibold">Deadline: {{ $statusData['info']->due_date }}</p>
-                        @elseif($statusData['status'] === 'current')
-                            <p class="text-xs mt-1 font-semibold">Due: {{ $statusData['info']->due_date }}</p>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-            
-            <!-- Submission Rules Notice -->
-            @if($hasMissedQuarters && $quarterInfo->is_current && !$canSubmitCurrentQuarter)
-                <div class="mt-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-800 px-4 py-3 rounded flex items-start">
-                    <i class="fas fa-exclamation-triangle mr-3 text-red-500 text-xl mt-0.5"></i>
-                    <div>
-                        <p class="font-bold mb-1">Submission Blocked</p>
-                        <p class="text-sm">
-                            You have missed submissions for 
-                            @foreach($missedQuarters as $index => $quarter)
-                                {{ $quarter }}{{ $index < count($missedQuarters) - 1 ? ', ' : '' }}
-                            @endforeach.
-                            You must complete all missed quarters before submitting for {{ $quarterInfo->quarter }}.
-                        </p>
-                        <p class="text-xs mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Contact your supervisor or HR to request late submission for missed quarters.
-                        </p>
-                    </div>
-                </div>
-            @elseif($hasMissedQuarters && !$quarterInfo->is_current)
-                <div class="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded flex items-start">
-                    <i class="fas fa-exclamation-circle mr-3 text-yellow-500 text-xl mt-0.5"></i>
-                    <div>
-                        <p class="font-bold mb-1">Missed Quarters</p>
-                        <p class="text-sm">
-                            You have missed submissions for 
-                            @foreach($missedQuarters as $index => $quarter)
-                                {{ $quarter }}{{ $index < count($missedQuarters) - 1 ? ', ' : '' }}
-                            @endforeach.
-                            These will be marked as "Missed" in your appraisal history.
-                        </p>
-                    </div>
-                </div>
-            @elseif($completedCount === $totalQuarters)
-                <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-800 px-4 py-3 rounded flex items-start">
-                    <i class="fas fa-check-circle mr-3 text-green-500 text-xl mt-0.5"></i>
-                    <div>
-                        <p class="font-bold mb-1">Excellent! All Quarters Completed</p>
-                        <p class="text-sm">
-                            You have successfully submitted appraisals for all quarters in {{ $currentYear }}.
-                            Keep up the great work!
-                        </p>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        <!-- Welcome Card -->
-        <div class="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h2 class="text-2xl font-bold text-[#110484] mb-2">
-                        @if($isManualSelection)
-                            Select Your Appraisal Form
-                        @else
-                            Your Appraisal Form
-                        @endif
-                    </h2>
-                    <div class="flex flex-wrap gap-4">
-                        <p class="text-gray-600">
-                            <i class="fas fa-calendar-alt mr-1"></i> 
-                            Current: <span class="font-semibold">{{ $quarterInfo->quarter_name }} ({{ $quarterInfo->quarter_months }} {{ $quarterInfo->year }})</span>
-                        </p>
-                        <p class="text-gray-600">
-                            <i class="fas fa-clock mr-1"></i> Deadline: <span class="font-semibold text-[#e7581c]">{{ $quarterInfo->due_date }}</span>
-                        </p>
-                        <p class="text-gray-600">
-                            <i class="fas fa-calendar-check mr-1"></i> Today: <span class="font-semibold">{{ date('M d, Y') }}</span>
-                        </p>
-                    </div>
-                    
-                    <!-- Additional info -->
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        @if($isManualSelection)
-                            <span class="inline-flex items-center bg-gradient-to-r from-yellow-100 to-amber-100 text-[#e7581c] text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-exchange-alt mr-1"></i> Manual Selection Mode
-                            </span>
-                        @else
-                            <span class="inline-flex items-center bg-gradient-to-r from-blue-100 to-indigo-100 text-[#110484] text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-user-tie mr-1"></i> Auto-detected: {{ htmlspecialchars($userJobTitle) }}
-                            </span>
-                        @endif
-                        
-                        <span class="inline-flex items-center bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-3 py-1 rounded-full">
-                            <i class="fas fa-file-alt mr-1"></i> 12 forms available <!-- Updated to 12 -->
-                        </span>
-                        
-                        @if($selectedForm && !$isManualSelection)
-                            <span class="inline-flex items-center bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-check-circle mr-1"></i> Form auto-selected
-                            </span>
-                        @endif
-                        
-                        <span class="inline-flex items-center bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 text-xs px-3 py-1 rounded-full">
-                            <i class="fas fa-clock mr-1"></i> {{ $quarterInfo->quarter }} {{ $quarterInfo->year }}
-                        </span>
-                        
-                        @if($currentQuarterSubmission)
-                            <span class="inline-flex items-center bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-paper-plane mr-1"></i> Already Submitted
-                            </span>
-                        @elseif($canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <span class="inline-flex items-center bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-edit mr-1"></i> Ready to Submit
-                            </span>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <span class="inline-flex items-center bg-gradient-to-r from-red-100 to-rose-100 text-red-800 text-xs px-3 py-1 rounded-full">
-                                <i class="fas fa-lock mr-1"></i> Submission Blocked
-                            </span>
-                        @endif
-                    </div>
-                </div>
-                
-                <!-- Quick Actions -->
-                <div class="flex space-x-3">
-                    @if(!$isManualSelection && $selectedForm)
-                        <button onclick="enableManualSelection()" 
-                           class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-4 py-2 rounded hover:shadow transition duration-200 font-medium">
-                            <i class="fas fa-exchange-alt mr-2"></i>
-                            Change Form
+                    <div class="dropdown d-md-none">
+                        <button class="btn btn-outline-light btn-sm" type="button" id="mobileMenu" data-bs-toggle="dropdown">
+                            <i class="fas fa-bars"></i>
                         </button>
-                    @endif
-                    
-                    <a href="{{ route('appraisals.index') }}" 
-                       class="inline-flex items-center bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white px-4 py-2 rounded hover:shadow transition duration-200 font-medium">
-                        <i class="fas fa-list mr-2"></i>
-                        My Appraisals
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-2 rounded mr-3">
-                        <i class="fas fa-file-alt text-[#110484]"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Total Forms</p>
-                        <p class="text-xl font-bold text-gray-800">12</p> <!-- Updated to 12 -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded mr-3">
-                        <i class="fas fa-calendar-check text-green-500"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Current Quarter</p>
-                        <p class="text-xl font-bold text-gray-800">{{ $quarterInfo->quarter }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-2 rounded mr-3">
-                        <i class="fas fa-clock text-[#e7581c]"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Deadline</p>
-                        <p class="text-xl font-bold text-gray-800">{{ $quarterInfo->due_date }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-purple-50 to-violet-50 p-2 rounded mr-3">
-                        <i class="fas fa-user text-purple-500"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Your Job</p>
-                        <p class="text-xl font-bold text-gray-800 truncate" title="{{ $userJobTitle }}">
-                            {{ Str::limit($userJobTitle, 15) }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Selection Mode Notice -->
-        @if($isManualSelection)
-            <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-exchange-alt mr-3 text-amber-500 text-xl"></i>
-                <div>
-                    <p class="font-medium">Manual Selection Mode Active</p>
-                    <p class="text-sm opacity-90">All forms are now enabled. Please select the appropriate form for your current role.</p>
-                </div>
-            </div>
-        @elseif($selectedForm)
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-check-circle mr-3 text-emerald-500 text-xl"></i>
-                <div>
-                    <p class="font-medium">Form Auto-Selected</p>
-                    <p class="text-sm opacity-90">Based on your job title "{{ $userJobTitle }}", the appropriate form has been selected for you.</p>
-                </div>
-            </div>
-        @else
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-info-circle mr-3 text-blue-500 text-xl"></i>
-                <div>
-                    <p class="font-medium">No Matching Form Found</p>
-                    <p class="text-sm opacity-90">Your job title "{{ $userJobTitle }}" doesn't match any standard forms. Please select from the list below.</p>
-                </div>
-            </div>
-        @endif
-
-        <!-- Session Messages -->
-        @if(session('success'))
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-check-circle mr-2 text-green-500"></i> {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6 flex items-center">
-                <i class="fas fa-exclamation-circle mr-2 text-red-500"></i> {{ session('error') }}
-            </div>
-        @endif
-
-        <!-- Forms Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="formsGrid">
-            
-            <!-- Plaza Manager -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'plaza-manager');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'plaza-manager') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="plaza-manager">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 text-[#110484] mr-3">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Plaza Manager</h3>
-                                <span class="text-xs text-gray-500">Management</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-blue-100 to-indigo-100 text-[#110484] text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Oversee plaza operations and staff management</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.plaza-manager') }}" 
-                           class="block w-full bg-gradient-to-r from-[#110484] to-[#1a0c9e] hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Admin Clerk -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'admin-clerk');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'admin-clerk') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="admin-clerk">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-purple-50 to-violet-50 text-purple-600 mr-3">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Admin Clerk</h3>
-                                <span class="text-xs text-gray-500">Admin</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Administrative tasks and document management</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.admin-clerk') }}" 
-                           class="block w-full bg-gradient-to-r from-purple-500 to-violet-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- E&M Technician -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'em-technician');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'em-technician') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="em-technician">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 text-green-600 mr-3">
-                                <i class="fas fa-tools"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">E&M Technician</h3>
-                                <span class="text-xs text-gray-500">Technical</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Electrical and mechanical maintenance</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.em-technician') }}" 
-                           class="block w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Shift Manager -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'shift-manager');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'shift-manager') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="shift-manager">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 text-[#e7581c] mr-3">
-                                <i class="fas fa-user-clock"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Shift Manager</h3>
-                                <span class="text-xs text-gray-500">Supervisory</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-orange-100 to-amber-100 text-[#e7581c] text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Shift operations and staff coordination</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.shift-manager') }}" 
-                           class="block w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Senior Toll Collector -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'senior-toll-collector');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'senior-toll-collector') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="senior-toll-collector">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-600 mr-3">
-                                <i class="fas fa-user-friends"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Senior Toll Collector</h3>
-                                <span class="text-xs text-gray-500">Senior</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Toll collection with team support</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.senior-toll-collector') }}" 
-                           class="block w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Toll Collector -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'toll-collector');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'toll-collector') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="toll-collector">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-blue-50 to-sky-50 text-blue-700 mr-3">
-                                <i class="fas fa-cash-register"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Toll Collector</h3>
-                                <span class="text-xs text-gray-500">Frontline</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-blue-100 to-sky-100 text-blue-700 text-xs px-2 py-1 rounded font-medium mb-1">7 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Frontline toll collection and service</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.toll-collector') }}" 
-                           class="block w-full bg-gradient-to-r from-blue-400 to-sky-500 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- TCE Technician -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'tce');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'tce') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="tce">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-cyan-50 to-sky-50 text-cyan-600 mr-3">
-                                <i class="fas fa-hard-hat"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">TCE Technician</h3>
-                                <span class="text-xs text-gray-500">Technical</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-cyan-100 to-sky-100 text-cyan-800 text-xs px-2 py-1 rounded font-medium mb-1">7 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Technical team and equipment oversight</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.tce') }}" 
-                           class="block w-full bg-gradient-to-r from-cyan-500 to-sky-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Route Patrol Driver -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'route-patrol-driver');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'route-patrol-driver') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="route-patrol-driver">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-600 mr-3">
-                                <i class="fas fa-truck-pickup"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Route Patrol Driver</h3>
-                                <span class="text-xs text-gray-500">Support</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Route patrols and vehicle maintenance</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.route-patrol-driver') }}" 
-                           class="block w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Plaza Attendant -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'plaza-attendant');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'plaza-attendant') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="plaza-attendant">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-green-50 to-lime-50 text-green-700 mr-3">
-                                <i class="fas fa-broom"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Plaza Attendant</h3>
-                                <span class="text-xs text-gray-500">Support</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-green-100 to-lime-100 text-green-700 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Plaza cleaning and maintenance</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.plaza-attendant') }}" 
-                           class="block w-full bg-gradient-to-r from-green-400 to-lime-500 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Lane Attendant -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'lane-attendant');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'lane-attendant') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="lane-attendant">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-lime-50 to-green-50 text-lime-600 mr-3">
-                                <i class="fas fa-tree"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">Lane Attendant</h3>
-                                <span class="text-xs text-gray-500">Support</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-lime-100 to-green-100 text-lime-800 text-xs px-2 py-1 rounded font-medium mb-1">8 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Lane cleaning and landscaping</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.lane-attendant') }}" 
-                           class="block w-full bg-gradient-to-r from-lime-500 to-green-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- HR Assistant -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'hr-assistant');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'hr-assistant') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="hr-assistant">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-600 mr-3">
-                                <i class="fas fa-users-cog"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">HR Assistant</h3>
-                                <span class="text-xs text-gray-500">Admin</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 text-xs px-2 py-1 rounded font-medium mb-1">10 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Payroll and HR administration</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.hr-assistant') }}" 
-                           class="block w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- HR Advisor -->
-            @php
-                $isSelected = (!$isManualSelection && $selectedForm === 'hr-advisor');
-                $isDisabled = ($isManualSelection === false && $selectedForm !== 'hr-advisor') || 
-                              (!$canSubmitCurrentQuarter && $quarterInfo->is_current) ||
-                              ($currentQuarterSubmission !== null);
-            @endphp
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200 
-                        {{ $isSelected ? 'form-card-selected' : '' }} 
-                        {{ $isDisabled ? 'form-card-disabled' : '' }}"
-                 data-form="hr-advisor">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-pink-50 to-rose-50 text-pink-600 mr-3">
-                                <i class="fas fa-user-cog"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">DBK HR Advisor</h3>
-                                <span class="text-xs text-gray-500">HR</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 text-xs px-2 py-1 rounded font-medium mb-1">10 KPAs</span>
-                            @if($isSelected)
-                                <span class="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs px-2 py-1 rounded font-medium">
-                                    <i class="fas fa-check mr-1"></i> Selected
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">Recruitment, induction, and employee relations</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="far fa-clock mr-1"></i> Due: {{ $quarterInfo->due_date }}</span>
-                        @if($currentQuarterSubmission)
-                            <span class="text-green-600">
-                                <i class="fas fa-check mr-1"></i> Submitted
-                            </span>
-                        @endif
-                    </div>
-                    @if($isDisabled)
-                        @if($currentQuarterSubmission)
-                            <button class="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i> Already Submitted
-                            </button>
-                        @elseif(!$canSubmitCurrentQuarter && $quarterInfo->is_current)
-                            <button class="block w-full bg-gradient-to-r from-red-400 to-rose-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Submission Blocked
-                            </button>
-                        @else
-                            <button class="block w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white text-center py-2 rounded font-medium cursor-not-allowed" disabled>
-                                <i class="fas fa-lock mr-2"></i> Not Available
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('appraisals.hr-advisor') }}" 
-                           class="block w-full bg-gradient-to-r from-pink-500 to-rose-600 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                           <i class="fas fa-play-circle mr-2"></i> 
-                           @if($isSelected) Start Appraisal @else Select Form @endif
-                        </a>
-                    @endif
-                </div>
-            </div>
-            
-            <!-- View Appraisals -->
-            <div class="form-card bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition duration-200">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="p-2 rounded-lg bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 mr-3">
-                                <i class="fas fa-list-alt"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-[#110484]">My Appraisals</h3>
-                                <span class="text-xs text-gray-500">Manage</span>
-                            </div>
-                        </div>
-                        <span class="bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 text-xs px-2 py-1 rounded font-medium">View All</span>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">View and manage existing appraisals</p>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="fas fa-history mr-1"></i> All Status</span>
-                        <span><i class="fas fa-cog mr-1"></i> Manage</span>
-                    </div>
-                    <a href="{{ route('appraisals.index') }}" 
-                       class="block w-full bg-gradient-to-r from-gray-600 to-slate-700 hover:shadow text-white text-center py-2 rounded font-medium transition duration-200">
-                       <i class="fas fa-eye mr-2"></i> View Appraisals
-                    </a>
-                </div>
-            </div>
-        </div>
-
-       
-        <!-- Footer -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center mb-4 md:mb-0">
-                    <!-- Dual Logos in footer -->
-                    <div class="logo-container">
-                        <div class="logo-inner">
-                            <div class="flex items-center space-x-2">
-                                <!-- MOIC Logo -->
-                                <div class="bg-white rounded p-0.5">
-                                    <img class="h-5 w-auto" src="{{ asset('images/moic.png') }}" alt="MOIC Logo" 
-                                         onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23110484%22>MOIC</text></svg>';">
+                        <ul class="dropdown-menu dropdown-menu-end mobile-menu" aria-labelledby="mobileMenu">
+                            <li class="dropdown-header">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-gradient me-3">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ $user->name }}</div>
+                                        <div class="small text-muted">{{ $user->employee_number }}</div>
+                                        <div class="small text-muted">{{ $user->job_title ?? 'Employee' }}</div>
+                                    </div>
                                 </div>
-                                
-                                <!-- Partnership Symbol -->
-                                <div class="text-xs text-[#110484] font-bold">+</div>
-                                
-                                <!-- TKC Logo -->
-                                <div class="bg-white rounded p-0.5">
-                                    <img class="h-5 w-auto" src="{{ asset('images/TKC.png') }}" alt="TKC Logo"
-                                         onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%23e7581c%22>TKC</text></svg>';">
-                                </div>
-                            </div>
-                        </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                    <i class="fas fa-home me-2 moic-navy"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('appraisals.index') }}">
+                                    <i class="fas fa-list me-2 text-primary"></i> My Appraisals
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                     
-                    <div class="ml-3">
-                        <p class="text-sm text-gray-500">Performance Appraisal System © {{ date('Y') }}</p>
-                        <p class="text-xs text-gray-400">Current Quarter: {{ $quarterInfo->quarter }} {{ $quarterInfo->year }}</p>
-                    </div>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="{{ route('dashboard') }}" class="text-sm text-[#110484] hover:text-[#e7581c] font-medium">
-                        <i class="fas fa-home mr-1"></i> Dashboard
-                    </a>
-                    <a href="{{ route('appraisals.index') }}" class="text-sm text-[#110484] hover:text-[#e7581c] font-medium">
-                        <i class="fas fa-list mr-1"></i> My Appraisals
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="d-none d-md-block">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Function to enable manual selection mode
-        function enableManualSelection() {
-            // Add query parameter to enable manual selection
-            window.location.href = window.location.pathname + '?manual_select=true';
-        }
-
-        // Add click handlers for manual selection mode
-        document.addEventListener('DOMContentLoaded', function() {
-            const formCards = document.querySelectorAll('.form-card');
-            const isManualSelection = {{ $isManualSelection ? 'true' : 'false' }};
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container-custom px-3">
+            <!-- Progress Card -->
+            <div class="card card-moic mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <!-- Grace Period Alert -->
+@if($quarterInfo->is_in_grace && !$hasAnySubmissionThisQuarter)
+    <div class="alert alert-warning mb-4 border-0 shadow-sm">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-hourglass-half fa-2x me-3 text-warning"></i>
+            <div>
+                <h5 class="mb-1 fw-bold">Grace Period Active!</h5>
+                <p class="mb-0">
+                    You can still submit your appraisal for <strong>{{ $quarterInfo->quarter_name }} ({{ $quarterInfo->quarter_months }})</strong> 
+                    until <strong>{{ $quarterInfo->due_date_formatted }}, {{ $quarterInfo->year }}</strong>. 
+                    Don't miss this extended deadline!
+                </p>
+            </div>
+        </div>
+    </div>
+@endif
+                            <h2 class="h5 fw-bold moic-navy mb-1">Quarterly Submission Progress - {{ $currentYear }}</h2>
+                            <p class="text-muted small mb-0">{{ $completedCount }} of {{ $totalQuarters }} quarters completed</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="h3 fw-bold {{ $submissionRate >= 75 ? 'text-success' : ($submissionRate >= 50 ? 'text-warning' : 'text-danger') }}">
+                                {{ round($submissionRate) }}%
+                            </span>
+                            <p class="text-muted small mb-0">Completion Rate</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">Submission Progress</span>
+                            <span class="text-muted small">{{ round($submissionRate) }}%</span>
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill {{ $submissionRate >= 75 ? 'bg-success' : ($submissionRate >= 50 ? 'bg-warning' : 'bg-danger') }}" 
+                                 style="width: {{ $submissionRate }}%"></div>
+                        </div>
+                    </div>
+                    
+                  <div class="row g-3">
+    @foreach($quarterStatuses as $quarter => $statusData)
+        @php
+            $statusClass = '';
+            $statusIcon = '';
+            $statusText = '';
             
-            if (isManualSelection) {
-                formCards.forEach(card => {
-                    card.addEventListener('click', function(e) {
-                        // Don't trigger if clicking on a link or disabled button
-                        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-                            return;
-                        }
+            // Determine status display based on status type
+            switch($statusData['status']) {
+                case 'completed':
+                    $statusClass = 'quarter-completed';
+                    $statusIcon = 'fa-check-circle';
+                    $statusText = 'Completed';
+                    break;
+                case 'missed':
+                    $statusClass = 'quarter-missed';
+                    $statusIcon = 'fa-times-circle';
+                    $statusText = 'Missed';
+                    break;
+                case 'current':
+                    $statusClass = 'quarter-current';
+                    $statusIcon = 'fa-clock';
+                    $statusText = 'In Progress';
+                    break;
+                case 'grace':
+                    $statusClass = 'quarter-grace';
+                    $statusIcon = 'fa-hourglass-half';
+                    $statusText = 'Grace Period';
+                    break;
+                case 'future':
+                    $statusClass = 'quarter-future';
+                    $statusIcon = 'fa-calendar-alt';
+                    $statusText = 'Upcoming';
+                    break;
+                default:
+                    $statusClass = 'quarter-future';
+                    $statusIcon = 'fa-calendar-alt';
+                    $statusText = 'Upcoming';
+                    break;
+            }
+        @endphp
+        
+        <div class="col-6 col-md-3">
+            <div class="border rounded p-3 {{ $statusClass }}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold">{{ $quarter }}</span>
+                    <i class="fas {{ $statusIcon }}"></i>
+                </div>
+                <p class="small mb-1">{{ $statusData['info']->quarter_months }}</p>
+                <p class="small fw-medium mb-1">{{ $statusText }}</p>
+                @if($statusData['status'] === 'completed' && $statusData['submission'])
+                    <p class="small text-muted mt-1">
+                        {{ \Carbon\Carbon::parse($statusData['submission']->created_at)->format('M d') }}
+                    </p>
+                @elseif($statusData['status'] === 'missed')
+                    <p class="small fw-medium mt-1">Deadline: {{ $statusData['info']->due_date }}</p>
+                @elseif($statusData['status'] === 'current')
+                    <p class="small fw-medium mt-1">Due: {{ $statusData['info']->due_date }}</p>
+                @elseif($statusData['status'] === 'grace')
+                    <p class="small fw-medium mt-1">Final Deadline: {{ $statusData['info']->due_date }}</p>
+                @endif
+            </div>
+        </div>
+    @endforeach
+</div>                    
+                    @if($hasMissedQuarters && $quarterInfo->is_current)
+                        <div class="alert alert-warning mt-4">
+                            <div class="d-flex">
+                                <i class="fas fa-exclamation-circle me-3 mt-1"></i>
+                                <div>
+                                    <p class="fw-bold mb-1">Missed Quarter Notice</p>
+                                    <p class="small mb-0">
+                                        You have missed submissions for 
+                                        @foreach($missedQuarters as $index => $quarter)
+                                            {{ $quarter }}{{ $index < count($missedQuarters) - 1 ? ', ' : '' }}
+                                        @endforeach.
+                                        <strong>You can still submit for {{ $quarterInfo->quarter }}.</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Welcome Card -->
+            <div class="card card-moic mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="h4 fw-bold moic-navy mb-3">
+                                @if($isManualSelection)
+                                    Select Your Appraisal Form
+                                @else
+                                    Your Appraisal Form
+                                @endif
+                            </h2>
+                            
+                            <div class="row mb-3">
+                                <div class="col-auto">
+                                    <p class="mb-1">
+                                        <i class="fas fa-user-tie me-2 text-muted"></i>
+                                        <span class="text-muted">Job Title:</span>
+                                        <span class="fw-bold ms-1">{{ $userJobTitle }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-auto">
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar-alt me-2 text-muted"></i>
+                                        <span class="text-muted">Current Quarter:</span>
+                                        <span class="fw-bold ms-1">{{ $quarterInfo->quarter }} {{ $quarterInfo->year }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-auto">
+                                    <p class="mb-1">
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        <span class="text-muted">Deadline:</span>
+                                        <span class="fw-bold text-danger ms-1">{{ $quarterInfo->due_date }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex flex-wrap gap-2">
+                                @if($isManualSelection)
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                                        <i class="fas fa-exchange-alt me-1"></i> Manual Selection
+                                    </span>
+                                @elseif($selectedForm)
+                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                        <i class="fas fa-check-circle me-1"></i> Auto-selected
+                                    </span>
+                                @endif
+                                
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-file-alt me-1"></i> 13 Forms Available
+                                </span>
+                                
+                                @if($currentQuarterSubmission)
+                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                        <i class="fas fa-paper-plane me-1"></i> Already Submitted
+                                    </span>
+                                @elseif($quarterInfo->is_current)
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                                        <i class="fas fa-edit me-1"></i> Ready to Submit
+                                    </span>
+                                @endif
+                                
+                                @if($hasMissedQuarters)
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                                        <i class="fas fa-exclamation-circle me-1"></i> Missed Quarters
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
                         
-                        // Get the link inside the card
-                        const link = this.querySelector('a');
-                        if (link && !link.classList.contains('cursor-not-allowed')) {
-                            window.location.href = link.href;
-                        }
-                    });
+                        <div class="d-flex gap-2">
+                            @if(!$isManualSelection && $selectedForm)
+                                <a href="?manual_select=true" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-exchange-alt me-1"></i> Change Form
+                                </a>
+                            @endif
+                            
+                            <a href="{{ route('appraisals.index') }}" class="btn btn-moic btn-sm">
+                                <i class="fas fa-list me-1"></i> My Appraisals
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row g-2 g-md-3 mb-4">
+                <div class="col-6 col-sm-6 col-md-3">
+                    <div class="card card-moic h-100 stat-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon bg-blue-50">
+                                <i class="fas fa-file-alt moic-navy"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-muted small mb-1">Total Forms</p>
+                                <p class="stat-number mb-0">13</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-sm-6 col-md-3">
+                    <div class="card card-moic h-100 stat-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon bg-green-50">
+                                <i class="fas fa-calendar-check text-success"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-muted small mb-1">Current Quarter</p>
+                                <p class="stat-number mb-0">{{ $quarterInfo->quarter }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-sm-6 col-md-3">
+                    <div class="card card-moic h-100 stat-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon bg-orange-50">
+                                <i class="fas fa-clock moic-accent"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-muted small mb-1">Deadline</p>
+                                <p class="stat-number mb-0">{{ $quarterInfo->due_date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-sm-6 col-md-3">
+                    <div class="card card-moic h-100 stat-card">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon bg-purple-50">
+                                <i class="fas fa-user text-purple"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-muted small mb-1">Your Role</p>
+                                <p class="stat-number text-truncate mb-0" title="{{ $userJobTitle }}">
+                                    {{ $userJobTitle }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         <!-- Forms Grid - COMPLETE with all 18 forms -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="formsGrid">
+    
+  <!-- Plaza Manager -->
+@php
+    $isSelected = (!$isManualSelection && $selectedForm === 'plaza-manager');
+    // Check if user has already submitted for the CURRENT quarter with THIS job title
+    $hasSubmittedForCurrentQuarterWithThisForm = $hasSubmittedCurrentQuarter && 
+        $currentQuarterSubmission && 
+        $currentQuarterSubmission->job_title === 'Plaza Manager';
+    // Check if user has submitted for current quarter with ANY form
+    $hasAnySubmissionForCurrentQuarter = $hasSubmittedCurrentQuarter;
+    
+    // Form is disabled if:
+    // 1. Auto-selection is on and this isn't the matched form, OR
+    // 2. User has already submitted for current quarter with a DIFFERENT form
+    $isDisabled = ($isManualSelection === false && $selectedForm !== 'plaza-manager') || 
+                  ($hasAnySubmissionForCurrentQuarter && !$hasSubmittedForCurrentQuarterWithThisForm);
+    $isClickable = !$isDisabled && !$hasSubmittedForCurrentQuarterWithThisForm;
+@endphp
+<div class="col">
+    <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+         data-form="plaza-manager">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle p-2 me-3 icon-blue">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold moic-navy mb-0">Plaza Manager</h5>
+                        <span class="text-muted small">Management</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column align-items-end">
+                    <span class="badge badge-blue mb-1">8 KPAs</span>
+                    @if($isSelected)
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-check me-1"></i> Selected
+                        </span>
+                    @endif
+                </div>
+            </div>
+            <p class="text-muted small mb-3">Oversee plaza operations and staff management</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                    <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                </span>
+                @if($hasSubmittedForCurrentQuarterWithThisForm)
+                    <span class="badge bg-success text-white">
+                        <i class="fas fa-check me-1"></i> Submitted
+                    </span>
+                @elseif($hasAnySubmissionForCurrentQuarter)
+                    <span class="badge bg-info text-white">
+                        <i class="fas fa-info-circle me-1"></i> Other Form Submitted for {{ $currentQuarter }}
+                    </span>
+                @endif
+            </div>
+            
+            @if($hasSubmittedForCurrentQuarterWithThisForm)
+                <div class="d-flex gap-2">
+                    @if($currentQuarterSubmission->status !== 'approved')
+                        <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                           class="btn btn-warning flex-grow-1">
+                            <i class="fas fa-edit me-2"></i> Edit
+                        </a>
+                        <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                            {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                        </span>
+                    @else
+                        <button class="btn btn-success w-100" disabled>
+                            <i class="fas fa-check-circle me-2"></i> Approved
+                        </button>
+                    @endif
+                </div>
+            @elseif($hasAnySubmissionForCurrentQuarter)
+                <button class="btn btn-secondary w-100" disabled>
+                    <i class="fas fa-lock me-2"></i> Already Submitted for {{ $currentQuarter }}
+                </button>
+            @else
+                <a href="{{ route('appraisals.plaza-manager') }}" class="btn btn-moic w-100">
+                    <i class="fas fa-play-circle me-2"></i>
+                    @if($isSelected) Start Appraisal for {{ $currentQuarter }} @else Select Form @endif
+                </a>
+            @endif
+        </div>
+    </div>
+</div>
+
+   <!-- Admin Clerk -->
+@php
+    $isSelected = (!$isManualSelection && $selectedForm === 'admin-clerk');
+    // Check if user has already submitted for the CURRENT quarter with THIS job title
+    $hasSubmittedForCurrentQuarterWithThisForm = $hasSubmittedCurrentQuarter && 
+        $currentQuarterSubmission && 
+        $currentQuarterSubmission->job_title === 'Admin Clerk';
+    // Check if user has submitted for current quarter with ANY form
+    $hasAnySubmissionForCurrentQuarter = $hasSubmittedCurrentQuarter;
+    
+    // Form is disabled if:
+    // 1. Auto-selection is on and this isn't the matched form, OR
+    // 2. User has already submitted for current quarter with a DIFFERENT form
+    $isDisabled = ($isManualSelection === false && $selectedForm !== 'admin-clerk') || 
+                  ($hasAnySubmissionForCurrentQuarter && !$hasSubmittedForCurrentQuarterWithThisForm);
+    $isClickable = !$isDisabled && !$hasSubmittedForCurrentQuarterWithThisForm;
+@endphp
+<div class="col">
+    <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+         data-form="admin-clerk">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle p-2 me-3 icon-purple">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold moic-navy mb-0">Admin Clerk</h5>
+                        <span class="text-muted small">Admin</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column align-items-end">
+                    <span class="badge badge-purple mb-1">8 KPAs</span>
+                    @if($isSelected)
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-check me-1"></i> Selected
+                        </span>
+                    @endif
+                </div>
+            </div>
+            <p class="text-muted small mb-3">Administrative tasks and document management</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                    <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                </span>
+                @if($hasSubmittedForCurrentQuarterWithThisForm)
+                    <span class="badge bg-success text-white">
+                        <i class="fas fa-check me-1"></i> Submitted
+                    </span>
+                @elseif($hasAnySubmissionForCurrentQuarter)
+                    <span class="badge bg-info text-white">
+                        <i class="fas fa-info-circle me-1"></i> Other Form Submitted for {{ $currentQuarter }}
+                    </span>
+                @endif
+            </div>
+            
+            @if($hasSubmittedForCurrentQuarterWithThisForm)
+                <div class="d-flex gap-2">
+                    @if($currentQuarterSubmission->status !== 'approved')
+                        <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                           class="btn btn-warning flex-grow-1">
+                            <i class="fas fa-edit me-2"></i> Edit
+                        </a>
+                        <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                            {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                        </span>
+                    @else
+                        <button class="btn btn-success w-100" disabled>
+                            <i class="fas fa-check-circle me-2"></i> Approved
+                        </button>
+                    @endif
+                </div>
+            @elseif($hasAnySubmissionForCurrentQuarter)
+                <button class="btn btn-secondary w-100" disabled>
+                    <i class="fas fa-lock me-2"></i> Already Submitted for {{ $currentQuarter }}
+                </button>
+            @else
+                <a href="{{ route('appraisals.admin-clerk') }}" class="btn btn-moic w-100">
+                    <i class="fas fa-play-circle me-2"></i>
+                    @if($isSelected) Start Appraisal for {{ $currentQuarter }} @else Select Form @endif
+                </a>
+            @endif
+        </div>
+    </div>
+</div>
+
+    <!-- E&M Technician -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'em-technician');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'E&M Technician';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'em-technician') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="em-technician">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-green">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">E&M Technician</h5>
+                            <span class="text-muted small">Technical</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-green mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Electrical and mechanical maintenance</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.em-technician') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Manager -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'shift-manager');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Shift Manager';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'shift-manager') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="shift-manager">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-orange">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Shift Manager</h5>
+                            <span class="text-muted small">Supervisory</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-orange mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Shift operations and staff coordination</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.shift-manager') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Senior Toll Collector -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'senior-toll-collector');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Senior Toll Collector';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'senior-toll-collector') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="senior-toll-collector">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-teal">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Senior Toll Collector</h5>
+                            <span class="text-muted small">Senior</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-teal mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Toll collection with team support</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.senior-toll-collector') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Toll Collector -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'toll-collector');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Toll Collector';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'toll-collector') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="toll-collector">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-cyan">
+                            <i class="fas fa-cash-register"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Toll Collector</h5>
+                            <span class="text-muted small">Frontline</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-cyan mb-1">7 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Frontline toll collection and service</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.toll-collector') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- TCE Technician -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'tce');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'TCE Technician';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'tce') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="tce">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-cyan">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">TCE Technician</h5>
+                            <span class="text-muted small">Technical</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-cyan mb-1">7 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Technical team and equipment oversight</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.tce') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Patrol Driver -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'route-patrol-driver');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Route Patrol Driver';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'route-patrol-driver') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="route-patrol-driver">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-green">
+                            <i class="fas fa-truck-pickup"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Route Patrol Driver</h5>
+                            <span class="text-muted small">Support</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-green mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Route patrols and vehicle maintenance</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.route-patrol-driver') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Plaza Attendant -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'plaza-attendant');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Plaza Attendant';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'plaza-attendant') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="plaza-attendant">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-green">
+                            <i class="fas fa-broom"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Plaza Attendant</h5>
+                            <span class="text-muted small">Support</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-green mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Plaza cleaning and maintenance</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.plaza-attendant') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Lane Attendant -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'lane-attendant');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Lane Attendant';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'lane-attendant') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="lane-attendant">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-green">
+                            <i class="fas fa-tree"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Lane Attendant</h5>
+                            <span class="text-muted small">Support</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-green mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Lane cleaning and landscaping</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.lane-attendant') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Assistant -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'hr-assistant');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'HR Assistant';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'hr-assistant') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="hr-assistant">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-indigo">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">HR Assistant</h5>
+                            <span class="text-muted small">Admin</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-purple mb-1">10 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Payroll and HR administration</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.hr-assistant') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Advisor -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'hr-advisor');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'DBK HR Advisor';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'hr-advisor') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="hr-advisor">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3 icon-pink">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">DBK HR Advisor</h5>
+                            <span class="text-muted small">HR</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-pink mb-1">10 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Recruitment, induction, and employee relations</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.hr-advisor') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Clerk -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'verification-clerk');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Verification Clerk';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'verification-clerk') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="verification-clerk">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Verification Clerk</h5>
+                            <span class="text-muted small">Audit & Compliance</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge" style="background-color: #ede9fe; color: #6d28d9; padding: 0.35rem 0.65rem; border-radius: 0.375rem; font-weight: 600;">7 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Transaction verification, audit accuracy, and correction follow-up</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.verification-clerk') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NEW FORMS - MISSING JOB TITLES ========== -->
+    
+    <!-- Admin Manager -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'admin-manager');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Admin Manager';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'admin-manager') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="admin-manager">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <i class="fas fa-chalkboard-user"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Admin Manager</h5>
+                            <span class="text-muted small">Management</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge" style="background-color: #e9d5ff; color: #6b21a8;">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Strategic planning, budget management, staff development, and procurement oversight</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.admin-manager') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Trainer -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'trainer');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Trainer';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'trainer') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="trainer">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                            <i class="fas fa-chalkboard-user"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Trainer</h5>
+                            <span class="text-muted small">Training & Development</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-green mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Training needs analysis, program development, delivery, and evaluation</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.trainer') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Senior Trainer -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'senior-trainer');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Senior Trainer';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'senior-trainer') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="senior-trainer">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
+                            <i class="fas fa-person-chalkboard"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Senior Trainer</h5>
+                            <span class="text-muted small">Training Leadership</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-purple mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Training strategy, curriculum development, trainer coaching, and quality assurance</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.senior-trainer') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Senior TCE -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'senior-tce');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Senior TCE';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'senior-tce') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="senior-tce">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white;">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Senior TCE</h5>
+                            <span class="text-muted small">Technical Leadership</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-orange mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Technical team leadership, equipment maintenance oversight, and emergency response management</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.senior-tce') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Media and Customer Coordinator -->
+    @php
+        $isSelected = (!$isManualSelection && $selectedForm === 'media-coordinator');
+        $hasSubmittedCurrent = $currentQuarterSubmission && $currentQuarterSubmission->job_title === 'Media and Customer Coordinator';
+        $isDisabled = ($isManualSelection === false && $selectedForm !== 'media-coordinator') || 
+                      ($currentQuarterSubmission !== null && !$hasSubmittedCurrent);
+        $isClickable = !$isDisabled && !$hasSubmittedCurrent;
+    @endphp
+    <div class="col">
+        <div class="form-card h-100 {{ $isSelected ? 'form-card-selected' : '' }} {{ !$isClickable ? 'form-card-disabled' : '' }}"
+             data-form="media-coordinator">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white;">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold moic-navy mb-0">Media & Customer Coordinator</h5>
+                            <span class="text-muted small">Communications</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge badge-cyan mb-1">8 KPAs</span>
+                        @if($isSelected)
+                            <span class="badge bg-success bg-opacity-10 text-success mt-1">
+                                <i class="fas fa-check me-1"></i> Selected
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">Customer service management, media relations, complaint resolution, and social media management</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <i class="far fa-clock me-1"></i> Due: {{ $quarterInfo->due_date }}
+                    </span>
+                    @if($hasSubmittedCurrent)
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check me-1"></i> Submitted
+                        </span>
+                    @elseif($currentQuarterSubmission)
+                        <span class="badge bg-info text-white">
+                            <i class="fas fa-info-circle me-1"></i> Other Form Submitted
+                        </span>
+                    @endif
+                </div>
+                
+                @if($hasSubmittedCurrent)
+                    <div class="d-flex gap-2">
+                        @if($currentQuarterSubmission->status !== 'approved')
+                            <a href="{{ route('appraisals.edit', $currentQuarterSubmission->id) }}" 
+                               class="btn btn-warning flex-grow-1">
+                                <i class="fas fa-edit me-2"></i> Edit
+                            </a>
+                            <span class="badge {{ $currentQuarterSubmission->status === 'submitted' ? 'bg-info' : 'bg-secondary' }} d-flex align-items-center px-3">
+                                {{ $currentQuarterSubmission->status === 'submitted' ? 'Submitted' : 'Draft' }}
+                            </span>
+                        @else
+                            <button class="btn btn-success w-100" disabled>
+                                <i class="fas fa-check-circle me-2"></i> Approved
+                            </button>
+                        @endif
+                    </div>
+                @elseif($currentQuarterSubmission)
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i> Another Form Submitted
+                    </button>
+                @else
+                    <a href="{{ route('appraisals.media-coordinator') }}" class="btn btn-moic w-100">
+                        <i class="fas fa-play-circle me-2"></i>
+                        @if($isSelected) Start Appraisal @else Select Form @endif
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+</div> <!-- Close forms grid -->
+ 
+            <!-- View Appraisals Card -->
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="card card-moic">
+                        <div class="card-body text-center p-5">
+                            <div class="d-inline-flex p-3 mb-3 bg-gray-100 rounded-circle">
+                                <i class="fas fa-list-alt fa-2x text-gray-600"></i>
+                            </div>
+                            <h4 class="fw-bold moic-navy mb-2">Manage Your Appraisals</h4>
+                            <p class="text-muted mb-4">View and manage all your existing appraisals in one place</p>
+                            <a href="{{ route('appraisals.index') }}" class="btn btn-moic">
+                                <i class="fas fa-eye me-2"></i> View All Appraisals
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mt-5 pt-4 border-top">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-3 mb-lg-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white p-2 rounded me-3">
+                                <img class="img-fluid" style="height: 1.5rem;" src="{{ asset('images/moic.png') }}" alt="MOIC Logo">
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-0">MOIC Performance Appraisal System © {{ date('Y') }}</p>
+                                <p class="text-muted small">Version 1.0.0 powered by SmartWave Solutions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="d-flex flex-wrap justify-content-lg-end gap-4">
+                            <a href="{{ route('dashboard') }}" class="text-decoration-none text-muted small">
+                                <i class="fas fa-home me-1"></i> Dashboard
+                            </a>
+                            <a href="{{ route('appraisals.index') }}" class="text-decoration-none text-muted small">
+                                <i class="fas fa-list me-1"></i> My Appraisals
+                            </a>
+                            <a href="{{ route('profile.show') }}" class="text-decoration-none text-muted small">
+                                <i class="fas fa-user-circle me-1"></i> Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Handle mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenu');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    const dropdown = new bootstrap.Dropdown(mobileMenuBtn);
                 });
             }
-            
-            // Show submission rules modal if user has missed quarters
-            @if($hasMissedQuarters && $quarterInfo->is_current && !$canSubmitCurrentQuarter)
-                setTimeout(() => {
-                    alert('Submission Blocked: You have missed submissions for previous quarters. Please complete all missed quarters before submitting for the current quarter. Contact your supervisor or HR for assistance.');
-                }, 1000);
-            @endif
         });
     </script>
 </body>

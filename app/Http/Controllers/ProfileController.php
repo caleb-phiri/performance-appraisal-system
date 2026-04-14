@@ -22,49 +22,63 @@ public function show()
     // Get toll plazas using helper method
     $tollPlazas = $this->getTollPlazasForDropdown();
     
-    // Debug: Log the current user data
+    // Get approval chain for employees
+    $approvalChain = [];
+    if ($user->user_type === 'employee' && $user->manager) {
+        $approvalChain[] = ['user' => $user->manager, 'type' => 'direct_supervisor'];
+        
+        // Add higher levels if they exist
+        $nextManager = $user->manager->manager;
+        $level = 2;
+        while ($nextManager && $level <= 3) {
+            $approvalChain[] = ['user' => $nextManager, 'type' => 'level_' . $level];
+            $nextManager = $nextManager->manager;
+            $level++;
+        }
+    }
+    
     Log::info('Profile loaded for user:', [
         'user_employee_number' => $user->employee_number,
-        'manager_employee_number' => $user->manager_id,
+        'manager_id' => $user->manager_id,
         'toll_plazas_count' => count($tollPlazas),
-        'toll_plazas' => $tollPlazas
+        'user_type' => $user->user_type
     ]);
     
-    return view('profile', compact('user', 'tollPlazas'));
+    // FIX: Change 'profile.show' to 'profile' if your file is profile.blade.php
+    return view('profile', compact('user', 'tollPlazas', 'approvalChain'));
 }
-
-/**
- * Get toll plazas for dropdown in standardized format
- */
-private function getTollPlazasForDropdown()
-{
-    // Get all unique toll plazas from the database
-    $tollPlazas = User::whereNotNull('toll_plaza')
-        ->where('toll_plaza', '!=', '')
-        ->distinct('toll_plaza')
-        ->orderBy('toll_plaza')
-        ->pluck('toll_plaza')
-        ->toArray();
-    
-    // If no toll plazas in database, use default list
-    if (empty($tollPlazas)) {
-        return [
-            'TP-001' => 'Kafulafuta Toll Plaza',
-            'TP-002' => 'Abram Zayoni Mokola Toll Plaza',
-            'TP-003' => 'Katuba Toll Plaza',
-            'TP-004' => 'Manyumbi Toll Plaza',
-            'TP-005' => 'Konkola Toll Plaza',
-        ];
+    /**
+     * Get toll plazas for dropdown in standardized format
+     */
+    private function getTollPlazasForDropdown()
+    {
+        // Get all unique toll plazas from the database
+        $tollPlazas = User::whereNotNull('toll_plaza')
+            ->where('toll_plaza', '!=', '')
+            ->distinct('toll_plaza')
+            ->orderBy('toll_plaza')
+            ->pluck('toll_plaza')
+            ->toArray();
+        
+        // If no toll plazas in database, use default list
+        if (empty($tollPlazas)) {
+            return [
+                'TP-001' => 'Kafulafuta Toll Plaza',
+                'TP-002' => 'Abram Zayoni Mokola Toll Plaza',
+                'TP-003' => 'Katuba Toll Plaza',
+                'TP-004' => 'Manyumbi Toll Plaza',
+                'TP-005' => 'Konkola Toll Plaza',
+            ];
+        }
+        
+        // Format as associative array [code => name]
+        $formattedPlazas = [];
+        foreach ($tollPlazas as $plaza) {
+            $formattedPlazas[$plaza] = $this->formatTollPlazaName($plaza);
+        }
+        
+        return $formattedPlazas;
     }
-    
-    // Format as associative array [code => name]
-    $formattedPlazas = [];
-    foreach ($tollPlazas as $plaza) {
-        $formattedPlazas[$plaza] = $this->formatTollPlazaName($plaza);
-    }
-    
-    return $formattedPlazas;
-}
 
     /**
      * Format toll plaza name for display
@@ -77,7 +91,11 @@ private function getTollPlazasForDropdown()
             'TP-003' => 'Katuba Toll Plaza',
             'TP-004' => 'Manyumbi Toll Plaza',
             'TP-005' => 'Konkola Toll Plaza',
-            // Add more mappings as needed
+            'TP-006' => 'Livingstone Toll Plaza',
+            'TP-007' => 'Kapiri Mposhi Toll Plaza',
+            'TP-008' => 'Kabwe Toll Plaza',
+            'TP-009' => 'Ndola Toll Plaza',
+            'TP-010' => 'Kitwe Toll Plaza',
         ];
         
         return $plazaNames[$plazaCode] ?? $plazaCode;
@@ -92,18 +110,32 @@ private function getTollPlazasForDropdown()
         
         // Get all supervisors (users with user_type = 'supervisor')
         $supervisors = User::where('user_type', 'supervisor')
-            ->where('employee_number', '!=', $user->employee_number) // Exclude current user if they are a supervisor
+            ->where('employee_number', '!=', $user->employee_number) // Exclude current user by employee number
             ->orderBy('name')
-            ->get(['employee_number', 'name', 'department', 'job_title', 'email']);
+            ->get(['id', 'employee_number', 'name', 'department', 'job_title', 'email']);
+        
+        // Format for display
+        $formattedSupervisors = $supervisors->map(function($supervisor) {
+            return [
+                'id' => $supervisor->id,
+                'employee_number' => $supervisor->employee_number,
+                'name' => $supervisor->name,
+                'display_name' => $supervisor->name . ' (' . $supervisor->employee_number . ')' . 
+                                ($supervisor->department ? ' - ' . $supervisor->department : '') .
+                                ($supervisor->job_title ? ' - ' . $supervisor->job_title : ''),
+                'department' => $supervisor->department,
+                'job_title' => $supervisor->job_title,
+            ];
+        });
         
         return response()->json([
             'success' => true,
-            'supervisors' => $supervisors
+            'supervisors' => $formattedSupervisors
         ]);
     }
 
     /**
-     * Get toll plazas for dropdown (AJAX) - Optional
+     * Get toll plazas for dropdown (AJAX)
      */
     public function getTollPlazas()
     {
@@ -130,6 +162,11 @@ private function getTollPlazasForDropdown()
                 ['code' => 'TP-003', 'name' => 'Katuba Toll Plaza'],
                 ['code' => 'TP-004', 'name' => 'Manyumbi Toll Plaza'],
                 ['code' => 'TP-005', 'name' => 'Konkola Toll Plaza'],
+                ['code' => 'TP-006', 'name' => 'Livingstone Toll Plaza'],
+                ['code' => 'TP-007', 'name' => 'Kapiri Mposhi Toll Plaza'],
+                ['code' => 'TP-008', 'name' => 'Kabwe Toll Plaza'],
+                ['code' => 'TP-009', 'name' => 'Ndola Toll Plaza'],
+                ['code' => 'TP-010', 'name' => 'Kitwe Toll Plaza'],
             ];
         }
         
@@ -167,14 +204,13 @@ private function getTollPlazasForDropdown()
         
         // Only add unique validation if the value is changing
         if ($employeeNumberChanged) {
-            // IMPORTANT: Since employee_number is primary key, use different validation
-            $rules['employee_number'] = 'required|string|max:50|unique:users,employee_number,' . $user->employee_number . ',employee_number';
+            $rules['employee_number'] = 'required|string|max:50|unique:users,employee_number';
         } else {
             $rules['employee_number'] = 'required|string|max:50';
         }
         
         if ($emailChanged) {
-            $rules['email'] = 'required|string|email|max:255|unique:users,email,' . $user->employee_number . ',employee_number';
+            $rules['email'] = 'required|string|email|max:255|unique:users,email';
         } else {
             $rules['email'] = 'required|string|email|max:255';
         }
@@ -225,15 +261,9 @@ private function getTollPlazasForDropdown()
             $updateData['toll_plaza'] = null;
         }
 
-        // Find manager by employee number if provided
+        // Handle manager_id - store the employee_number directly
         if ($user->user_type === 'employee' && $request->manager_id) {
-            // Since employee_number is the primary key, we just store it directly
             $updateData['manager_id'] = $request->manager_id;
-            
-            Log::info('Manager set for employee:', [
-                'employee' => $user->employee_number,
-                'manager' => $request->manager_id
-            ]);
         } else {
             $updateData['manager_id'] = null;
         }
@@ -298,9 +328,9 @@ private function getTollPlazasForDropdown()
     }
 
     /**
-     * Show password management form.
+     * Show password management page.
      */
-    public function showPasswordForm()
+    public function password()
     {
         $user = Auth::user();
         $requiresPasswordSetup = empty($user->password);
@@ -308,7 +338,7 @@ private function getTollPlazasForDropdown()
     }
 
     /**
-     * FIRST TIME PASSWORD SETUP
+     * Setup password for first time.
      */
     public function setupPassword(Request $request)
     {
@@ -321,7 +351,6 @@ private function getTollPlazasForDropdown()
                 ->with('error', 'Password already exists. Use update password instead.');
         }
 
-        // ✅ MATCHES YOUR FORM FIELD NAMES
         $validated = $request->validate([
             'new_password' => 'required|string|min:8|confirmed',
         ]);
@@ -365,23 +394,23 @@ private function getTollPlazasForDropdown()
     }
 
     /**
-     * SKIP PASSWORD SETUP
+     * Skip password setup.
      */
-    public function skipPasswordSetup()
+    public function skipPassword(Request $request)
     {
         $user = Auth::user();
-
+        
         $user->update([
             'password_setup_skipped' => true,
         ]);
 
         return redirect()
-            ->route('profile.show')
-            ->with('info', 'You can set up your password later from your profile.');
+            ->route('dashboard')
+            ->with('info', 'Password setup skipped. You can set up a password later from your profile.');
     }
 
     /**
-     * UPDATE EXISTING PASSWORD
+     * Update existing password.
      */
     public function updatePassword(Request $request)
     {
@@ -389,13 +418,13 @@ private function getTollPlazasForDropdown()
 
         if (empty($user->password)) {
             return redirect()
-                ->route('profile.password.form')
+                ->route('profile.password')
                 ->with('info', 'Please set your first password.');
         }
 
         $validated = $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => 'required|string|min:8|confirmed|different:current_password',
         ]);
 
         if (!Hash::check($validated['current_password'], $user->password)) {
@@ -426,4 +455,115 @@ private function getTollPlazasForDropdown()
             ->route('profile.show')
             ->with('success', 'Password updated successfully!');
     }
+
+    /**
+     * Update supervisor selection - FIXED VERSION
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateSupervisor(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validate the request
+        $request->validate([
+            'manager_id' => 'required|exists:users,employee_number',
+        ], [
+            'manager_id.required' => 'Please select a supervisor.',
+            'manager_id.exists' => 'The selected supervisor does not exist.',
+        ]);
+
+        // Find the supervisor by employee number
+        $supervisor = User::where('employee_number', $request->manager_id)->first();
+
+        if (!$supervisor) {
+            return back()->withErrors([
+                'manager_id' => 'The selected supervisor does not exist.'
+            ]);
+        }
+
+        // Check if the selected user is actually a supervisor
+        if ($supervisor->user_type !== 'supervisor') {
+            return back()->withErrors([
+                'manager_id' => 'The selected user is not a valid supervisor.'
+            ]);
+        }
+
+        // CRITICAL FIX: Compare by employee_number instead of ID
+        // This prevents the "cannot select yourself" error
+        if ($supervisor->employee_number === $user->employee_number) {
+            return back()->withErrors([
+                'manager_id' => 'You cannot select yourself as a supervisor.'
+            ]);
+        }
+
+        // Update the user's manager_id - store the employee_number
+        $user->manager_id = $supervisor->employee_number;
+        $user->save();
+
+        return back()->with('success', 'Your supervisor has been updated successfully. All future appraisals will be routed to ' . $supervisor->name . '.');
+    }
+
+    /**
+     * Get eligible final approvers.
+     */
+    public function getEligibleApprovers()
+    {
+        // This is for users who can assign final approvers (HR, Admin)
+        $approvers = User::where('user_type', 'supervisor')
+            ->where('supervisor_level', '>=', 2)
+            ->orderBy('name')
+            ->get()
+            ->map(function($user) {
+                return [
+                    'employee_number' => $user->employee_number,
+                    'display_name' => $user->name . ' (' . $user->employee_number . ')' . 
+                                    ($user->department ? ' - ' . $user->department : ''),
+                ];
+            });
+        
+        return response()->json([
+            'success' => true,
+            'eligible_approvers' => $approvers
+        ]);
+    }
+
+    /**
+     * Get final approver configurations.
+     */
+    public function getFinalApproverConfigs()
+    {
+        // This method would need a FinalApproverConfig model
+        // For now, return empty array
+        return response()->json([
+            'success' => true,
+            'configurations' => []
+        ]);
+    }
+
+    /**
+     * Save final approver configuration.
+     */
+    public function saveFinalApproverConfig(Request $request)
+    {
+        // This method would need a FinalApproverConfig model
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuration saved successfully'
+        ]);
+    }
+
+    /**
+     * Delete final approver configuration.
+     */
+    public function deleteFinalApproverConfig($id)
+    {
+        // This method would need a FinalApproverConfig model
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuration deleted successfully'
+        ]);
+    }
+    
 }

@@ -1,13 +1,18 @@
 <?php
-// app/Http\Controllers\DashboardController.php
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Appraisal;
+use App\Models\Leave;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display the dashboard.
+     */
     public function index()
     {
         // Check if user is authenticated
@@ -23,40 +28,64 @@ class DashboardController extends Controller
             return redirect()->route('profile.password')->with('info', 'Welcome! Please set up your password for added security.');
         }
         
-        // Rest of your dashboard logic...
-        $requiresPasswordSetup = $user->requiresPasswordSetup();
+        // Get all supervisors for the dropdown (excluding current user)
+        $allSupervisors = User::where('user_type', 'supervisor')
+            ->where('id', '!=', $user->id)
+            ->orderBy('name')
+            ->get();
         
-        // Fetch appraisals based on user type
+        // Get current supervisor selection
+        $selectedSupervisorId = $user->supervisor_id;
+        
+        // Calculate counts based on user type
         if ($user->user_type === 'supervisor') {
-            $appraisals = Appraisal::whereHas('user', function ($query) use ($user) {
-                $query->where('supervisor_id', $user->id)
-                      ->orWhere('department', $user->department)
-                      ->orWhere('id', $user->id);
-            })->latest()->get();
+            // Get subordinate employee numbers
+            $subordinateNumbers = $user->subordinates->pluck('employee_number')->toArray();
+            // Include supervisor's own appraisals too
+            $subordinateNumbers[] = $user->employee_number;
+            
+            // Get appraisals for supervisor and their subordinates
+            $userAppraisals = Appraisal::whereIn('employee_number', $subordinateNumbers)
+                ->orderBy('created_at', 'desc')
+                ->get();
         } else {
-            $appraisals = Appraisal::where('employee_number', $user->employee_number)->latest()->get();
+            // Regular employees only see their own appraisals
+            $userAppraisals = Appraisal::where('employee_number', $user->employee_number)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
         
-        // Calculate counts from the $appraisals collection
-        $totalAppraisals = $appraisals->count() ?? 0;
-        $draftAppraisals = $appraisals->where('status', 'draft')->count() ?? 0;
-        $submittedAppraisals = $appraisals->where('status', 'submitted')->count() ?? 0;
-        $approvedAppraisals = $appraisals->where('status', 'approved')->count() ?? 0;
-        $rejectedAppraisals = $appraisals->where('status', 'rejected')->count() ?? 0;
+        // Calculate counts from the $userAppraisals collection
+        $totalAppraisals = $userAppraisals->count() ?? 0;
+        $draftCount = $userAppraisals->where('status', 'draft')->count() ?? 0;
+        $submittedCount = $userAppraisals->where('status', 'submitted')->count() ?? 0;
+        $approvedCount = $userAppraisals->where('status', 'approved')->count() ?? 0;
+        $rejectedCount = $userAppraisals->where('status', 'rejected')->count() ?? 0;
         
-        // Get recent appraisals (first 5)
-        $recentAppraisals = $appraisals->take(5);
+        // Get only first 5 appraisals for dashboard
+        $recentAppraisals = $userAppraisals->take(5);
         
+        // Get user leaves
+        $userLeaves = Leave::where('employee_number', $user->employee_number)->get();
+        $pendingLeaves = $userLeaves->where('status', 'pending')->count();
+        $upcomingApprovedLeaves = $userLeaves->where('status', 'approved')
+                                              ->where('start_date', '>=', now())
+                                              ->count();
+        
+        // Pass all variables to the view
         return view('dashboard', compact(
             'user',
-            'appraisals',
-            'requiresPasswordSetup',
+            'allSupervisors',
+            'selectedSupervisorId',
             'totalAppraisals',
-            'draftAppraisals',
-            'submittedAppraisals',
-            'approvedAppraisals',
-            'rejectedAppraisals',
-            'recentAppraisals'
+            'draftCount',
+            'submittedCount',
+            'approvedCount',
+            'rejectedCount',
+            'recentAppraisals',
+            'pendingLeaves',
+            'upcomingApprovedLeaves',
+            'userAppraisals'
         ));
     }
 }

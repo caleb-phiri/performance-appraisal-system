@@ -9,32 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-    /* Loading spinner styles */
-.fa-spinner {
-    animation: spin 1s linear infinite;
-}
+        /* Loading spinner styles */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-/* Button transition styles */
-.smooth-transition {
-    transition: all 0.3s ease;
-}
+        /* Button transition styles */
+        .smooth-transition {
+            transition: all 0.3s ease;
+        }
 
-/* Success animation */
-@keyframes successPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
+        /* Success animation */
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
 
-.success-pulse {
-    animation: successPulse 0.5s ease;
-}
-</style>
+        .success-pulse {
+            animation: successPulse 0.5s ease;
+        }
+        
+        /* Role badge styles */
+        .role-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .role-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Table row hover effect */
+        .user-row {
+            transition: all 0.2s ease;
+        }
+        
+        .user-row:hover {
+            background-color: #f9fafb;
+            transform: translateX(2px);
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -251,6 +270,74 @@
         </div>
     </div>
 
+    <!-- Make Supervisor Modal -->
+    <div id="makeSupervisorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-lg transform transition-all">
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500">
+                        <i class="fas fa-user-shield text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Make Employee a Supervisor</h3>
+                        <p class="text-gray-600 mt-1">Promote employee to supervisor role</p>
+                    </div>
+                </div>
+                
+                <form id="makeSupervisorForm" method="POST" onsubmit="return handleMakeSupervisorSubmit(event)">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="supervisor_employee_number" name="employee_number">
+                    
+                    <div class="mb-6">
+                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                            <p class="text-sm text-gray-600">You are about to promote:</p>
+                            <p id="supervisor_employee_name" class="text-lg font-bold text-gray-800 mt-1"></p>
+                            <p class="text-xs text-purple-600 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                This will grant supervisor privileges to this employee.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="supervisor_department" class="block text-sm font-medium text-gray-700 mb-3">Department (Optional):</label>
+                        <input type="text" 
+                               name="department" 
+                               id="supervisor_department" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               placeholder="e.g., IT Department, HR Department">
+                        <p class="text-xs text-gray-500 mt-1">This will help organize supervisors by department</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="supervisor_notes" class="block text-sm font-medium text-gray-700 mb-3">Notes (Optional):</label>
+                        <textarea name="notes" 
+                                  id="supervisor_notes" 
+                                  rows="2" 
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                  placeholder="Any additional notes about this promotion..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button type="button" 
+                                onclick="closeMakeSupervisorModal()"
+                                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                id="makeSupervisorSubmitBtn"
+                                class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-user-shield"></i>
+                            <span class="btn-text">Confirm Promotion</span>
+                            <i class="fas fa-spinner fa-spin hidden loading-spinner"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Mark as Left Modal -->
     <div id="markAsLeftModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white w-full max-w-md rounded-lg shadow-lg transform transition-all">
@@ -320,53 +407,54 @@
     </div>
 
     <!-- Reactivate Modal -->
-<div id="reactivateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white w-full max-w-md rounded-lg shadow-lg transform transition-all">
-        <div class="p-6">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="p-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500">
-                    <i class="fas fa-user-check text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800">Reactivate Account</h3>
-                    <p class="text-gray-600 mt-1">Bring employee back to active status</p>
-                </div>
-            </div>
-            
-            <form id="reactivateForm" method="POST" onsubmit="return handleReactivateSubmit(event)">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="reactivate_employee_number" name="employee_number">
-                
-                <div class="mb-6">
-                    <div class="p-4 bg-green-50 rounded-lg border border-green-100">
-                        <p class="text-sm text-gray-600">You are about to reactivate:</p>
-                        <p id="reactivate_employee_name" class="text-lg font-bold text-gray-800 mt-1"></p>
-                        <p class="text-xs text-green-600 mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            This will restore their access to the system.
-                        </p>
+    <div id="reactivateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-lg transform transition-all">
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500">
+                        <i class="fas fa-user-check text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Reactivate Account</h3>
+                        <p class="text-gray-600 mt-1">Bring employee back to active status</p>
                     </div>
                 </div>
                 
-                <div class="flex justify-end gap-3">
-                    <button type="button" 
-                            onclick="closeReactivateModal()"
-                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" 
-                            id="reactivateSubmitBtn"
-                            class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2">
-                        <i class="fas fa-check-circle"></i>
-                        <span class="btn-text">Confirm Reactivation</span>
-                        <i class="fas fa-spinner fa-spin hidden loading-spinner"></i>
-                    </button>
-                </div>
-            </form>
+                <form id="reactivateForm" method="POST" onsubmit="return handleReactivateSubmit(event)">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="reactivate_employee_number" name="employee_number">
+                    
+                    <div class="mb-6">
+                        <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                            <p class="text-sm text-gray-600">You are about to reactivate:</p>
+                            <p id="reactivate_employee_name" class="text-lg font-bold text-gray-800 mt-1"></p>
+                            <p class="text-xs text-green-600 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                This will restore their access to the system.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button type="button" 
+                                onclick="closeReactivateModal()"
+                                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                id="reactivateSubmitBtn"
+                                class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="btn-text">Confirm Reactivation</span>
+                            <i class="fas fa-spinner fa-spin hidden loading-spinner"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+
     <script>
         // CSRF Token setup for AJAX
         $.ajaxSetup({
@@ -386,28 +474,116 @@
                     dropdown.classList.toggle('hidden');
                 });
                 
-                // Close dropdown when clicking outside
                 document.addEventListener('click', function() {
                     dropdown.classList.add('hidden');
                 });
                 
-                // Prevent dropdown from closing when clicking inside
                 dropdown.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
             }
             
-            // Initialize showing count
             initializeShowingCount();
-            
-            // Initialize search functionality
             initializeSearch();
-            
-            // Check for existing search on page load
             checkExistingSearch();
         });
 
-        // Search Functionality
+        // ==============================================
+        // MAKE SUPERVISOR FUNCTIONS
+        // ==============================================
+        
+        function openMakeSupervisorModal(employeeNumber, employeeName, currentRole) {
+            if (currentRole === 'supervisor') {
+                showToast('This user is already a supervisor!', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('makeSupervisorModal');
+            const nameSpan = document.getElementById('supervisor_employee_name');
+            const numberInput = document.getElementById('supervisor_employee_number');
+            
+            nameSpan.textContent = employeeName;
+            numberInput.value = employeeNumber;
+            
+            document.getElementById('supervisor_department').value = '';
+            document.getElementById('supervisor_notes').value = '';
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeMakeSupervisorModal() {
+            document.getElementById('makeSupervisorModal').classList.add('hidden');
+            resetMakeSupervisorButton();
+        }
+        
+        function resetMakeSupervisorButton() {
+            const submitBtn = document.getElementById('makeSupervisorSubmitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            
+            if (btnText) btnText.textContent = 'Confirm Promotion';
+            if (spinner) spinner.classList.add('hidden');
+            submitBtn.disabled = false;
+        }
+        
+        async function handleMakeSupervisorSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('makeSupervisorSubmitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const employeeName = document.getElementById('supervisor_employee_name').textContent;
+            const employeeNumber = document.getElementById('supervisor_employee_number').value;
+            const department = document.getElementById('supervisor_department').value;
+            const notes = document.getElementById('supervisor_notes').value;
+            
+            if (!confirm(`Are you sure you want to make ${employeeName} a supervisor?`)) {
+                return false;
+            }
+            
+            btnText.textContent = 'Promoting...';
+            spinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch(`/admin/users/${employeeNumber}/make-supervisor`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _method: 'PUT',
+                        department: department,
+                        notes: notes
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showToast(data.message || `${employeeName} is now a supervisor!`, 'success');
+                    setTimeout(() => {
+                        closeMakeSupervisorModal();
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Failed to promote to supervisor');
+                }
+            } catch (error) {
+                console.error('Make supervisor error:', error);
+                showToast(error.message || 'Error promoting user to supervisor', 'error');
+                resetMakeSupervisorButton();
+            }
+            
+            return false;
+        }
+
+        // ==============================================
+        // SEARCH FUNCTIONS
+        // ==============================================
+        
         let searchTimeout;
         let isSearching = false;
         
@@ -415,17 +591,15 @@
             const searchInput = document.getElementById('searchInput');
             
             if (searchInput) {
-                // Live search as user types (with debounce)
                 searchInput.addEventListener('input', function(e) {
                     clearTimeout(searchTimeout);
                     searchTimeout = setTimeout(function() {
                         if (searchInput.value.length >= 2 || searchInput.value.length === 0) {
                             performSearch();
                         }
-                    }, 500); // 500ms delay
+                    }, 500);
                 });
                 
-                // Search on Enter key
                 searchInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -442,7 +616,6 @@
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
                     searchInput.value = searchParam;
-                    // Perform search after a short delay
                     setTimeout(() => performSearch(), 100);
                 }
             }
@@ -457,13 +630,11 @@
             const searchError = document.getElementById('searchError');
             const searchButton = document.getElementById('searchButton');
             
-            // Show loading state
             isSearching = true;
             if (searchLoading) searchLoading.classList.remove('hidden');
             if (searchButton) searchButton.disabled = true;
             if (searchError) searchError.classList.add('hidden');
             
-            // Update URL without reloading page
             const url = new URL(window.location);
             if (searchValue) {
                 url.searchParams.set('search', searchValue);
@@ -472,7 +643,6 @@
             }
             window.history.pushState({}, '', url);
             
-            // Send AJAX request
             $.ajax({
                 url: "{{ route('admin.users.search') }}",
                 type: 'GET',
@@ -480,24 +650,18 @@
                 dataType: 'json',
                 success: function(data) {
                     if (data.success) {
-                        // Update the table with new data
                         const usersTableContainer = document.getElementById('usersTableContainer');
                         if (usersTableContainer && data.html) {
                             usersTableContainer.innerHTML = data.html;
                         }
                         
-                        // Update stats
                         if (data.stats) {
                             updateStats(data.stats);
                         }
                         
-                        // Reinitialize functions for new content
                         reinitializeFunctions();
-                        
-                        // Initialize showing count after search
                         initializeShowingCount();
                         
-                        // Show success toast if search was performed
                         if (searchValue) {
                             showToast('Search completed successfully', 'success');
                         }
@@ -507,8 +671,6 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Search error:', error);
-                    
-                    // Show error message
                     if (searchError) {
                         searchError.classList.remove('hidden');
                         const errorMessage = document.getElementById('errorMessage');
@@ -516,12 +678,9 @@
                             errorMessage.textContent = xhr.responseJSON?.message || 'Search failed. Please try again.';
                         }
                     }
-                    
-                    // Show error toast
                     showToast('Search failed. Please try again.', 'error');
                 },
                 complete: function() {
-                    // Hide loading state
                     isSearching = false;
                     if (searchLoading) searchLoading.classList.add('hidden');
                     if (searchButton) searchButton.disabled = false;
@@ -532,31 +691,26 @@
         function updateStats(stats) {
             if (!stats) return;
             
-            // Update total users
             const totalUsersStat = document.getElementById('totalUsersStat');
             if (totalUsersStat && stats.total_users !== undefined) {
                 totalUsersStat.textContent = stats.total_users;
             }
             
-            // Update active users
             const activeUsersStat = document.getElementById('activeUsersStat');
             if (activeUsersStat && stats.active_users !== undefined) {
                 activeUsersStat.textContent = stats.active_users;
             }
             
-            // Update left company users
             const leftCompanyStat = document.getElementById('leftCompanyStat');
             if (leftCompanyStat && stats.left_company_users !== undefined) {
                 leftCompanyStat.textContent = stats.left_company_users;
             }
             
-            // Update supervisors count
             const supervisorsStat = document.getElementById('supervisorsStat');
             if (supervisorsStat && stats.supervisors !== undefined) {
                 supervisorsStat.textContent = stats.supervisors;
             }
             
-            // Update inactive badge
             const inactiveBadge = document.getElementById('inactiveBadge');
             if (inactiveBadge) {
                 if (stats.left_company_users !== undefined) {
@@ -571,17 +725,13 @@
         }
         
         function reinitializeFunctions() {
-            // Reinitialize showing count
             initializeShowingCount();
-            
-            // Rebind search functionality if needed
             setTimeout(() => {
                 initializeSearch();
             }, 100);
         }
         
         function showToast(message, type = 'info') {
-            // Create toast element
             const toast = document.createElement('div');
             toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-300 transform translate-x-full ${
                 type === 'success' ? 'bg-green-500' : 
@@ -600,13 +750,11 @@
             
             document.body.appendChild(toast);
             
-            // Animate in
             setTimeout(() => {
                 toast.classList.remove('translate-x-full');
                 toast.classList.add('translate-x-0');
             }, 10);
             
-            // Auto remove after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('translate-x-0');
                 toast.classList.add('translate-x-full');
@@ -618,12 +766,14 @@
             }, 3000);
         }
         
-        // Handle browser back/forward buttons
         window.addEventListener('popstate', function() {
             performSearch();
         });
 
-        // Load More Users Functionality
+        // ==============================================
+        // LOAD MORE FUNCTIONS
+        // ==============================================
+        
         let showingCount = 0;
         let totalUsers = 0;
         
@@ -666,7 +816,6 @@
             
             if (remainingRows.length === 0) return;
             
-            // Show next 10 users (or all remaining if less than 10)
             const batchSize = 10;
             const nextBatch = Array.from(remainingRows).slice(0, batchSize);
             
@@ -674,7 +823,6 @@
                 tableBody.appendChild(row);
             });
             
-            // Reinitialize showing count
             initializeShowingCount();
         }
         
@@ -684,12 +832,10 @@
             
             if (remainingRows.length === 0) return;
             
-            // Show all remaining users
             remainingRows.forEach(row => {
                 tableBody.appendChild(row);
             });
             
-            // Update showing count
             initializeShowingCount();
         }
         
@@ -700,7 +846,10 @@
             }
         }
 
-        // Mark as Left Modal Functions
+        // ==============================================
+        // MARK AS LEFT FUNCTIONS
+        // ==============================================
+        
         function openMarkAsLeftModal(employeeNumber, employeeName) {
             const modal = document.getElementById('markAsLeftModal');
             const nameSpan = document.getElementById('employee_name');
@@ -717,122 +866,6 @@
             document.getElementById('markAsLeftModal').classList.add('hidden');
         }
         
-        // Reactivate Modal Functions
-function openReactivateModal(employeeNumber, employeeName) {
-    const modal = document.getElementById('reactivateModal');
-    const nameSpan = document.getElementById('reactivate_employee_name');
-    const numberInput = document.getElementById('reactivate_employee_number');
-    const form = document.getElementById('reactivateForm');
-    
-    nameSpan.textContent = employeeName;
-    numberInput.value = employeeNumber;
-    form.action = `/admin/users/${employeeNumber}/reactivate`;
-    modal.classList.remove('hidden');
-}
-
-function closeReactivateModal() {
-    document.getElementById('reactivateModal').classList.add('hidden');
-    resetReactivateButton();
-}
-
-function resetReactivateButton() {
-    const submitBtn = document.getElementById('reactivateSubmitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const spinner = submitBtn.querySelector('.loading-spinner');
-    
-    if (btnText) btnText.textContent = 'Confirm Reactivation';
-    if (spinner) spinner.classList.add('hidden');
-    submitBtn.disabled = false;
-}
-
-async function handleReactivateSubmit(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const submitBtn = document.getElementById('reactivateSubmitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const spinner = submitBtn.querySelector('.loading-spinner');
-    const employeeName = document.getElementById('reactivate_employee_name').textContent;
-    
-    if (!confirm(`Are you sure you want to reactivate ${employeeName}?`)) {
-        return false;
-    }
-    
-    // Show loading state
-    btnText.textContent = 'Reactivating...';
-    spinner.classList.remove('hidden');
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch(form.action, {
-            method: 'POST', // Laravel handles PUT via _method
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                _method: 'PUT',
-                employee_number: form.querySelector('#reactivate_employee_number').value
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-            // Show success message
-            showToast(data.message || 'Account reactivated successfully!', 'success');
-            
-            // Close modal and reload page after delay
-            setTimeout(() => {
-                closeReactivateModal();
-                window.location.reload();
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'Failed to reactivate account');
-        }
-    } catch (error) {
-        console.error('Reactivate error:', error);
-        showToast(error.message || 'Error reactivating account', 'error');
-        resetReactivateButton();
-    }
-    
-    return false;
-}
-
-// Function for inline reactivate forms in inactive users page
-function confirmReactivate(form, employeeName) {
-    if (!confirm(`Are you sure you want to reactivate ${employeeName}?`)) {
-        return false;
-    }
-    
-    // Show loading on the button
-    const button = form.querySelector('.reactivate-btn');
-    const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    button.disabled = true;
-    
-    // Submit the form
-    form.submit();
-    
-    return false;
-}
-
-// Close modals when clicking outside
-document.getElementById('reactivateModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeReactivateModal();
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeReactivateModal();
-    }
-});
-        
-        // Handle form submissions
         document.getElementById('markAsLeftForm').addEventListener('submit', function(e) {
             const reason = document.getElementById('left_reason').value;
             if (!reason) {
@@ -846,11 +879,124 @@ document.addEventListener('keydown', function(e) {
                 return false;
             }
         });
+
+        // ==============================================
+        // REACTIVATE FUNCTIONS
+        // ==============================================
         
-        document.getElementById('reactivateForm').addEventListener('submit', function(e) {
-            if (!confirm('Are you sure you want to reactivate this account?')) {
-                e.preventDefault();
+        function openReactivateModal(employeeNumber, employeeName) {
+            const modal = document.getElementById('reactivateModal');
+            const nameSpan = document.getElementById('reactivate_employee_name');
+            const numberInput = document.getElementById('reactivate_employee_number');
+            
+            nameSpan.textContent = employeeName;
+            numberInput.value = employeeNumber;
+            modal.classList.remove('hidden');
+        }
+        
+        function closeReactivateModal() {
+            document.getElementById('reactivateModal').classList.add('hidden');
+            resetReactivateButton();
+        }
+        
+        function resetReactivateButton() {
+            const submitBtn = document.getElementById('reactivateSubmitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            
+            if (btnText) btnText.textContent = 'Confirm Reactivation';
+            if (spinner) spinner.classList.add('hidden');
+            submitBtn.disabled = false;
+        }
+        
+        async function handleReactivateSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('reactivateSubmitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const employeeName = document.getElementById('reactivate_employee_name').textContent;
+            const form = event.target;
+            
+            if (!confirm(`Are you sure you want to reactivate ${employeeName}?`)) {
                 return false;
+            }
+            
+            btnText.textContent = 'Reactivating...';
+            spinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _method: 'PUT',
+                        employee_number: form.querySelector('#reactivate_employee_number').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showToast(data.message || 'Account reactivated successfully!', 'success');
+                    setTimeout(() => {
+                        closeReactivateModal();
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Failed to reactivate account');
+                }
+            } catch (error) {
+                console.error('Reactivate error:', error);
+                showToast(error.message || 'Error reactivating account', 'error');
+                resetReactivateButton();
+            }
+            
+            return false;
+        }
+        
+        function confirmReactivate(form, employeeName) {
+            if (!confirm(`Are you sure you want to reactivate ${employeeName}?`)) {
+                return false;
+            }
+            
+            const button = form.querySelector('.reactivate-btn');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            form.submit();
+            return false;
+        }
+        
+        // Close modals when clicking outside
+        document.getElementById('reactivateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReactivateModal();
+            }
+        });
+        
+        document.getElementById('makeSupervisorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMakeSupervisorModal();
+            }
+        });
+        
+        document.getElementById('markAsLeftModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMarkAsLeftModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMakeSupervisorModal();
+                closeReactivateModal();
+                closeMarkAsLeftModal();
             }
         });
     </script>

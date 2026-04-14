@@ -8,7 +8,8 @@ use App\Models\Appraisal;
 class QuarterHelper
 {
     /**
-     * Get quarter information for a given quarter
+     * Get quarter information for a given quarter WITH GRACE PERIOD
+     * Grace period extends until the 20th of the month following the quarter end
      */
     public static function getQuarterInfo($quarter = null, $year = null)
     {
@@ -17,17 +18,8 @@ class QuarterHelper
         }
         
         if (!$quarter) {
-            // Get current quarter based on current date
-            $month = Carbon::now()->month;
-            if ($month >= 1 && $month <= 3) {
-                $quarter = 'Q1';
-            } elseif ($month >= 4 && $month <= 6) {
-                $quarter = 'Q2';
-            } elseif ($month >= 7 && $month <= 9) {
-                $quarter = 'Q3';
-            } else {
-                $quarter = 'Q4';
-            }
+            // Get current quarter based on current date (grace period aware)
+            $quarter = self::getCurrentQuarterWithGrace();
         }
         
         $quarterInfo = [
@@ -41,82 +33,117 @@ class QuarterHelper
                 $quarterInfo['quarter_months'] = 'January - March';
                 $quarterInfo['appraisal_start'] = Carbon::create($year, 1, 1)->format('M d');
                 $quarterInfo['appraisal_end'] = Carbon::create($year, 3, 31)->format('M d');
+                $quarterInfo['grace_end'] = Carbon::create($year, 4, 20)->format('M d');
                 $quarterInfo['due_date'] = Carbon::create($year, 4, 20)->format('M d');
-                $quarterInfo['review_start'] = Carbon::create($year, 4, 16)->format('M d');
-                $quarterInfo['review_end'] = Carbon::create($year, 4, 20)->format('M d');
                 $quarterInfo['due_date_full'] = Carbon::create($year, 4, 20)->format('F d, Y');
                 $quarterInfo['appraisal_end_full'] = Carbon::create($year, 3, 31)->format('F d, Y');
+                $quarterInfo['grace_end_full'] = Carbon::create($year, 4, 20)->format('F d, Y');
                 break;
             case 'Q2':
                 $quarterInfo['quarter_name'] = 'Quarter 2';
                 $quarterInfo['quarter_months'] = 'April - June';
                 $quarterInfo['appraisal_start'] = Carbon::create($year, 4, 1)->format('M d');
                 $quarterInfo['appraisal_end'] = Carbon::create($year, 6, 30)->format('M d');
+                $quarterInfo['grace_end'] = Carbon::create($year, 7, 20)->format('M d');
                 $quarterInfo['due_date'] = Carbon::create($year, 7, 20)->format('M d');
-                $quarterInfo['review_start'] = Carbon::create($year, 7, 16)->format('M d');
-                $quarterInfo['review_end'] = Carbon::create($year, 7, 20)->format('M d');
                 $quarterInfo['due_date_full'] = Carbon::create($year, 7, 20)->format('F d, Y');
                 $quarterInfo['appraisal_end_full'] = Carbon::create($year, 6, 30)->format('F d, Y');
+                $quarterInfo['grace_end_full'] = Carbon::create($year, 7, 20)->format('F d, Y');
                 break;
             case 'Q3':
                 $quarterInfo['quarter_name'] = 'Quarter 3';
                 $quarterInfo['quarter_months'] = 'July - September';
                 $quarterInfo['appraisal_start'] = Carbon::create($year, 7, 1)->format('M d');
                 $quarterInfo['appraisal_end'] = Carbon::create($year, 9, 30)->format('M d');
+                $quarterInfo['grace_end'] = Carbon::create($year, 10, 20)->format('M d');
                 $quarterInfo['due_date'] = Carbon::create($year, 10, 20)->format('M d');
-                $quarterInfo['review_start'] = Carbon::create($year, 10, 16)->format('M d');
-                $quarterInfo['review_end'] = Carbon::create($year, 10, 20)->format('M d');
                 $quarterInfo['due_date_full'] = Carbon::create($year, 10, 20)->format('F d, Y');
                 $quarterInfo['appraisal_end_full'] = Carbon::create($year, 9, 30)->format('F d, Y');
+                $quarterInfo['grace_end_full'] = Carbon::create($year, 10, 20)->format('F d, Y');
                 break;
             case 'Q4':
                 $quarterInfo['quarter_name'] = 'Quarter 4';
                 $quarterInfo['quarter_months'] = 'October - December';
                 $quarterInfo['appraisal_start'] = Carbon::create($year, 10, 1)->format('M d');
                 $quarterInfo['appraisal_end'] = Carbon::create($year, 12, 31)->format('M d');
+                $quarterInfo['grace_end'] = Carbon::create($year + 1, 1, 20)->format('M d');
                 $quarterInfo['due_date'] = Carbon::create($year + 1, 1, 20)->format('M d');
-                $quarterInfo['review_start'] = Carbon::create($year + 1, 1, 16)->format('M d');
-                $quarterInfo['review_end'] = Carbon::create($year + 1, 1, 20)->format('M d');
                 $quarterInfo['due_date_full'] = Carbon::create($year + 1, 1, 20)->format('F d, Y');
                 $quarterInfo['appraisal_end_full'] = Carbon::create($year, 12, 31)->format('F d, Y');
+                $quarterInfo['grace_end_full'] = Carbon::create($year + 1, 1, 20)->format('F d, Y');
                 break;
         }
         
-        // Determine if quarter is past, current, or future
+        // Determine if quarter is past, current (including grace), or future
         $now = Carbon::now();
         
-        // For Q4 due date, use next year
         $dueDateYear = ($quarter === 'Q4') ? $year + 1 : $year;
         $appraisalEndYear = $year;
         
         $dueDate = Carbon::createFromFormat('M d Y', $quarterInfo['due_date'] . ' ' . $dueDateYear);
         $appraisalEnd = Carbon::createFromFormat('M d Y', $quarterInfo['appraisal_end'] . ' ' . $appraisalEndYear);
         
+        // Check if currently in grace period
+        $isInGrace = $now->gt($appraisalEnd) && $now->lte($dueDate);
+        
         if ($now->gt($dueDate)) {
             $quarterInfo['is_past'] = true;
             $quarterInfo['is_current'] = false;
             $quarterInfo['is_future'] = false;
+            $quarterInfo['is_in_grace'] = false;
         } elseif ($now->gte($appraisalEnd) && $now->lte($dueDate)) {
             $quarterInfo['is_past'] = false;
             $quarterInfo['is_current'] = true;
             $quarterInfo['is_future'] = false;
+            $quarterInfo['is_in_grace'] = $isInGrace;
         } else {
             $quarterInfo['is_past'] = false;
             $quarterInfo['is_current'] = false;
             $quarterInfo['is_future'] = true;
+            $quarterInfo['is_in_grace'] = false;
+        }
+        
+        // Add grace period status text
+        if ($quarterInfo['is_in_grace']) {
+            $daysLeft = $now->diffInDays($dueDate, false);
+            $quarterInfo['grace_status_text'] = "Grace Period - {$daysLeft} day(s) remaining";
+            $quarterInfo['days_left_in_grace'] = $daysLeft;
+        } else {
+            $quarterInfo['grace_status_text'] = null;
+            $quarterInfo['days_left_in_grace'] = 0;
         }
         
         return $quarterInfo;
     }
     
     /**
-     * Get quarter for a specific date
+     * Get quarter for a specific date (grace period aware)
+     * If date is within grace period, returns the quarter that just ended
      */
     public static function getQuarterForDate($date)
     {
         $date = Carbon::parse($date);
-        $month = $date->month;
+        $year = $date->year;
         
+        // Check grace periods first
+        $gracePeriods = [
+            'Q1' => ['start' => $year . '-01-01', 'grace_end' => $year . '-04-20'],
+            'Q2' => ['start' => $year . '-04-01', 'grace_end' => $year . '-07-20'],
+            'Q3' => ['start' => $year . '-07-01', 'grace_end' => $year . '-10-20'],
+            'Q4' => ['start' => $year . '-10-01', 'grace_end' => ($year + 1) . '-01-20'],
+        ];
+        
+        foreach ($gracePeriods as $quarter => $dates) {
+            $startDate = Carbon::parse($dates['start']);
+            $graceEnd = Carbon::parse($dates['grace_end']);
+            
+            if ($date->between($startDate, $graceEnd)) {
+                return $quarter;
+            }
+        }
+        
+        // Fallback to simple month-based quarter detection
+        $month = $date->month;
         if ($month >= 1 && $month <= 3) {
             return 'Q1';
         } elseif ($month >= 4 && $month <= 6) {
@@ -129,7 +156,7 @@ class QuarterHelper
     }
     
     /**
-     * Get quarter start and end dates for database
+     * Get quarter start and end dates for database (actual quarter dates, not including grace)
      */
     public static function getQuarterDatesForDB($quarter, $year)
     {
@@ -160,12 +187,12 @@ class QuarterHelper
     }
     
     /**
-     * Get all quarters for a year with submission status
+     * Get all quarters for a year with submission status (grace period aware)
      */
     public static function getQuartersWithStatus($employeeNumber, $year = null)
     {
         $year = $year ?: Carbon::now()->year;
-        $currentQuarter = self::getCurrentQuarter();
+        $currentQuarter = self::getCurrentQuarterWithGrace();
         
         // Get all submitted appraisals for this employee and year
         $submittedAppraisals = Appraisal::where('employee_number', $employeeNumber)
@@ -177,6 +204,7 @@ class QuarterHelper
         $result = [];
         $hasMissedQuarters = false;
         $missedQuarters = [];
+        $gracePeriodQuarters = [];
         
         foreach ($quarters as $quarter) {
             $quarterInfo = self::getQuarterInfo($quarter, $year);
@@ -188,25 +216,31 @@ class QuarterHelper
                        date('Y', strtotime($appraisal->start_date)) == $year;
             });
             
-            // Determine status and whether it can be submitted
+            // Determine status and whether it can be submitted (grace period aware)
             $status = 'future';
             $canSubmit = false;
             $isLate = false;
+            $isInGrace = false;
             
             if ($submission) {
                 $status = 'completed';
                 $canSubmit = false;
             } elseif ($quarterInfo['is_past']) {
                 $status = 'missed';
-                // Allow submission of missed quarters
-                $canSubmit = true;
+                $canSubmit = false; // Past grace period - cannot submit
                 $hasMissedQuarters = true;
                 $missedQuarters[] = $quarter;
-                $isLate = true;
             } elseif ($quarterInfo['is_current']) {
-                $status = 'current';
-                // Can submit current quarter
+                if ($quarterInfo['is_in_grace']) {
+                    $status = 'grace';
+                    $isInGrace = true;
+                    $gracePeriodQuarters[] = $quarter;
+                } else {
+                    $status = 'current';
+                }
+                // Can submit current quarter (including grace period)
                 $canSubmit = true;
+                $isLate = $quarterInfo['is_in_grace'];
             } elseif ($quarterInfo['is_future']) {
                 $status = 'future';
                 $canSubmit = false;
@@ -219,9 +253,13 @@ class QuarterHelper
                 'due_date' => $quarterInfo['due_date'],
                 'due_date_full' => $quarterInfo['due_date_full'],
                 'appraisal_end_full' => $quarterInfo['appraisal_end_full'],
+                'grace_end_full' => $quarterInfo['grace_end_full'],
                 'status' => $status,
                 'can_submit' => $canSubmit,
                 'is_late' => $isLate,
+                'is_in_grace' => $isInGrace,
+                'days_left_in_grace' => $quarterInfo['days_left_in_grace'],
+                'grace_status_text' => $quarterInfo['grace_status_text'],
                 'submission' => $submission,
                 'info' => $quarterInfo,
                 'dates' => $quarterDates,
@@ -232,14 +270,53 @@ class QuarterHelper
             'quarters' => $result,
             'has_missed_quarters' => $hasMissedQuarters,
             'missed_quarters' => $missedQuarters,
+            'grace_period_quarters' => $gracePeriodQuarters,
             'current_quarter' => $currentQuarter,
             'current_year' => $year,
             'can_submit_current' => $result[$currentQuarter]['can_submit'] ?? false,
+            'is_current_in_grace' => isset($result[$currentQuarter]) && $result[$currentQuarter]['is_in_grace'],
         ];
     }
     
     /**
-     * Get current quarter
+     * Get current quarter (grace period aware)
+     * Returns the quarter that is currently open for submission
+     */
+    public static function getCurrentQuarterWithGrace()
+    {
+        $now = Carbon::now();
+        $year = $now->year;
+        
+        // Check each quarter's grace period
+        $gracePeriods = [
+            'Q1' => ['grace_end' => $year . '-04-20'],
+            'Q2' => ['grace_end' => $year . '-07-20'],
+            'Q3' => ['grace_end' => $year . '-10-20'],
+            'Q4' => ['grace_end' => ($year + 1) . '-01-20'],
+        ];
+        
+        foreach ($gracePeriods as $quarter => $dates) {
+            $graceEnd = Carbon::parse($dates['grace_end']);
+            if ($now->lte($graceEnd)) {
+                return $quarter;
+            }
+        }
+        
+        // Fallback to simple month detection
+        $month = $now->month;
+        if ($month >= 1 && $month <= 3) {
+            return 'Q1';
+        } elseif ($month >= 4 && $month <= 6) {
+            return 'Q2';
+        } elseif ($month >= 7 && $month <= 9) {
+            return 'Q3';
+        } else {
+            return 'Q4';
+        }
+    }
+    
+    /**
+     * Get current quarter (simple month-based, not grace period aware)
      */
     public static function getCurrentQuarter()
     {
@@ -257,7 +334,7 @@ class QuarterHelper
     }
     
     /**
-     * Get due date for a quarter
+     * Get due date for a quarter (grace period end date)
      */
     public static function getDueDateForQuarter($quarter, $year)
     {
@@ -273,6 +350,58 @@ class QuarterHelper
         }
         
         return null;
+    }
+    
+    /**
+     * Get quarter end date (actual quarter end, not including grace)
+     */
+    public static function getQuarterEndDate($quarter, $year)
+    {
+        switch ($quarter) {
+            case 'Q1':
+                return Carbon::create($year, 3, 31);
+            case 'Q2':
+                return Carbon::create($year, 6, 30);
+            case 'Q3':
+                return Carbon::create($year, 9, 30);
+            case 'Q4':
+                return Carbon::create($year, 12, 31);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check if a quarter is currently in grace period
+     */
+    public static function isInGracePeriod($quarter, $year = null)
+    {
+        $year = $year ?: date('Y');
+        $now = Carbon::now();
+        $quarterEnd = self::getQuarterEndDate($quarter, $year);
+        $dueDate = self::getDueDateForQuarter($quarter, $year);
+        
+        if (!$quarterEnd || !$dueDate) {
+            return false;
+        }
+        
+        return $now->gt($quarterEnd) && $now->lte($dueDate);
+    }
+    
+    /**
+     * Check if a quarter is still open for submission (including grace period)
+     */
+    public static function isQuarterOpen($quarter, $year = null)
+    {
+        $year = $year ?: date('Y');
+        $now = Carbon::now();
+        $dueDate = self::getDueDateForQuarter($quarter, $year);
+        
+        if (!$dueDate) {
+            return false;
+        }
+        
+        return $now->lte($dueDate);
     }
     
     /**
@@ -325,9 +454,10 @@ class QuarterHelper
     public static function wouldBeLate($quarter, $year = null)
     {
         $year = $year ?: date('Y');
-        $dueDate = self::getDueDateForQuarter($quarter, $year);
+        $now = Carbon::now();
+        $quarterEnd = self::getQuarterEndDate($quarter, $year);
         
-        return $dueDate && Carbon::now()->gt($dueDate);
+        return $quarterEnd && $now->gt($quarterEnd);
     }
     
     /**
@@ -366,5 +496,25 @@ class QuarterHelper
         }
         
         return true;
+    }
+    
+    /**
+     * Get days remaining in grace period for a quarter
+     */
+    public static function getDaysRemainingInGrace($quarter, $year = null)
+    {
+        $year = $year ?: date('Y');
+        $now = Carbon::now();
+        $dueDate = self::getDueDateForQuarter($quarter, $year);
+        
+        if (!$dueDate || $now->gt($dueDate)) {
+            return 0;
+        }
+        
+        if (!self::isInGracePeriod($quarter, $year)) {
+            return 0;
+        }
+        
+        return $now->diffInDays($dueDate, false);
     }
 }

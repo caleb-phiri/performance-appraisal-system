@@ -1,228 +1,350 @@
+@extends('layouts.app')
+
+@section('content')
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Appraisal - MOIC</title>
 
-    <title>{{ config('app.name', 'MOIC Performance System') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <!-- Tailwind CSS (if not using Vite for Tailwind) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        :root {
-            --moic-navy: #110484;
-            --moic-accent: #e7581c;
+        .rating-option {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all .2s ease;
         }
-        
-        .gradient-header {
-            background: linear-gradient(135deg, #110484, #1a0c9e);
-        }
-        
-        .active-nav {
-            color: var(--moic-navy);
-            font-weight: 600;
-            position: relative;
-        }
-        
-        .active-nav::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: var(--moic-navy);
+        .nd { background:#fee2e2;color:#dc2626 }
+        .ns { background:#fef3c7;color:#d97706 }
+        .s  { background:#dbeafe;color:#2563eb }
+        .ex { background:#dcfce7;color:#16a34a }
+        .rating-option.selected {
+            border:2px solid currentColor;
+            transform: scale(1.05);
+            font-weight:bold;
         }
     </style>
 </head>
 
-<body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <!-- Logo Section -->
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center space-x-2">
-                            <div class="bg-white p-2 border rounded-lg shadow-sm">
-                                <img class="h-8 w-auto" src="{{ asset('images/moic.png') }}" alt="MOIC Logo" 
-                                     onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2218%22 fill=%22%23110484%22>MOIC</text></svg>';">
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#110484]">MOIC</span>
-                                <span class="text-xs text-gray-500">Performance System</span>
-                            </div>
-                        </div>
+<body class="min-h-screen bg-gray-50 p-4">
 
-                        <!-- Partnership Separator -->
-                        <div class="flex flex-col items-center">
-                            <div class="w-6 h-6 bg-gradient-to-br from-[#110484] to-[#e7581c] rounded-full flex items-center justify-center">
-                                <i class="fas fa-handshake text-white text-xs"></i>
-                            </div>
-                            <span class="text-xs text-gray-500 mt-1">Partner</span>
-                        </div>
+@php
+    // Debug: Check if appraisal exists
+    if(!isset($appraisal)) {
+        dd('$appraisal variable is not set');
+    }
+@endphp
 
-                        <!-- TKC Logo -->
-                        <div class="flex items-center space-x-2">
-                            <div class="bg-white p-2 border rounded-lg shadow-sm">
-                                <img class="h-8 w-auto" src="{{ asset('images/TKC.png') }}" alt="TKC Logo"
-                                     onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23e7581c%22>TKC</text></svg>';">
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="font-bold text-[#e7581c]">TKC</span>
-                                <span class="text-xs text-gray-500">Partner</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Navigation Links -->
-                    <div class="flex items-center space-x-6">
-                        <!-- Dynamic Navigation based on User Role -->
-                        @php
-                            $currentRoute = Route::currentRouteName();
-                            $isAdmin = auth()->user()->user_type === 'admin' || auth()->check() && in_array(auth()->user()->user_type, ['admin', 'super_admin']);
-                        @endphp
-                        
-                        @if($isAdmin)
-                            <!-- Admin Navigation -->
-                            <a href="{{ route('admin.dashboard') }}" 
-                               class="{{ $currentRoute === 'admin.dashboard' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-home mr-1"></i> Dashboard
-                            </a>
-                            <a href="{{ route('admin.users.index') }}" 
-                               class="{{ str_starts_with($currentRoute, 'admin.users') ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-users mr-1"></i> Users
-                            </a>
-                            <a href="{{ route('admin.supervisor-assignments') }}" 
-                               class="{{ $currentRoute === 'admin.supervisor-assignments' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-user-tie mr-1"></i> Supervisor Assignments
-                            </a>
-                            <a href="{{ route('admin.appraisals.index') }}" 
-                               class="{{ str_starts_with($currentRoute, 'admin.appraisals') ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-file-alt mr-1"></i> Appraisals
-                            </a>
-                            <a href="{{ route('admin.reports') }}" 
-                               class="{{ $currentRoute === 'admin.reports' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-chart-bar mr-1"></i> Reports
-                            </a>
-                            <a href="{{ route('admin.settings') }}" 
-                               class="{{ $currentRoute === 'admin.settings' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-cog mr-1"></i> Settings
-                            </a>
-                        @elseif(auth()->user()->user_type === 'supervisor')
-                            <!-- Supervisor Navigation -->
-                            <a href="{{ route('supervisor.dashboard') }}" 
-                               class="{{ $currentRoute === 'supervisor.dashboard' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
-                            </a>
-                            <a href="{{ route('supervisor.my-team') }}" 
-                               class="{{ $currentRoute === 'supervisor.my-team' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-users mr-1"></i> My Team
-                            </a>
-                            <a href="{{ route('supervisor.appraisals') }}" 
-                               class="{{ $currentRoute === 'supervisor.appraisals' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-file-alt mr-1"></i> Appraisals
-                            </a>
-                            <a href="{{ route('supervisor.ratings') }}" 
-                               class="{{ $currentRoute === 'supervisor.ratings' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-star mr-1"></i> Ratings
-                            </a>
-                        @else
-                            <!-- Employee Navigation -->
-                            <a href="{{ route('dashboard') }}" 
-                               class="{{ $currentRoute === 'dashboard' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-home mr-1"></i> Dashboard
-                            </a>
-                            <a href="{{ route('appraisals.index') }}" 
-                               class="{{ str_starts_with($currentRoute, 'appraisals') && !str_starts_with($currentRoute, 'admin.appraisals') ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-file-alt mr-1"></i> My Appraisals
-                            </a>
-                            <a href="{{ route('profile.edit') }}" 
-                               class="{{ $currentRoute === 'profile.edit' ? 'active-nav text-[#110484] font-semibold' : 'text-gray-700 hover:text-[#110484]' }}">
-                                <i class="fas fa-user mr-1"></i> Profile
-                            </a>
-                        @endif
-                    </div>
-
-                    <!-- User Info & Dropdown -->
-                    <div class="flex items-center space-x-4 relative" x-data="{ open: false }">
-                        <div class="text-right hidden md:block">
-                            <span class="font-semibold text-gray-700">{{ auth()->user()->name }}</span>
-                            <p class="text-xs text-gray-500 capitalize">{{ auth()->user()->user_type }}</p>
-                        </div>
-                        <button @click="open = !open" class="w-8 h-8 bg-[#110484] text-white rounded-full flex items-center justify-center hover:bg-[#0a0369] transition-colors">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        
-                        <!-- Dropdown Menu -->
-                        <div x-show="open" @click.away="open = false" 
-                             class="absolute right-0 mt-10 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-user-circle mr-2"></i> Profile
-                            </a>
-                            <a href="{{ route('profile.password') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-lock mr-2"></i> Change Password
-                            </a>
-                            <div class="border-t border-gray-100 my-1"></div>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> Log Out
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+<div class="max-w-7xl mx-auto mb-6">
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 flex justify-between">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-edit"></i> Edit Performance Appraisal
+                </h1>
+                <p class="opacity-90">{{ $appraisal->appraisal_period ?? $appraisal->period ?? 'Appraisal Period' }}</p>
             </div>
-        </nav>
 
-        <!-- Page Heading -->
-        @isset($header)
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
+            <a href="{{ route('appraisals.show', $appraisal->id) }}"
+               class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-50">
+                <i class="fas fa-arrow-left mr-1"></i> Back
+            </a>
+        </div>
+    </div>
+</div>
 
-        <!-- Main Content -->
-        <main>
-            {{ $slot }}
-        </main>
+<main class="max-w-7xl mx-auto">
+<form id="appraisalForm"
+      method="POST"
+      action="{{ route('appraisals.update', $appraisal->id) }}"
+      class="space-y-6">
 
-        <!-- Footer -->
-        <footer class="bg-white border-t mt-8">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-sm text-gray-500">
-                        &copy; {{ date('Y') }} MOIC Performance System. All rights reserved.
-                    </div>
-                    <div class="flex space-x-4 mt-2 md:mt-0">
-                        <a href="#" class="text-sm text-gray-500 hover:text-[#110484]">Privacy Policy</a>
-                        <a href="#" class="text-sm text-gray-500 hover:text-[#110484]">Terms of Service</a>
-                        <a href="#" class="text-sm text-gray-500 hover:text-[#110484]">Help Center</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
+@csrf
+@method('PUT')
+
+<input type="hidden" name="status" id="formStatus" value="{{ $appraisal->status ?? 'draft' }}">
+
+<!-- INFO -->
+<div class="bg-white rounded-xl shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Appraisal Information</h2>
+
+    <div class="grid md:grid-cols-3 gap-4">
+        <div>
+            <label class="text-sm font-medium text-gray-700">Employee</label>
+            <input type="text" value="{{ $appraisal->employee->name ?? auth()->user()->name ?? 'N/A' }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-gray-700">Department</label>
+            <input type="text" value="{{ $appraisal->employee->department ?? 'N/A' }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-gray-700">Supervisor</label>
+            <input type="text" value="{{ $appraisal->supervisor->name ?? 'N/A' }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-gray-700">Start Date</label>
+            <input type="date" value="{{ $appraisal->start_date ? (is_string($appraisal->start_date) ? $appraisal->start_date : $appraisal->start_date->format('Y-m-d')) : '' }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-gray-700">End Date</label>
+            <input type="date" value="{{ $appraisal->end_date ? (is_string($appraisal->end_date) ? $appraisal->end_date : $appraisal->end_date->format('Y-m-d')) : '' }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-gray-700">Status</label>
+            <input type="text" value="{{ ucfirst($appraisal->status ?? 'draft') }}"
+                   class="w-full border rounded px-3 py-2 bg-gray-100" readonly>
+        </div>
+    </div>
+</div>
+
+<!-- KPA TABLE -->
+<div class="bg-white rounded-xl shadow p-6">
+<h2 class="font-semibold text-lg mb-4">Key Performance Areas</h2>
+
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead class="bg-blue-600 text-white">
+<tr>
+    <th class="p-3 text-left">Category</th>
+    <th class="p-3 text-left">KPA</th>
+    <th class="p-3 text-left">KPI</th>
+    <th class="p-3 text-center">Weight %</th>
+    <th class="p-3 text-center">Rating</th>
+    <th class="p-3 text-left">Comments</th>
+</tr>
+</thead>
+
+<tbody>
+@php
+    // Get KPAs - check different possible relationship names
+    $kpas = collect([]);
+    if(method_exists($appraisal, 'kpas')) {
+        $kpas = $appraisal->kpas;
+    } elseif(method_exists($appraisal, 'kpa')) {
+        $kpas = $appraisal->kpa;
+    } elseif(isset($appraisal->kpas)) {
+        $kpas = $appraisal->kpas;
+    } elseif(isset($appraisal->kpa)) {
+        $kpas = $appraisal->kpa;
+    }
+@endphp
+
+@forelse($kpas as $kpa)
+<tr class="border-b hover:bg-gray-50">
+
+<td class="p-3 font-semibold">{{ $kpa->category ?? 'N/A' }}</td>
+
+<td class="p-3">
+    <div class="font-medium">{{ $kpa->kpa ?? $kpa->name ?? 'N/A' }}</div>
+    @if(!empty($kpa->result_indicators))
+    <div class="text-xs text-gray-500">{{ $kpa->result_indicators }}</div>
+    @endif
+</td>
+
+<td class="p-3 text-center font-bold">{{ $kpa->kpi ?? $kpa->target ?? 'N/A' }}</td>
+
+<td class="p-3 text-center">
+    <input type="number"
+           name="kpas[{{ $kpa->id }}][weight]"
+           value="{{ $kpa->weight ?? 0 }}"
+           class="w-20 border rounded px-2 py-1 text-center"
+           min="0" max="100" step="0.1" required
+           oninput="recalculateTotals()">
+</td>
+
+<td class="p-3">
+    <div class="grid grid-cols-4 gap-1 min-w-[200px]">
+        @php
+            $ratings = [
+                1 => ['label' => 'ND', 'class' => 'nd'],
+                2 => ['label' => 'NS', 'class' => 'ns'],
+                3 => ['label' => 'S', 'class' => 's'],
+                4 => ['label' => 'EX', 'class' => 'ex']
+            ];
+            $currentRating = $kpa->self_rating ?? $kpa->rating ?? 0;
+        @endphp
+        
+        @foreach($ratings as $value => $rating)
+        <div class="rating-option {{ $rating['class'] }} 
+             {{ $currentRating == $value ? 'selected' : '' }}"
+             onclick="setRating({{ $kpa->id }}, {{ $value }}, this)">
+            {{ $rating['label'] }}
+        </div>
+        @endforeach
     </div>
 
-    <!-- Additional Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    @stack('scripts')
+    <input type="hidden"
+           id="rating_{{ $kpa->id }}"
+           name="kpas[{{ $kpa->id }}][self_rating]"
+           value="{{ $currentRating }}">
+</td>
+
+<td class="p-3">
+    <textarea name="kpas[{{ $kpa->id }}][comments]"
+              rows="2"
+              class="w-full border rounded px-2 py-1 text-sm"
+              placeholder="Add comments...">{{ $kpa->comments ?? '' }}</textarea>
+</td>
+
+</tr>
+@empty
+<tr>
+    <td colspan="6" class="p-6 text-center text-gray-500">
+        No KPAs found for this appraisal. 
+        @if(auth()->user()->user_type === 'admin')
+        <a href="#" class="text-blue-600 hover:underline">Add KPAs</a>
+        @endif
+    </td>
+</tr>
+@endforelse
+
+@if($kpas->count() > 0)
+<tr class="bg-blue-50 font-bold">
+<td colspan="3" class="p-3 text-right">TOTAL</td>
+<td class="p-3 text-center">
+    <span id="totalWeight">{{ $kpas->sum('weight') }}</span>%
+</td>
+<td class="p-3 text-center">
+    <span id="totalRating">{{ $kpas->sum('self_rating') ?? $kpas->sum('rating') }}</span>
+</td>
+<td class="p-3 text-center">
+    <span id="totalScore">{{ number_format($appraisal->total_self_score ?? $appraisal->total_score ?? 0, 2) }}%</span>
+</td>
+</tr>
+@endif
+
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- COMMENTS -->
+<div class="bg-white rounded-xl shadow p-6">
+    <h3 class="font-semibold mb-2">Development Needs</h3>
+    <textarea name="development_needs" 
+              class="w-full border rounded px-3 py-2" 
+              rows="3"
+              placeholder="What areas need development?">{{ $appraisal->development_needs ?? '' }}</textarea>
+
+    <h3 class="font-semibold mt-4 mb-2">Additional Comments</h3>
+    <textarea name="employee_comments" 
+              class="w-full border rounded px-3 py-2" 
+              rows="3"
+              placeholder="Any additional comments or notes...">{{ $appraisal->employee_comments ?? $appraisal->comments ?? '' }}</textarea>
+</div>
+
+<!-- SUPERVISOR COMMENTS (if any) -->
+@if(!empty($appraisal->supervisor_comments))
+<div class="bg-white rounded-xl shadow p-6 border-l-4 border-yellow-400">
+    <h3 class="font-semibold mb-2 flex items-center">
+        <i class="fas fa-user-tie text-yellow-600 mr-2"></i>
+        Supervisor Comments
+    </h3>
+    <div class="bg-yellow-50 p-3 rounded">
+        {{ $appraisal->supervisor_comments }}
+    </div>
+</div>
+@endif
+
+<!-- ACTIONS -->
+<div class="bg-white rounded-xl shadow p-6 flex justify-between items-center">
+    <div class="flex items-center text-sm text-gray-600">
+        <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+        <span>Last updated: {{ $appraisal->updated_at ? (is_string($appraisal->updated_at) ? $appraisal->updated_at : $appraisal->updated_at->format('M d, Y H:i')) : 'Not saved yet' }}</span>
+    </div>
+
+    <div class="flex gap-3">
+        <button type="button" onclick="saveDraft()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg transition-colors">
+            <i class="fas fa-save mr-1"></i> Save Draft
+        </button>
+
+        <button type="button" onclick="submitFinal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+            <i class="fas fa-paper-plane mr-1"></i> Submit
+        </button>
+    </div>
+</div>
+
+</form>
+</main>
+
+<script>
+function setRating(id, value, el) {
+    // Update hidden input
+    document.getElementById('rating_' + id).value = value;
+
+    // Remove selected class from all options in this row
+    el.parentElement.querySelectorAll('.rating-option')
+        .forEach(opt => opt.classList.remove('selected'));
+
+    // Add selected class to clicked option
+    el.classList.add('selected');
+    
+    recalculateTotals();
+}
+
+function recalculateTotals() {
+    let totalWeight = 0;
+    let totalRating = 0;
+    let kpaCount = 0;
+
+    // Calculate total weight
+    document.querySelectorAll('input[name$="[weight]"]').forEach(w => {
+        totalWeight += Number(w.value) || 0;
+        kpaCount++;
+    });
+
+    // Calculate total rating
+    document.querySelectorAll('input[name$="[self_rating]"]').forEach(r => {
+        totalRating += Number(r.value) || 0;
+    });
+
+    // Update totals display
+    document.getElementById('totalWeight').innerText = totalWeight.toFixed(1);
+    document.getElementById('totalRating').innerText = totalRating;
+    
+    // Calculate percentage score (if max rating is 4 per KPA)
+    if (kpaCount > 0) {
+        let maxPossible = kpaCount * 4;
+        let percentage = (totalRating / maxPossible) * 100;
+        document.getElementById('totalScore').innerText = percentage.toFixed(2) + '%';
+    }
+}
+
+function saveDraft() {
+    document.getElementById('formStatus').value = 'draft';
+    document.getElementById('appraisalForm').submit();
+}
+
+function submitFinal() {
+    if (confirm('Are you sure you want to submit this appraisal? You will not be able to make further changes after submission.')) {
+        document.getElementById('formStatus').value = 'submitted';
+        document.getElementById('appraisalForm').submit();
+    }
+}
+
+// Initialize totals on page load
+document.addEventListener('DOMContentLoaded', function() {
+    recalculateTotals();
+});
+</script>
+
 </body>
 </html>
+@endsection

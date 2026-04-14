@@ -46,6 +46,10 @@ class User extends Authenticatable
         'left_at',
         'left_reason',
         'left_notes',
+        
+        // Role fields
+        'role',
+        'is_admin',
     ];
 
     protected $hidden = [
@@ -72,6 +76,9 @@ class User extends Authenticatable
         // Left company casts
         'left_company' => 'boolean',
         'left_at' => 'datetime',
+        
+        // Role casts
+        'is_admin' => 'boolean',
     ];
 
     // ==============================================
@@ -335,14 +342,6 @@ class User extends Authenticatable
     public function canApproveRequests()
     {
         return $this->isSupervisor() || $this->hasSubordinates();
-    }
-
-    /**
-     * Check if user is supervisor
-     */
-    public function isSupervisor()
-    {
-        return $this->user_type === 'supervisor';
     }
 
     /**
@@ -705,4 +704,215 @@ class User extends Authenticatable
     {
         return $query->where('left_company', false);
     }
+
+    // ==============================================
+    // ROLE-BASED METHODS (Single, enhanced version)
+    // ==============================================
+
+    /**
+     * Enhanced isSupervisor method with multiple checks
+     * This is the ONLY isSupervisor method in the class
+     */
+    public function isSupervisor()
+    {
+        // Check by user_type first (most common)
+        if ($this->user_type === 'supervisor') {
+            return true;
+        }
+        
+        // Check by role field if it exists
+        if (isset($this->role) && in_array($this->role, ['supervisor', 'admin', 'manager'])) {
+            return true;
+        }
+        
+        // Check by is_admin flag
+        if (isset($this->is_admin) && $this->is_admin) {
+            return true;
+        }
+        
+        // Check by department (management departments)
+        $managementDepartments = ['Management', 'HR', 'Administration', 'Executive'];
+        if (in_array($this->department, $managementDepartments)) {
+            return true;
+        }
+        
+        // Check if user has subordinates (practical supervisor check)
+        if ($this->subordinates()->count() > 0) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin()
+    {
+        return $this->is_admin ?? false;
+    }
+
+    /**
+     * Check if user is HR
+     */
+    public function isHr()
+    {
+        return $this->department === 'HR' || $this->user_type === 'hr';
+    }
+
+    /**
+     * Check if user is manager
+     */
+    public function isManager()
+    {
+        return $this->role === 'manager' || $this->user_type === 'manager';
+    }
+    /**
+ * Get quarterly self score for an employee
+ */
+public function getQuarterlySelfScore($quarter, $year)
+{
+    $dates = $this->getQuarterDateRange($quarter, $year);
+    
+    $appraisals = $this->appraisals()
+        ->whereBetween('created_at', [$dates['start'], $dates['end']])
+        ->with('kpas')
+        ->get();
+    
+    if ($appraisals->isEmpty()) {
+        return 0;
+    }
+    
+    $totalScore = 0;
+    $count = 0;
+    
+    foreach ($appraisals as $appraisal) {
+        $score = $this->calculateAppraisalSelfScore($appraisal);
+        if ($score > 0) {
+            $totalScore += $score;
+            $count++;
+        }
+    }
+    
+    return $count > 0 ? round($totalScore / $count, 1) : 0;
+}
+
+/**
+ * Get quarterly manager score for an employee
+ */
+public function getQuarterlyManagerScore($quarter, $year)
+{
+    $dates = $this->getQuarterDateRange($quarter, $year);
+    
+    $appraisals = $this->appraisals()
+        ->whereBetween('created_at', [$dates['start'], $dates['end']])
+        ->with('kpas')
+        ->get();
+    
+    if ($appraisals->isEmpty()) {
+        return 0;
+    }
+    
+    $totalScore = 0;
+    $count = 0;
+    
+    foreach ($appraisals as $appraisal) {
+        $score = $this->calculateAppraisalManagerScore($appraisal);
+        if ($score > 0) {
+            $totalScore += $score;
+            $count++;
+        }
+    }
+    
+    return $count > 0 ? round($totalScore / $count, 1) : 0;
+}
+
+/**
+ * Calculate self score from appraisal
+ */
+private function calculateAppraisalSelfScore($appraisal)
+{
+    if (!$appraisal->kpas || $appraisal->kpas->isEmpty()) {
+        return 0;
+    }
+    
+    $totalWeight = 0;
+    $weightedSum = 0;
+    
+    foreach ($appraisal->kpas as $kpa) {
+        $weight = $kpa->weight ?? 0;
+        $totalWeight += $weight;
+        
+        $selfRating = $kpa->self_rating ?? 0;
+        $kpi = $kpa->kpi ?? 4;
+        
+        if ($selfRating > 0 && $kpi > 0) {
+            $percentage = ($selfRating / $kpi) * 100;
+            $weightedSum += ($percentage * $weight) / 100;
+        }
+    }
+    
+    return $totalWeight > 0 ? $weightedSum : 0;
+}
+
+/**
+ * Calculate manager score from appraisal
+ */
+private function calculateAppraisalManagerScore($appraisal)
+{
+    if (!$appraisal->kpas || $appraisal->kpas->isEmpty()) {
+        return 0;
+    }
+    
+    $totalWeight = 0;
+    $weightedSum = 0;
+    
+    foreach ($appraisal->kpas as $kpa) {
+        $weight = $kpa->weight ?? 0;
+        $totalWeight += $weight;
+        
+        $managerRating = $kpa->supervisor_rating ?? 0;
+        $kpi = $kpa->kpi ?? 4;
+        
+        if ($managerRating > 0 && $kpi > 0) {
+            $percentage = ($managerRating / $kpi) * 100;
+            $weightedSum += ($percentage * $weight) / 100;
+        }
+    }
+    
+    return $totalWeight > 0 ? $weightedSum : 0;
+}
+
+/**
+ * Get quarter date range
+ */
+private function getQuarterDateRange($quarter, $year)
+{
+    $quarters = [
+        'Q1' => ['start' => "$year-01-01", 'end' => "$year-03-31"],
+        'Q2' => ['start' => "$year-04-01", 'end' => "$year-06-30"],
+        'Q3' => ['start' => "$year-07-01", 'end' => "$year-09-30"],
+        'Q4' => ['start' => "$year-10-01", 'end' => "$year-12-31"],
+    ];
+    
+    return $quarters[$quarter] ?? $quarters['Q1'];
+}
+
+/**
+ * Get monthly salary attribute (if not exists)
+ */
+public function getMonthlySalaryAttribute($value)
+{
+    // If you have a salary field, use it, otherwise return a default or calculate
+    return $value ?? 0;
+}
+
+/**
+ * Get position attribute (alias for job_title)
+ */
+public function getPositionAttribute()
+{
+    return $this->job_title;
+}
+
 }

@@ -2,159 +2,972 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Appraisals - MOIC Performance Appraisal System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alpine.js for dropdown functionality -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Custom CSS - ENHANCED TABLE STYLES -->
     <style>
+        /* MOIC Brand Colors */
         :root {
             --moic-navy: #110484;
+            --moic-navy-light: #3328a5;
             --moic-accent: #e7581c;
-            --moic-gradient: linear-gradient(135deg, #110484, #e7581c);
+            --moic-accent-light: #ff6b2d;
+            --moic-blue: #1a0c9e;
+            --moic-blue-light: #2d1fd1;
+            --moic-gradient: linear-gradient(135deg, var(--moic-navy), var(--moic-blue));
+            --moic-gradient-accent: linear-gradient(135deg, var(--moic-accent), #ff7c45);
+            
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+        }
+        
+        /* Base styles for consistent zoom */
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: #f0f3f8;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(17, 4, 132, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(231, 88, 28, 0.03) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 10px);
+            min-height: 100vh;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        
+        /* ============================================
+           ENHANCED TABLE STYLES - PROFESSIONAL & MODERN
+           ============================================ */
+        
+        /* Main Table Container */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .table-container:hover {
+            box-shadow: 0 8px 30px rgba(17, 4, 132, 0.1);
+        }
+        
+        /* Enhanced Table */
+        .table-moic-enhanced {
+            width: 100%;
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+        }
+        
+        /* Table Header */
+        .table-moic-enhanced thead th {
+            background: linear-gradient(135deg, #110484 0%, #1a0c9e 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem 1rem;
+            border-bottom: 3px solid var(--moic-accent);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .table-moic-enhanced thead th:first-child {
+            border-top-left-radius: 12px;
+        }
+        
+        .table-moic-enhanced thead th:last-child {
+            border-top-right-radius: 12px;
+        }
+        
+        /* Table Body Rows */
+        .table-moic-enhanced tbody tr {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #eef2f6;
+        }
+        
+        .table-moic-enhanced tbody tr:hover {
+            background: linear-gradient(90deg, rgba(17, 4, 132, 0.02), rgba(231, 88, 28, 0.02));
+            transform: translateX(2px);
+        }
+        
+        /* Table Cells */
+        .table-moic-enhanced tbody td {
+            padding: 1rem 1rem;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            color: #1f2937;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        
+        /* Status Badges - Enhanced */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        
+        .status-badge i {
+            font-size: 0.7rem;
+        }
+        
+        .status-badge:hover {
+            transform: scale(1.02);
+        }
+        
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        
+        .status-submitted {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .status-in-review {
+            background: #f3e8ff;
+            color: #6b21a5;
+            border: 1px solid #e9d5ff;
+        }
+        
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .status-archived {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Score Cards Inside Table - Updated for proper percentage display */
+        .score-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f9fafb;
+            padding: 0.375rem 0.875rem;
+            border-radius: 12px;
+            border-left: 3px solid;
+            min-width: 130px;
+        }
+        
+        .score-high {
+            border-left-color: #10b981;
+        }
+        
+        .score-medium {
+            border-left-color: #f59e0b;
+        }
+        
+        .score-low {
+            border-left-color: #ef4444;
+        }
+        
+        .score-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .score-percent {
+            font-size: 0.7rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        /* Progress Bar Enhanced */
+        .progress-enhanced {
+            width: 80px;
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .progress-bar-enhanced {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-bar-high {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+        
+        .progress-bar-medium {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+        
+        .progress-bar-low {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+        
+        /* Supervisor Avatars */
+        .supervisor-avatar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+        
+        .supervisor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 0.25rem 0.625rem;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+        
+        .supervisor-badge:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        
+        .supervisor-badge.rated {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .supervisor-badge i {
+            font-size: 0.65rem;
+        }
+        
+        .primary-badge {
+            background: #8b5cf6;
+            color: white;
+            font-size: 0.55rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            margin-left: 0.25rem;
+        }
+        
+        /* Action Buttons Enhanced */
+        .action-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .action-icon i {
+            font-size: 0.875rem;
+        }
+        
+        .action-icon:hover {
+            transform: translateY(-2px);
+        }
+        
+        .action-view {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .action-view:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .action-edit {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .action-edit:hover {
+            background: #10b981;
+            color: white;
+        }
+        
+        .action-submit {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+        
+        .action-submit:hover {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .action-rate {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .action-rate:hover {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .action-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .action-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .action-print {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+        
+        .action-print:hover {
+            background: #6b7280;
+            color: white;
+        }
+        
+        /* Employee Info Cell */
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #110484, #e7581c);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .employee-details {
+            min-width: 0;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            color: #110484;
+            margin-bottom: 0.125rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .employee-id {
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+        
+        /* Period Info */
+        .period-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .period-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .period-type {
+            font-size: 0.65rem;
+            color: #6b7280;
+        }
+        
+        /* Date Cell */
+        .date-cell {
+            white-space: nowrap;
+        }
+        
+        .date-day {
+            font-weight: 500;
+        }
+        
+        .date-time {
+            font-size: 0.65rem;
+            color: #6b7280;
+        }
+        
+        /* Table Footer */
+        .table-footer {
+            background: #f9fafb;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Filter Label */
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            .table-moic-enhanced thead th {
+                font-size: 0.65rem;
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .table-moic-enhanced tbody td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .employee-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+            
+            .employee-name {
+                font-size: 0.8rem;
+            }
+            
+            .action-icon {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .action-icon i {
+                font-size: 0.75rem;
+            }
+            
+            .progress-enhanced {
+                width: 50px;
+            }
+            
+            .score-card {
+                min-width: 110px;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+        
+        /* Header Styles */
+        .moic-header {
+            background: linear-gradient(135deg, #110484, #1a0c9e, #110484, #e7581c);
+            background-size: 300% 300%;
+            animation: gradientShift 15s ease infinite;
+            box-shadow: 0 2px 10px rgba(17, 4, 132, 0.15);
+            color: white;
+            position: relative;
+            z-index: 1020;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card-moic {
+            border: none;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        
+        .card-moic:hover {
+            box-shadow: 0 10px 20px rgba(17, 4, 132, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card {
+            border: none;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            background-color: white;
+            padding: 1rem;
+            height: 100%;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 10px 20px rgba(17, 4, 132, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .filter-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .btn-moic {
+            background: linear-gradient(135deg, #110484, #1a0c9e);
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+        
+        .btn-moic:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(17, 4, 132, 0.3);
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, #e7581c, #ff7c45);
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-accent:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(231, 88, 28, 0.3);
+        }
+        
+        .btn-outline-moic {
+            background: transparent;
+            border: 1px solid #110484;
+            color: #110484 !important;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-moic:hover {
+            background: #110484;
+            color: white !important;
+            transform: translateY(-1px);
+        }
+        
+        .nav-link-moic {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        
+        .nav-link-moic:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link-footer {
+            color: #110484;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .nav-link-footer:hover {
+            background: linear-gradient(135deg, rgba(17, 4, 132, 0.05), rgba(231, 88, 28, 0.05));
+            transform: translateY(-1px);
+        }
+        
+        .container-custom {
+            max-width: 80rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .avatar-gradient {
+            background: linear-gradient(135deg, #110484, #e7581c);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .stat-icon i {
+            font-size: 20px;
+        }
+        
+        .stat-number {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        .bg-green-50 { background-color: #f0fdf4 !important; }
+        .bg-yellow-50 { background-color: #fefce8 !important; }
+        .bg-purple-50 { background-color: #faf5ff !important; }
+        .bg-gray-50 { background-color: #f9fafb !important; }
+        .bg-orange-50 { background-color: #fff7ed !important; }
+        
+        .text-green-600 { color: #059669 !important; }
+        .text-purple-600 { color: #7c3aed !important; }
+        .text-blue-600 { color: #2563eb !important; }
+        .text-yellow-600 { color: #d97706 !important; }
+        .text-white-50 { color: rgba(255, 255, 255, 0.7) !important; }
+        
+        .pagination-moic .page-link {
+            color: #110484;
+            border: 1px solid #d1d5db;
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .pagination-moic .page-item.active .page-link {
+            background: linear-gradient(135deg, #110484, #1a0c9e);
+            border-color: #110484;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: block !important;
+            }
+            .stat-number {
+                font-size: 18px;
+            }
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+            }
+            .stat-icon i {
+                font-size: 16px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
+        }
+        
+        .truncate-tooltip {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 120px;
+            cursor: help;
+        }
+        
+        .min-w-0 {
+            min-width: 0;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body>
     <!-- Header with MOIC Gradient -->
-    <header class="bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <!-- MOIC Logo with white background -->
-                    <div class="bg-white p-1.5 rounded-md mr-3">
-                        <img class="h-8 w-auto" src="{{ asset('images/moic.png') }}" alt="MOIC Logo">
+    <header class="moic-header">
+        <div class="container-custom px-3 py-2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white p-1 rounded me-3">
+                        <img class="img-fluid" style="height: 2rem;" src="{{ asset('images/moic.png') }}" alt="MOIC Logo" onerror="this.style.display='none'">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold">Performance Appraisals</h1>
-                        <p class="text-blue-100 text-sm">
-                            <i class="fas fa-user mr-1"></i>
-                            {{ auth()->user()->user_type === 'supervisor' ? 'Supervisor' : 'Employee' }}: 
-                            <span class="font-semibold">{{ auth()->user()->name ?? 'User' }}</span>
-                            <span class="mx-2">•</span>
-                            <i class="fas fa-id-badge mr-1"></i>
-                            ID: <span class="font-mono font-semibold">{{ auth()->user()->employee_number ?? 'N/A' }}</span>
-                        </p>
+                        <h1 class="h4 mb-0 fw-bold">Performance Appraisals</h1>
+                        <div class="d-flex align-items-center flex-wrap">
+                            <span class="text-white-50 small me-3">
+                                <i class="fas fa-user me-1"></i>
+                                {{ auth()->user()->user_type === 'supervisor' ? 'Supervisor' : 'Employee' }}: 
+                                <span class="fw-medium">{{ auth()->user()->name ?? 'User' }}</span>
+                            </span>
+                            <span class="text-white-50 small">
+                                <i class="fas fa-id-badge me-1"></i>
+                                ID: <span class="fw-medium">{{ auth()->user()->employee_number ?? 'N/A' }}</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-white">{{ auth()->user()->name ?? 'User' }}</span>
-                    <a href="{{ route('dashboard') }}" class="bg-white text-[#110484] px-4 py-2 rounded hover:bg-gray-100 transition font-medium">
-                        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-                    </a>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-white d-none d-md-inline">{{ auth()->user()->name ?? 'User' }}</span>
+                    
+                    <div class="dropdown desktop-only">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2 moic-navy"></i> Profile</a></li>
+                            <li><a href="{{ route('appraisals.quarterly-summary.index', request()->all()) }}" class="dropdown-item"><i class="fas fa-chart-bar me-2 moic-navy"></i> Quarterly Summary</a></li>
+                            <li><a href="{{ route('appraisals.quarterly-summary.download', request()->all()) }}" class="dropdown-item" target="_blank"><i class="fas fa-download me-2 moic-navy"></i> Download Excel</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-home me-2 moic-navy"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ route('leave.index') }}"><i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave</a></li>
+                            <li><a class="dropdown-item" href="{{ route('leave.balance') }}"><i class="fas fa-wallet me-2 moic-navy"></i> Balance</a></li>
+                            <li><a class="dropdown-item" href="{{ route('calendar.index') }}"><i class="fas fa-calendar me-2 moic-accent"></i> Calendar</a></li>
+                            <li><a class="dropdown-item" href="{{ route('appraisals.index') }}"><i class="fas fa-file-alt me-2 moic-navy"></i> Appraisals</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown mobile-only">
+                        <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end mobile-menu">
+                            <li class="dropdown-header">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-gradient me-3">{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</div>
+                                    <div>
+                                        <div class="fw-bold">{{ auth()->user()->name ?? 'User' }}</div>
+                                        <div class="small text-muted">{{ auth()->user()->employee_number ?? '' }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-home me-2 moic-navy"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ route('appraisals.quarterly-summary.index', request()->all()) }}"><i class="fas fa-chart-bar me-2 moic-navy"></i> Quarterly Summary</a></li>
+                            <li><a class="dropdown-item" href="{{ route('appraisals.quarterly-summary.download', request()->all()) }}" target="_blank"><i class="fas fa-download me-2 moic-navy"></i> Download Excel</a></li>
+                            <li><a class="dropdown-item" href="{{ route('leave.index') }}"><i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave</a></li>
+                            <li><a class="dropdown-item" href="{{ route('leave.balance') }}"><i class="fas fa-wallet me-2 moic-navy"></i> Balance</a></li>
+                            <li><a class="dropdown-item" href="{{ route('calendar.index') }}"><i class="fas fa-calendar me-2 moic-accent"></i> Calendar</a></li>
+                            <li><a class="dropdown-item" href="{{ route('appraisals.index') }}"><i class="fas fa-file-alt me-2 moic-navy"></i> Appraisals</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2 moic-navy"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ route('appraisals.create') }}"><i class="fas fa-plus me-2 text-success"></i> New Appraisal</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Supervisor Employee Selection -->
-            @if(auth()->user()->user_type === 'supervisor')
-            <div class="mb-6">
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center">
-                            <div class="bg-[#110484] text-white p-2 rounded mr-3">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-bold text-[#110484]">My Assigned Employees</h2>
-                                <p class="text-sm text-gray-600">View appraisals for employees assigned to you (primary or secondary)</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <a href="{{ route('appraisals.index') }}" class="bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white px-4 py-2 rounded hover:shadow transition text-sm font-medium">
-                                All Assigned Employees
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Employee Filter -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Employee:</label>
-                        <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('appraisals.index') }}" 
-                               class="px-3 py-1 rounded font-medium {{ !request()->has('employee_number') ? 'bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                                All Employees
-                            </a>
-                            @foreach($teamMembers ?? [] as $member)
-                            @php
-                                // Get supervisor relationship info
-                                $isPrimary = false;
-                                foreach($member->ratingSupervisors as $supervisor) {
-                                    if ($supervisor->employee_number === auth()->user()->employee_number) {
-                                        $isPrimary = $supervisor->pivot->is_primary ?? false;
-                                        break;
-                                    }
-                                }
-                            @endphp
-                            <a href="{{ route('appraisals.index', ['employee_number' => $member->employee_number]) }}" 
-                               class="px-3 py-1 rounded font-medium {{ request('employee_number') == $member->employee_number ? 'bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                                {{ $member->name }} ({{ $member->employee_number }})
-                                @if($isPrimary)
-                                    <span class="ml-1 text-xs bg-purple-100 text-purple-800 px-1 rounded">Primary</span>
+    <main class="py-4">
+        <div class="container-custom px-3">
+            <!-- Back to Dashboard Link -->
+            <div class="mb-3">
+                <a href="{{ route('dashboard') }}" class="text-decoration-none moic-navy">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Filter Card with Quarter Filter -->
+            <div class="filter-card p-4 mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-filter me-2" style="color: var(--moic-accent);"></i>
+                    <h3 class="h5 fw-bold mb-0" style="color: var(--moic-navy);">Filter Appraisals</h3>
+                </div>
+                
+                <form method="GET" action="{{ route('appraisals.index') }}" id="filterForm">
+                    <div class="row g-3">
+                        @if($isSupervisor ?? false)
+                        <div class="col-md-4">
+                            <label class="filter-label"><i class="fas fa-user me-1"></i> Employee Search</label>
+                            <select name="employee_number" id="employeeSelect" class="form-select">
+                                <option value="">-- All Employees --</option>
+                                @if(isset($teamMembers) && $teamMembers->count())
+                                    @foreach($teamMembers as $member)
+                                        <option value="{{ $member->employee_number }}" {{ request('employee_number') == $member->employee_number ? 'selected' : '' }}>
+                                            {{ $member->name }} ({{ $member->employee_number }})
+                                        </option>
+                                    @endforeach
                                 @endif
-                            </a>
-                            @endforeach
+                            </select>
+                        </div>
+                        @endif
+                        
+                        <!-- ADDED: Quarter Filter -->
+                        <div class="col-md-3">
+                            <label class="filter-label"><i class="fas fa-calendar-alt me-1"></i> Quarter</label>
+                            <select name="quarter" class="form-select">
+                                <option value="">-- All Quarters --</option>
+                                @if(isset($availableQuarters) && count($availableQuarters) > 0)
+                                    @foreach($availableQuarters as $q)
+                                        <option value="{{ $q }}" {{ request('quarter') == $q ? 'selected' : '' }}>
+                                            {{ $q }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="Q1 2024" {{ request('quarter') == 'Q1 2024' ? 'selected' : '' }}>Q1 2024 (Jan - Mar)</option>
+                                    <option value="Q2 2024" {{ request('quarter') == 'Q2 2024' ? 'selected' : '' }}>Q2 2024 (Apr - Jun)</option>
+                                    <option value="Q3 2024" {{ request('quarter') == 'Q3 2024' ? 'selected' : '' }}>Q3 2024 (Jul - Sep)</option>
+                                    <option value="Q4 2024" {{ request('quarter') == 'Q4 2024' ? 'selected' : '' }}>Q4 2024 (Oct - Dec)</option>
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100">
+                                <button type="submit" class="btn btn-moic flex-grow-1"><i class="fas fa-search me-2"></i>Apply</button>
+                                @if(request()->has('employee_number') || request()->has('quarter') || request()->has('search'))
+                                <a href="{{ route('appraisals.index') }}" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i>Clear</a>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Currently Viewing -->
-                    @if(request()->has('employee_number') && $employee)
-                    <div class="mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                        <p class="text-sm text-[#110484]">
-                            <i class="fas fa-eye mr-2"></i>
-                            Currently viewing appraisals for: 
-                            <span class="font-semibold">{{ $employee->name }}</span> 
-                            ({{ $employee->employee_number }})
-                            @php
-                                $currentSupervisorRole = 'Secondary Supervisor';
-                                foreach($employee->ratingSupervisors as $supervisor) {
-                                    if ($supervisor->employee_number === auth()->user()->employee_number && $supervisor->pivot->is_primary) {
-                                        $currentSupervisorRole = 'Primary Supervisor';
-                                        break;
-                                    }
-                                }
+                </form>
+                
+                <!-- Active Filters Display -->
+                @if(request()->has('employee_number') || request()->has('quarter') || request()->has('search'))
+                <div class="mt-3 pt-2 border-top">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="text-muted small">Active filters:</span>
+                        @if(request('employee_number'))
+                            @php 
+                                $empFilter = \App\Models\User::where('employee_number', request('employee_number'))->first(); 
                             @endphp
-                            <span class="ml-2 px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">{{ $currentSupervisorRole }}</span>
-                        </p>
+                            <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                                <i class="fas fa-user me-1"></i> Employee: {{ $empFilter->name ?? request('employee_number') }}
+                                <a href="{{ route('appraisals.index', array_merge(request()->except('employee_number'), ['employee_number' => null])) }}" class="text-decoration-none ms-2 fw-bold">&times;</a>
+                            </span>
+                        @endif
+                        @if(request('quarter'))
+                            <span class="badge bg-success bg-opacity-10 text-success py-2 px-3">
+                                <i class="fas fa-calendar me-1"></i> Quarter: {{ request('quarter') }}
+                                <a href="{{ route('appraisals.index', array_merge(request()->except('quarter'), ['quarter' => null])) }}" class="text-decoration-none ms-2 fw-bold">&times;</a>
+                            </span>
+                        @endif
+                        @if(request('search'))
+                            <span class="badge bg-info bg-opacity-10 text-info py-2 px-3">
+                                <i class="fas fa-search me-1"></i> Search: "{{ request('search') }}"
+                                <a href="{{ route('appraisals.index', array_merge(request()->except('search'), ['search' => null])) }}" class="text-decoration-none ms-2 fw-bold">&times;</a>
+                            </span>
+                        @endif
                     </div>
-                    @endif
                 </div>
+                @endif
             </div>
-            @endif
 
-            <!-- Employee Profile Card (for individual view) -->
+            <!-- Employee Profile Card -->
             @if((auth()->user()->user_type === 'employee' && !request()->has('employee_number')) || (auth()->user()->user_type === 'supervisor' && request()->has('employee_number')))
-            <div class="mb-6">
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center">
-                        <div class="rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 p-4 mr-4">
-                            <i class="fas fa-user text-[#110484] text-2xl"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-[#110484]">{{ $employee->name ?? auth()->user()->name }}</h2>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                                <div>
-                                    <p class="text-sm text-gray-500">Employee ID</p>
-                                    <p class="font-semibold text-gray-800">{{ $employee->employee_number ?? auth()->user()->employee_number ?? 'N/A' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Department</p>
-                                    <p class="font-semibold text-gray-800">{{ $employee->department ?? auth()->user()->department ?? 'Not specified' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Job Title</p>
-                                    <p class="font-semibold text-gray-800">{{ $employee->job_title ?? auth()->user()->job_title ?? 'Not specified' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Assigned Supervisors</p>
-                                    <p class="font-semibold text-gray-800">
-                                        @php
-                                            $supervisorCount = $employee->ratingSupervisors->count() ?? 0;
-                                            echo $supervisorCount . ' supervisor' . ($supervisorCount !== 1 ? 's' : '');
-                                        @endphp
-                                    </p>
+            <div class="mb-4">
+                <div class="card card-moic shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3">
+                            <div class="profile-avatar bg-gradient" style="width: 70px; height: 70px; border-radius: 16px; background: linear-gradient(135deg, #110484, #e7581c); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                            <div class="flex-grow-1 w-100">
+                                <h2 class="h4 fw-bold moic-navy mb-2">{{ $employee->name ?? auth()->user()->name }}</h2>
+                                <div class="row g-2 g-md-3">
+                                    <div class="col-6 col-md-3">
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-muted small mb-1">Employee ID</p>
+                                            <p class="fw-semibold mb-0">{{ $employee->employee_number ?? auth()->user()->employee_number ?? 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-muted small mb-1">Department</p>
+                                            <p class="fw-semibold mb-0">{{ $employee->department ?? auth()->user()->department ?? 'Not specified' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-muted small mb-1">Job Title</p>
+                                            <p class="fw-semibold mb-0">{{ $employee->job_title ?? auth()->user()->job_title ?? 'Not specified' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-muted small mb-1">Supervisors</p>
+                                            <p class="fw-semibold mb-0">{{ ($employee->ratingSupervisors->count() ?? 0) }} supervisor(s)</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -163,74 +976,83 @@
             </div>
             @endif
 
-            <!-- Success Message -->
+            <!-- Success/Error Messages -->
             @if(session('success'))
-            <div class="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-center">
-                <i class="fas fa-check-circle mr-2 text-green-500"></i> {{ session('success') }}
+            <div class="alert alert-success d-flex align-items-center mb-4">
+                <i class="fas fa-check-circle me-3 fa-lg"></i>
+                <div>{{ session('success') }}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
             @endif
 
-            <!-- Error Message -->
             @if(session('error'))
-            <div class="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-700 px-4 py-3 rounded flex items-center">
-                <i class="fas fa-exclamation-circle mr-2 text-red-500"></i> {{ session('error') }}
+            <div class="alert alert-danger d-flex align-items-center mb-4">
+                <i class="fas fa-exclamation-circle me-3 fa-lg"></i>
+                <div>{{ session('error') }}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
             @endif
 
             <!-- Stats Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center">
-                        <div class="rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 p-3 mr-3">
-                            <i class="fas fa-file-alt text-[#110484] text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Total Appraisals</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $appraisals->total() ?? 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center">
-                        <div class="rounded-full bg-gradient-to-r from-green-50 to-emerald-50 p-3 mr-3">
-                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Submitted</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $submittedCount ?? 0 }}</p>
+            <div class="row g-2 g-md-3 mb-4">
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stat-card h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon rounded-circle bg-blue-50">
+                                <i class="fas fa-file-alt moic-navy"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-muted small mb-1">Total Appraisals</p>
+                                <p class="stat-number mb-0">{{ $appraisals->total() ?? 0 }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center">
-                        <div class="rounded-full bg-gradient-to-r from-yellow-50 to-amber-50 p-3 mr-3">
-                            <i class="fas fa-edit text-[#e7581c] text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Drafts</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $draftCount ?? 0 }}</p>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stat-card h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon rounded-circle bg-green-50">
+                                <i class="fas fa-check-circle text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-1">Submitted</p>
+                                <p class="stat-number mb-0">{{ $submittedCount ?? 0 }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-                    <div class="flex items-center">
-                        <div class="rounded-full bg-gradient-to-r from-purple-50 to-violet-50 p-3 mr-3">
-                            <i class="fas fa-star text-purple-500 text-xl"></i>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stat-card h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon rounded-circle bg-yellow-50">
+                                <i class="fas fa-edit moic-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-1">Drafts</p>
+                                <p class="stat-number mb-0">{{ $draftCount ?? 0 }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Avg Score</p>
-                            <p class="text-2xl font-bold text-gray-800">
-                                {{ number_format($averageScore ?? 0, 1) }}%
-                            </p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <div class="stat-card h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon rounded-circle bg-purple-50">
+                                <i class="fas fa-star text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-1">Avg Score</p>
+                                <p class="stat-number mb-0">{{ number_format($averageScore ?? 0, 1) }}%</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Appraisal Table -->
-            <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
-                    <div class="flex justify-between items-center">
+            <!-- Enhanced Appraisal Table -->
+            <div class="table-container">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                         <div>
                             @php
                                 $currentEmployee = $employee ?? auth()->user();
@@ -248,12 +1070,12 @@
                                     $subtitle = "View all your performance appraisals";
                                 }
                             @endphp
-                            <h2 class="text-xl font-bold text-[#110484]">{{ $title }}</h2>
-                            <p class="text-sm text-gray-600 mt-1">{{ $subtitle }}</p>
+                            <h2 class="h5 fw-bold moic-navy mb-1">{{ $title }}</h2>
+                            <p class="text-muted small mb-0">{{ $subtitle }}</p>
                             
                             @if(auth()->user()->user_type === 'supervisor' && request()->has('employee_number'))
-                            <p class="text-xs text-[#110484] mt-1">
-                                <i class="fas fa-info-circle mr-1"></i>
+                            <p class="text-muted small mt-1">
+                                <i class="fas fa-info-circle text-primary me-1"></i>
                                 You are an assigned supervisor. You can rate and provide feedback on this employee's appraisals.
                             </p>
                             @endif
@@ -267,63 +1089,41 @@
                         @endphp
                         
                         @if($isViewingOwnProfile && !$isSupervisorViewingTeam)
-                        <a href="{{ route('appraisals.create') }}" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded hover:shadow transition font-medium">
-                            <i class="fas fa-plus mr-2"></i> Create New Appraisal
+                        <a href="{{ route('appraisals.create') }}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i> Create New Appraisal
                         </a>
                         @endif
                     </div>
                 </div>
 
                 @if($appraisals->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white">
+                <div class="table-responsive">
+                    <table class="table-moic-enhanced mb-0">
+                        <thead>
                             <tr>
                                 @if(auth()->user()->user_type === 'supervisor' && !request()->has('employee_number'))
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-user mr-1"></i> Employee
-                                </th>
+                                <th><i class="fas fa-user me-1"></i> Employee</th>
                                 @endif
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-hashtag mr-1"></i> ID
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-calendar-alt mr-1"></i> Period
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-clock mr-1"></i> Duration
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-tag mr-1"></i> Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-chart-line mr-1"></i> Self Score
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-star mr-1"></i> Final Score
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-user-tie mr-1"></i> Supervisor Ratings
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-calendar-plus mr-1"></i> Created
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                    <i class="fas fa-cogs mr-1"></i> Actions
-                                </th>
+                                <th><i class="fas fa-hashtag me-1"></i> ID</th>
+                                <th><i class="fas fa-calendar-alt me-1"></i> Period</th>
+                                <th><i class="fas fa-clock me-1"></i> Duration</th>
+                                <th><i class="fas fa-tag me-1"></i> Status</th>
+                                <th><i class="fas fa-chart-line me-1"></i> Self Score</th>
+                                <th><i class="fas fa-star me-1"></i> Final Score</th>
+                                <th><i class="fas fa-user-tie me-1"></i> Supervisor Ratings</th>
+                                <th><i class="fas fa-calendar-plus me-1"></i> Created</th>
+                                <th class="text-end"><i class="fas fa-cogs me-1"></i> Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody>
                             @foreach($appraisals as $appraisal)
                             @php
                                 $currentUserEmployeeNumber = auth()->user()->employee_number ?? null;
                                 $appraisalEmployeeNumber = $appraisal->employee_number ?? null;
                                 $status = $appraisal->status ?? 'draft';
-                                
-                                // Check if appraisal has KPAs loaded
                                 $hasKpasLoaded = isset($appraisal->kpas) && $appraisal->kpas->count() > 0;
                                 
-                                // Initialize scores
+                                // Calculate scores
                                 $calculatedSelfScore = 0;
                                 $calculatedFinalScore = 0;
                                 $hasSupervisorRatings = false;
@@ -331,12 +1131,10 @@
                                 $ratedSupervisorsCount = 0;
                                 $totalSupervisorsCount = 0;
                                 
-                                // Get employee data
                                 $employee = $appraisal->user ?? null;
                                 if ($employee) {
                                     $totalSupervisorsCount = $employee->ratingSupervisors->count() ?? 0;
                                     
-                                    // Check if current user has rated
                                     if ($hasKpasLoaded && $currentUserEmployeeNumber) {
                                         foreach ($appraisal->kpas as $kpa) {
                                             if ($kpa->hasSupervisorRating($currentUserEmployeeNumber)) {
@@ -345,7 +1143,6 @@
                                             }
                                         }
                                         
-                                        // Count rated supervisors
                                         $ratedSupervisors = collect();
                                         foreach ($appraisal->kpas as $kpa) {
                                             $ratings = $kpa->ratedSupervisors() ?? collect();
@@ -359,7 +1156,6 @@
                                     }
                                 }
                                 
-                                // Calculate scores from KPAs if available
                                 if ($hasKpasLoaded) {
                                     $totalWeight = 0;
                                     $selfWeightedSum = 0;
@@ -369,45 +1165,35 @@
                                         $weight = $kpa->weight ?? 0;
                                         $totalWeight += $weight;
                                         
-                                        // Get ratings
                                         $selfRating = $kpa->self_rating ?? 0;
-                                        $supervisorRating = $kpa->supervisor_rating ?? 0;
-                                        
-                                        // KPI scale (default to 4)
                                         $kpi = $kpa->kpi ?? 4;
-                                        if ($kpi == 0) $kpi = 4; // Avoid division by zero
+                                        if ($kpi == 0) $kpi = 4;
                                         
-                                        // Calculate self score contribution
                                         if ($selfRating > 0) {
                                             $selfPercentage = ($selfRating / $kpi) * 100;
                                             $selfWeightedSum += ($selfPercentage * $weight) / 100;
                                         }
                                         
-                                        // Calculate final score contribution - handle multiple supervisors
                                         $finalRating = $kpa->getFinalSupervisorRatingAttribute() ?? $selfRating;
                                         if ($finalRating > 0) {
                                             $finalPercentage = ($finalRating / $kpi) * 100;
                                             $finalWeightedSum += ($finalPercentage * $weight) / 100;
                                         }
                                         
-                                        // Check if has supervisor ratings
-                                        if ($supervisorRating > 0 || $kpa->ratedSupervisors()->count() > 0) {
+                                        if ($kpa->supervisor_rating > 0 || $kpa->ratedSupervisors()->count() > 0) {
                                             $hasSupervisorRatings = true;
                                         }
                                     }
                                     
-                                    // Calculate average scores if we have weight
                                     if ($totalWeight > 0) {
                                         $calculatedSelfScore = $selfWeightedSum > 0 ? min(100, max(0, round($selfWeightedSum, 2))) : 0;
                                         $calculatedFinalScore = $finalWeightedSum > 0 ? min(100, max(0, round($finalWeightedSum, 2))) : 0;
                                     }
                                 }
                                 
-                                // Use database scores if available, otherwise use calculated scores
                                 $selfScore = $appraisal->self_score > 0 ? (float) $appraisal->self_score : $calculatedSelfScore;
                                 $finalScore = $appraisal->final_score > 0 ? (float) $appraisal->final_score : $calculatedFinalScore;
                                 
-                                // Determine what to display for final score
                                 $displayFinalScore = false;
                                 $displayAwaitingRating = false;
                                 
@@ -419,14 +1205,10 @@
                                     }
                                 }
                                 
-                                // Colors for scores
-                                $selfScoreColor = $selfScore >= 70 ? 'text-green-600' : ($selfScore >= 50 ? 'text-yellow-600' : 'text-red-600');
-                                $finalScoreColor = $finalScore >= 70 ? 'text-green-600' : ($finalScore >= 50 ? 'text-yellow-600' : 'text-red-600');
-                                
-                                // Get employee name for supervisor view
+                                $selfScoreColor = $selfScore >= 70 ? 'high' : ($selfScore >= 50 ? 'medium' : 'low');
+                                $finalScoreColor = $finalScore >= 70 ? 'high' : ($finalScore >= 50 ? 'medium' : 'low');
                                 $employeeName = $appraisal->employee_name ?? 'N/A';
                                 
-                                // Check if current user is assigned supervisor for this appraisal
                                 $isAssignedSupervisor = false;
                                 if (auth()->user()->user_type === 'supervisor' && $employee) {
                                     foreach ($employee->ratingSupervisors as $supervisor) {
@@ -436,300 +1218,244 @@
                                         }
                                     }
                                 }
+                                
+                                $statusClass = 'status-' . str_replace('_', '-', $status);
                             @endphp
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr>
                                 @if(auth()->user()->user_type === 'supervisor' && !request()->has('employee_number'))
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-user text-[#110484]"></i>
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="employee-avatar">
+                                            {{ strtoupper(substr($employeeName, 0, 1)) }}
                                         </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $employeeName }}</div>
-                                            <div class="text-xs text-gray-500">{{ $appraisal->employee_number }}</div>
-                                            <a href="{{ route('appraisals.index', ['employee_number' => $appraisal->employee_number]) }}" 
-                                               class="text-xs text-[#110484] hover:text-[#e7581c] font-medium">
-                                                View all appraisals →
+                                        <div class="employee-details">
+                                            <div class="employee-name">{{ $employeeName }}</div>
+                                            <div class="employee-id">{{ $appraisal->employee_number }}</div>
+                                            <a href="{{ route('appraisals.index', ['employee_number' => $appraisal->employee_number]) }}" class="text-decoration-none small text-primary">
+                                                View all →
                                             </a>
                                         </div>
                                     </div>
                                 </td>
                                 @endif
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-mono font-medium text-[#110484]">#{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-semibold text-[#110484]">{{ $appraisal->period }}</div>
-                                    <div class="text-xs text-gray-500">{{ $appraisal->appraisal_type ?? 'Annual' }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">
-                                        @php
-                                            try {
-                                                $startDate = \Carbon\Carbon::parse($appraisal->start_date);
-                                                $endDate = \Carbon\Carbon::parse($appraisal->end_date);
-                                                echo $startDate->format('M d') . ' - ' . $endDate->format('M d, Y');
-                                            } catch (\Exception $e) {
-                                                echo 'Invalid date';
-                                            }
-                                        @endphp
+                                
+                                <td class="fw-semibold moic-navy">#{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}</td>
+                                
+                                <td>
+                                    <div class="period-info">
+                                        <span class="period-name">{{ $appraisal->period }}</span>
+                                        <span class="period-type">{{ $appraisal->appraisal_type ?? 'Annual' }}</span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                
+                                <td class="date-cell">
                                     @php
-                                        $statusColors = [
-                                            'draft' => 'bg-yellow-100 text-yellow-800',
-                                            'submitted' => 'bg-blue-100 text-blue-800',
-                                            'approved' => 'bg-green-100 text-green-800',
-                                            'rejected' => 'bg-red-100 text-red-800',
-                                            'in_review' => 'bg-purple-100 text-purple-800',
-                                            'completed' => 'bg-green-100 text-green-800',
-                                            'archived' => 'bg-gray-100 text-gray-800'
-                                        ];
-                                        $status = $appraisal->status ?? 'draft';
-                                        $statusColor = $statusColors[$status] ?? 'bg-gray-100 text-gray-800';
+                                        try {
+                                            $startDate = \Carbon\Carbon::parse($appraisal->start_date);
+                                            $endDate = \Carbon\Carbon::parse($appraisal->end_date);
+                                            echo '<span class="date-day">' . $startDate->format('M d') . '</span>';
+                                            echo '<span class="text-muted"> - </span>';
+                                            echo '<span class="date-day">' . $endDate->format('M d') . '</span>';
+                                            echo '<div class="date-time">' . $endDate->format('Y') . '</div>';
+                                        } catch (\Exception $e) {
+                                            echo '<span class="text-muted">Invalid date</span>';
+                                        }
                                     @endphp
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColor }}">
-                                        <i class="fas fa-circle text-xs mr-1 mt-1"></i>
+                                </td>
+                                
+                                <td>
+                                    <span class="status-badge {{ $statusClass }}">
+                                        <i class="fas {{ $status === 'draft' ? 'fa-edit' : ($status === 'submitted' ? 'fa-paper-plane' : ($status === 'approved' ? 'fa-check-circle' : ($status === 'in_review' ? 'fa-search' : 'fa-clock'))) }}"></i>
                                         {{ ucfirst(str_replace('_', ' ', $status)) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-3">
-                                            <div class="bg-gradient-to-r from-green-400 to-green-500 h-2.5 rounded-full" style="width: {{ min($selfScore, 100) }}%"></div>
+                                
+                                <!-- Self Score - Proper percentage formatting -->
+                                <td>
+                                    <div class="score-card score-{{ $selfScoreColor }}">
+                                        <div class="progress-enhanced">
+                                            <div class="progress-bar-enhanced progress-bar-{{ $selfScoreColor }}" style="width: {{ min($selfScore, 100) }}%"></div>
                                         </div>
-                                        <span class="text-sm font-bold {{ $selfScoreColor }}">
-                                            {{ number_format($selfScore, 1) }}%
-                                        </span>
-                                        @if($selfScore == 0 && $hasKpasLoaded)
-                                            <span class="text-xs text-gray-400 ml-2">(Not rated)</span>
-                                        @endif
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="score-value {{ $selfScoreColor === 'high' ? 'text-green-600' : ($selfScoreColor === 'medium' ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ number_format($selfScore, 1) }}
+                                            </span>
+                                            <span class="score-percent ms-0">%</span>
+                                        </div>
+                                        <i class="fas fa-user-check text-muted ms-1" style="font-size: 0.65rem;" title="Self Rating"></i>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                
+                                <!-- Final Score - Proper percentage formatting -->
+                                <td>
                                     @if($displayFinalScore && $finalScore > 0)
-                                    <div class="flex items-center">
-                                        <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-3">
-                                            <div class="bg-gradient-to-r from-[#110484] to-[#1a0c9e] h-2.5 rounded-full" style="width: {{ min($finalScore, 100) }}%"></div>
+                                    <div class="score-card score-{{ $finalScoreColor }}">
+                                        <div class="progress-enhanced">
+                                            <div class="progress-bar-enhanced progress-bar-{{ $finalScoreColor }}" style="width: {{ min($finalScore, 100) }}%"></div>
                                         </div>
-                                        <span class="text-sm font-bold {{ $finalScoreColor }}">
-                                            {{ number_format($finalScore, 1) }}%
-                                        </span>
+                                        <div class="d-flex align-items-baseline">
+                                            <span class="score-value {{ $finalScoreColor === 'high' ? 'text-green-600' : ($finalScoreColor === 'medium' ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ number_format($finalScore, 1) }}
+                                            </span>
+                                            <span class="score-percent ms-0">%</span>
+                                        </div>
                                         @if($hasSupervisorRatings)
-                                            <span class="text-xs text-green-600 ml-2">(Rated)</span>
+                                        <i class="fas fa-check-circle text-green-600 ms-1" style="font-size: 0.7rem;" title="Rated by supervisors"></i>
+                                        @else
+                                        <i class="fas fa-star text-muted ms-1" style="font-size: 0.65rem;" title="Awaiting rating"></i>
                                         @endif
                                     </div>
                                     @elseif($displayAwaitingRating)
-                                    <div class="flex items-center text-[#110484]">
-                                        <i class="fas fa-clock mr-2"></i>
-                                        <span class="text-sm font-medium">Awaiting Rating</span>
+                                    <div class="d-flex align-items-center text-warning">
+                                        <i class="fas fa-clock me-2"></i>
+                                        <span class="small">Awaiting Rating</span>
                                     </div>
                                     @else
-                                    <div class="flex items-center text-gray-500">
+                                    <div class="text-muted small">
                                         @switch($status)
-                                            @case('draft')
-                                                <i class="fas fa-edit mr-2"></i>
-                                                <span class="text-sm">Draft</span>
-                                                @break
-                                            @case('submitted')
-                                                <i class="fas fa-paper-plane mr-2"></i>
-                                                <span class="text-sm">Submitted</span>
-                                                @break
-                                            @case('in_review')
-                                                <i class="fas fa-search mr-2"></i>
-                                                <span class="text-sm">In Review</span>
-                                                @break
-                                            @case('rejected')
-                                                <i class="fas fa-times-circle mr-2"></i>
-                                                <span class="text-sm">Rejected</span>
-                                                @break
-                                            @default
-                                                <i class="fas fa-minus-circle mr-2"></i>
-                                                <span class="text-sm">Not Rated</span>
+                                            @case('draft')<i class="fas fa-edit me-1"></i>Draft@break
+                                            @case('submitted')<i class="fas fa-paper-plane me-1"></i>Submitted@break
+                                            @case('in_review')<i class="fas fa-search me-1"></i>In Review@break
+                                            @case('rejected')<i class="fas fa-times-circle me-1"></i>Rejected@break
+                                            @default<i class="fas fa-minus-circle me-1"></i>Not Rated
                                         @endswitch
                                     </div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                
+                                <td style="min-width: 200px;">
                                     @if($totalSupervisorsCount > 0)
-                                        <div class="text-sm min-w-[200px]">
-                                            <!-- Supervisor Count Badge -->
-                                            <div class="mb-2">
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                          {{ $ratedSupervisorsCount > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                    <i class="fas fa-users mr-1 text-xs"></i>
-                                                    {{ $ratedSupervisorsCount }}/{{ $totalSupervisorsCount }} rated
-                                                </span>
-                                            </div>
-                                            
-                                            <!-- Supervisor Names List -->
-                                            @php
-                                                $supervisors = $employee->ratingSupervisors ?? collect();
-                                            @endphp
-                                            
-                                            @if($supervisors->count() > 0)
-                                                <div class="space-y-1">
-                                                    @foreach($supervisors as $supervisor)
-                                                        @php
-                                                            $isPrimary = $supervisor->pivot->is_primary ?? false;
-                                                            $supervisorHasRated = false;
-                                                            
-                                                            // Check if this supervisor has rated
-                                                            if ($hasKpasLoaded) {
-                                                                foreach ($appraisal->kpas as $kpa) {
-                                                                    if ($kpa->hasSupervisorRating($supervisor->employee_number)) {
-                                                                        $supervisorHasRated = true;
-                                                                        break;
-                                                                    }
+                                        <div class="mb-2">
+                                            <span class="badge {{ $ratedSupervisorsCount > 0 ? 'bg-success bg-opacity-10 text-success' : 'bg-light text-muted' }} py-1 px-2">
+                                                <i class="fas fa-users me-1"></i>
+                                                {{ $ratedSupervisorsCount }}/{{ $totalSupervisorsCount }} rated
+                                            </span>
+                                        </div>
+                                        
+                                        @php
+                                            $supervisors = $employee->ratingSupervisors ?? collect();
+                                        @endphp
+                                        
+                                        @if($supervisors->count() > 0)
+                                            <div class="supervisor-avatar-group">
+                                                @foreach($supervisors as $supervisor)
+                                                    @php
+                                                        $isPrimary = $supervisor->pivot->is_primary ?? false;
+                                                        $supervisorHasRated = false;
+                                                        
+                                                        if ($hasKpasLoaded) {
+                                                            foreach ($appraisal->kpas as $kpa) {
+                                                                if ($kpa->hasSupervisorRating($supervisor->employee_number)) {
+                                                                    $supervisorHasRated = true;
+                                                                    break;
                                                                 }
                                                             }
-                                                            
-                                                            $isCurrentUser = auth()->user()->employee_number === $supervisor->employee_number;
-                                                        @endphp
+                                                        }
                                                         
-                                                        <div class="flex items-center justify-between">
-                                                            <div class="flex items-center">
-                                                                <span class="{{ $isCurrentUser ? 'font-semibold text-blue-600' : 'text-gray-700' }} {{ $supervisorHasRated ? 'text-green-600' : '' }} text-xs truncate max-w-[120px]">
-                                                                    {{ $supervisor->name }}
-                                                                </span>
-                                                                @if($isPrimary)
-                                                                    <span class="ml-1 text-xs bg-purple-100 text-purple-800 px-1 py-0.5 rounded">P</span>
-                                                                @endif
-                                                                @if($isCurrentUser)
-                                                                    <span class="ml-1 text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">You</span>
-                                                                @endif
-                                                            </div>
-                                                            <div>
-                                                                @if($supervisorHasRated)
-                                                                    <span class="text-xs text-green-600">
-                                                                        <i class="fas fa-check-circle"></i>
-                                                                    </span>
-                                                                @elseif(in_array($status, ['submitted', 'in_review']))
-                                                                    <span class="text-xs text-yellow-600">
-                                                                        <i class="fas fa-clock"></i>
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                            
-                                            <!-- Current User Status -->
-                                            @if(auth()->user()->user_type === 'supervisor' && $isAssignedSupervisor)
-                                                <div class="mt-2 pt-2 border-t border-gray-200">
-                                                    <div class="text-xs">
-                                                        @if($currentUserHasRated)
-                                                            <span class="text-green-600">
-                                                                <i class="fas fa-check-circle mr-1"></i>You have rated this appraisal
-                                                            </span>
-                                                        @elseif(in_array($status, ['submitted', 'in_review']))
-                                                            <span class="text-yellow-600">
-                                                                <i class="fas fa-star mr-1"></i>Your rating required
-                                                            </span>
+                                                        $isCurrentUser = auth()->user()->employee_number === $supervisor->employee_number;
+                                                    @endphp
+                                                    
+                                                    <div class="supervisor-badge {{ $supervisorHasRated ? 'rated' : '' }}" 
+                                                         title="{{ $supervisor->name }} {{ $isPrimary ? '(Primary)' : '' }}">
+                                                        <i class="fas fa-user-tie"></i>
+                                                        <span class="{{ $isCurrentUser ? 'fw-bold text-primary' : '' }}">{{ $supervisor->name }}</span>
+                                                        @if($isPrimary)
+                                                            <span class="primary-badge">P</span>
+                                                        @endif
+                                                        @if($supervisorHasRated)
+                                                            <i class="fas fa-check-circle text-green-600"></i>
                                                         @endif
                                                     </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                        
+                                        @if(auth()->user()->user_type === 'supervisor' && $isAssignedSupervisor)
+                                            <div class="mt-2 pt-2 border-top">
+                                                <div class="small">
+                                                    @if($currentUserHasRated)
+                                                        <span class="text-green-600">
+                                                            <i class="fas fa-check-circle me-1"></i>You have rated
+                                                        </span>
+                                                    @elseif(in_array($status, ['submitted', 'in_review']))
+                                                        <span class="text-warning">
+                                                            <i class="fas fa-star me-1"></i>Your rating required
+                                                        </span>
+                                                    @endif
                                                 </div>
+                                            </div>
+                                        @endif
+                                    @elseif($employee && $employee->manager)
+                                        <div>
+                                            <div class="text-muted small mb-1">Direct Manager:</div>
+                                            <div class="supervisor-badge">
+                                                <i class="fas fa-user-tie"></i>
+                                                <span>{{ $employee->manager->name }}</span>
+                                                <span class="primary-badge">M</span>
+                                            </div>
+                                            @if($hasSupervisorRatings)
+                                                <span class="text-green-600 small mt-1 d-block">
+                                                    <i class="fas fa-check-circle me-1"></i>Rated
+                                                </span>
+                                            @elseif(in_array($status, ['submitted', 'in_review']))
+                                                <span class="text-warning small mt-1 d-block">
+                                                    <i class="fas fa-clock me-1"></i>Awaiting rating
+                                                </span>
                                             @endif
                                         </div>
                                     @else
-                                        <!-- Fallback to manager if no rating supervisors -->
-                                        @if($employee && $employee->manager)
-                                            <div class="text-sm">
-                                                <div class="text-xs font-medium text-gray-500 mb-1">Direct Manager:</div>
-                                                <div class="flex items-center">
-                                                    <span class="font-medium text-gray-700 text-sm">{{ $employee->manager->name }}</span>
-                                                    <span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">Manager</span>
-                                                </div>
-                                                @if($hasSupervisorRatings)
-                                                    <span class="text-xs text-green-600 mt-1">
-                                                        <i class="fas fa-check-circle mr-1"></i>Rated
-                                                    </span>
-                                                @elseif(in_array($status, ['submitted', 'in_review']))
-                                                    <span class="text-xs text-yellow-600 mt-1">
-                                                        <i class="fas fa-clock mr-1"></i>Awaiting rating
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <span class="text-xs text-gray-400 italic">No supervisors assigned</span>
-                                        @endif
+                                        <span class="text-muted small fst-italic">No supervisors assigned</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">
-                                        @php
-                                            try {
-                                                $createdDate = \Carbon\Carbon::parse($appraisal->created_at);
-                                                echo $createdDate->format('M d, Y');
-                                                echo '<div class="text-xs text-gray-500">' . $createdDate->format('h:i A') . '</div>';
-                                            } catch (\Exception $e) {
-                                                echo 'Invalid date';
-                                            }
-                                        @endphp
-                                    </div>
+                                
+                                <td class="date-cell">
+                                    @php
+                                        try {
+                                            $createdDate = \Carbon\Carbon::parse($appraisal->created_at);
+                                            echo '<div class="date-day">' . $createdDate->format('M d, Y') . '</div>';
+                                            echo '<div class="date-time">' . $createdDate->format('h:i A') . '</div>';
+                                        } catch (\Exception $e) {
+                                            echo '<span class="text-muted">Invalid date</span>';
+                                        }
+                                    @endphp
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex space-x-2">
-                                        <!-- View Button -->
-                                        <a href="{{ route('appraisals.show', $appraisal->id) }}" 
-                                           class="bg-blue-50 text-[#110484] p-2 rounded hover:bg-blue-100 transition"
-                                           title="View Details">
+                                
+                                <td class="text-end">
+                                    <div class="action-group">
+                                        <a href="{{ route('appraisals.show', $appraisal->id) }}" class="action-icon action-view" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         
-                                        <!-- Edit Button (only for drafts and own appraisals) -->
                                         @if(($status === 'draft') && $currentUserEmployeeNumber && $appraisalEmployeeNumber && $currentUserEmployeeNumber == $appraisalEmployeeNumber)
-                                        <a href="{{ route('appraisals.edit', $appraisal->id) }}" 
-                                           class="bg-green-50 text-green-600 p-2 rounded hover:bg-green-100 transition"
-                                           title="Edit">
+                                        <a href="{{ route('appraisals.edit', $appraisal->id) }}" class="action-icon action-edit" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        @endif
                                         
-                                        <!-- Submit Button (only for drafts and own appraisals) -->
-                                        @if(($status === 'draft') && $currentUserEmployeeNumber && $appraisalEmployeeNumber && $currentUserEmployeeNumber == $appraisalEmployeeNumber)
-                                        <form action="{{ route('appraisals.submit', $appraisal->id) }}" method="POST" class="inline">
+                                        <form action="{{ route('appraisals.submit', $appraisal->id) }}" method="POST" class="d-inline">
                                             @csrf
-                                            <button type="submit" 
-                                                    class="bg-purple-50 text-purple-600 p-2 rounded hover:bg-purple-100 transition"
-                                                    title="Submit"
-                                                    onclick="return confirm('Are you sure you want to submit this appraisal?')">
+                                            <button type="submit" class="action-icon action-submit border-0" title="Submit" onclick="return confirm('Are you sure you want to submit this appraisal?')">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                         </form>
                                         @endif
                                         
-                                        <!-- Supervisor Rate Button (for submitted appraisals) -->
                                         @if(auth()->user()->user_type === 'supervisor' && $isAssignedSupervisor && in_array($status, ['submitted', 'in_review']) && $hasKpasLoaded && !$currentUserHasRated)
-                                        <a href="{{ route('appraisals.show', $appraisal->id) }}" 
-                                           class="bg-yellow-50 text-yellow-600 p-2 rounded hover:bg-yellow-100 transition"
-                                           title="Rate/Review Appraisal"
-                                           onclick="return confirm('Go to appraisal details page to rate this submission?')">
+                                        <a href="{{ route('appraisals.show', $appraisal->id) }}" class="action-icon action-rate" title="Rate/Review" onclick="return confirm('Go to appraisal details page to rate this submission?')">
                                             <i class="fas fa-star"></i>
                                         </a>
                                         @endif
                                         
-                                        <!-- Delete Button (only for drafts and own appraisals) -->
                                         @if(($status === 'draft') && $currentUserEmployeeNumber && $appraisalEmployeeNumber && $currentUserEmployeeNumber == $appraisalEmployeeNumber)
-                                        <form action="{{ route('appraisals.destroy', $appraisal->id) }}" method="POST" class="inline">
+                                        <form action="{{ route('appraisals.destroy', $appraisal->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
-                                                    class="bg-red-50 text-red-600 p-2 rounded hover:bg-red-100 transition"
-                                                    title="Delete"
-                                                    onclick="return confirm('Are you sure you want to delete this appraisal? This action cannot be undone.')">
+                                            <button type="submit" class="action-icon action-delete border-0" title="Delete" onclick="return confirm('Are you sure you want to delete this appraisal? This action cannot be undone.')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                         @endif
                                         
-                                        <!-- Print Button -->
-                                        <a href="{{ route('appraisals.show', $appraisal->id) }}?print=true" 
-                                           class="bg-gray-50 text-gray-600 p-2 rounded hover:bg-gray-100 transition"
-                                           title="Print"
-                                           target="_blank">
+                                        <a href="{{ route('appraisals.show', $appraisal->id) }}?print=true" class="action-icon action-print" title="Print" target="_blank">
                                             <i class="fas fa-print"></i>
                                         </a>
                                     </div>
@@ -738,51 +1464,49 @@
                             @endforeach
                         </tbody>
                     </table>
-                    
-                    <!-- Pagination -->
-                    @if($appraisals->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                            <div class="text-sm text-gray-700">
-                                Showing {{ $appraisals->firstItem() }} to {{ $appraisals->lastItem() }} of {{ $appraisals->total() }} results
-                                <span class="text-gray-500 ml-2">(Page {{ $appraisals->currentPage() }} of {{ $appraisals->lastPage() }})</span>
+                </div>
+                
+                <!-- Pagination -->
+                @if($appraisals->hasPages())
+                <div class="table-footer">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <div class="text-muted small">
+                            Showing {{ $appraisals->firstItem() }} to {{ $appraisals->lastItem() }} of {{ $appraisals->total() }} results
+                            <span class="ms-2">(Page {{ $appraisals->currentPage() }} of {{ $appraisals->lastPage() }})</span>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="d-flex align-items-center text-muted small">
+                                <span class="me-2">Show:</span>
+                                <select onchange="window.location.href = this.value" class="form-select form-select-sm border-secondary" style="width: auto;">
+                                    @php
+                                        $currentPerPage = request()->get('per_page', 5);
+                                        $perPageOptions = [5, 10, 25, 50];
+                                        $currentUrl = request()->fullUrlWithoutQuery(['page', 'per_page']);
+                                        $queryParams = array_merge(request()->except(['page', 'per_page']), []);
+                                    @endphp
+                                    @foreach($perPageOptions as $option)
+                                    <option value="{{ $currentUrl . (count($queryParams) ? '?' . http_build_query($queryParams) . '&' : '?') }}per_page={{ $option }}" 
+                                            {{ $currentPerPage == $option ? 'selected' : '' }}>
+                                        {{ $option }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <span class="ms-1">entries</span>
                             </div>
                             
-                            <div class="flex items-center space-x-2">
-                                <!-- Items per page selector -->
-                                <div class="flex items-center text-sm text-gray-700">
-                                    <span class="mr-2">Show:</span>
-                                    <select onchange="window.location.href = this.value" class="border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#110484]">
-                                        @php
-                                            $currentPerPage = request()->get('per_page', 5);
-                                            $perPageOptions = [5, 10, 25, 50];
-                                            $currentUrl = request()->fullUrlWithoutQuery(['page', 'per_page']);
-                                            $queryParams = array_merge(request()->except(['page', 'per_page']), []);
-                                        @endphp
-                                        @foreach($perPageOptions as $option)
-                                        <option value="{{ $currentUrl . (count($queryParams) ? '?' . http_build_query($queryParams) . '&' : '?') }}per_page={{ $option }}" 
-                                                {{ $currentPerPage == $option ? 'selected' : '' }}>
-                                            {{ $option }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    <span class="ml-1">entries</span>
-                                </div>
-                                
-                                <!-- Previous Button -->
-                                @if($appraisals->onFirstPage())
-                                <button disabled class="px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed font-medium text-sm">
-                                    <i class="fas fa-chevron-left mr-1"></i> Prev
-                                </button>
-                                @else
-                                <a href="{{ $appraisals->previousPageUrl() . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') }}" 
-                                   class="px-3 py-1 bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white rounded hover:shadow transition font-medium text-sm flex items-center">
-                                    <i class="fas fa-chevron-left mr-1"></i> Prev
-                                </a>
-                                @endif
-                                
-                                <!-- Page Numbers -->
-                                <div class="flex space-x-1">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-sm pagination-moic mb-0">
+                                    <li class="page-item {{ $appraisals->onFirstPage() ? 'disabled' : '' }}">
+                                        @if($appraisals->onFirstPage())
+                                        <span class="page-link"><i class="fas fa-chevron-left me-1"></i> Prev</span>
+                                        @else
+                                        <a class="page-link" href="{{ $appraisals->previousPageUrl() . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('quarter') ? '&quarter=' . request('quarter') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') }}">
+                                            <i class="fas fa-chevron-left me-1"></i> Prev
+                                        </a>
+                                        @endif
+                                    </li>
+                                    
                                     @php
                                         $currentPage = $appraisals->currentPage();
                                         $lastPage = $appraisals->lastPage();
@@ -790,48 +1514,51 @@
                                         $endPage = min($lastPage, $currentPage + 1);
                                         
                                         if ($startPage > 1) {
-                                            echo '<a href="' . $appraisals->url(1) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '" class="px-2 py-1 rounded text-sm font-medium ' . ($currentPage == 1 ? 'bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') . '">1</a>';
+                                            echo '<li class="page-item"><a class="page-link" href="' . $appraisals->url(1) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('quarter') ? '&quarter=' . request('quarter') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '">1</a></li>';
                                             if ($startPage > 2) {
-                                                echo '<span class="px-2 py-1 text-gray-500">...</span>';
+                                                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                             }
                                         }
                                         
                                         for ($page = $startPage; $page <= $endPage; $page++) {
-                                            echo '<a href="' . $appraisals->url($page) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '" class="px-3 py-1 rounded text-sm font-medium ' . ($currentPage == $page ? 'bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') . '">' . $page . '</a>';
+                                            $activeClass = $currentPage == $page ? 'active' : '';
+                                            echo '<li class="page-item ' . $activeClass . '"><a class="page-link" href="' . $appraisals->url($page) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('quarter') ? '&quarter=' . request('quarter') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '">' . $page . '</a></li>';
                                         }
                                         
                                         if ($endPage < $lastPage) {
                                             if ($endPage < $lastPage - 1) {
-                                                echo '<span class="px-2 py-1 text-gray-500">...</span>';
+                                                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                             }
-                                            echo '<a href="' . $appraisals->url($lastPage) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '" class="px-2 py-1 rounded text-sm font-medium ' . ($currentPage == $lastPage ? 'bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') . '">' . $lastPage . '</a>';
+                                            echo '<li class="page-item"><a class="page-link" href="' . $appraisals->url($lastPage) . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('quarter') ? '&quarter=' . request('quarter') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') . '">' . $lastPage . '</a></li>';
                                         }
                                     @endphp
-                                </div>
-                                
-                                <!-- Next Button -->
-                                @if($appraisals->hasMorePages())
-                                <a href="{{ $appraisals->nextPageUrl() . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') }}" 
-                                   class="px-3 py-1 bg-gradient-to-r from-[#110484] to-[#1a0c9e] text-white rounded hover:shadow transition font-medium text-sm flex items-center">
-                                    Next <i class="fas fa-chevron-right ml-1"></i>
-                                </a>
-                                @else
-                                <button disabled class="px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed font-medium text-sm">
-                                    Next <i class="fas fa-chevron-right ml-1"></i>
-                                </button>
-                                @endif
-                            </div>
+                                    
+                                    <li class="page-item {{ !$appraisals->hasMorePages() ? 'disabled' : '' }}">
+                                        @if(!$appraisals->hasMorePages())
+                                        <span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span>
+                                        @else
+                                        <a class="page-link" href="{{ $appraisals->nextPageUrl() . (request()->has('employee_number') ? '&employee_number=' . request('employee_number') : '') . (request()->has('quarter') ? '&quarter=' . request('quarter') : '') . (request()->has('per_page') ? '&per_page=' . request('per_page') : '&per_page=5') }}">
+                                            Next <i class="fas fa-chevron-right ms-1"></i>
+                                        </a>
+                                        @endif
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
-                    @endif
                 </div>
+                @endif
+                
                 @else
-                <div class="text-center py-16">
-                    <div class="inline-block p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full mb-4">
-                        <i class="fas fa-file-alt text-[#110484] text-5xl"></i>
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <div class="d-inline-flex p-4 bg-blue-50 rounded-circle">
+                            <i class="fas fa-file-alt moic-navy fa-3x"></i>
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-bold text-[#110484] mb-3">No appraisals found</h3>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">
+                    <h3 class="h4 fw-bold moic-navy mb-3">No appraisals found</h3>
+                    <p class="text-muted mb-4">
                         @php
                             $currentUserEmployeeNumber = auth()->user()->employee_number ?? null;
                             $viewingEmployeeNumber = $employeeNumber ?? $currentUserEmployeeNumber;
@@ -849,154 +1576,48 @@
                         @endphp
                     </p>
                     @if($isViewingOwnProfile && !(auth()->user()->user_type === 'supervisor' && !request()->has('employee_number')))
-                    <a href="{{ route('appraisals.create') }}" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg hover:shadow transition inline-flex items-center text-lg font-medium">
-                        <i class="fas fa-plus mr-3"></i> Create Your First Appraisal
+                    <a href="{{ route('appraisals.create') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus me-2"></i> Create Your First Appraisal
                     </a>
                     @endif
-                    <p class="text-sm text-gray-400 mt-4">Need help? <a href="#" class="text-[#110484] hover:text-[#e7581c] font-medium">View our guide</a></p>
                 </div>
                 @endif
             </div>
-            
-            <!-- Quick Tips -->
-            @php
-                $currentUserEmployeeNumber = auth()->user()->employee_number ?? null;
-                $viewingEmployeeNumber = $employeeNumber ?? $currentUserEmployeeNumber;
-                $isViewingOwnProfile = $currentUserEmployeeNumber && $viewingEmployeeNumber && $currentUserEmployeeNumber == $viewingEmployeeNumber;
-                $isSupervisorViewingTeam = auth()->user()->user_type === 'supervisor' && !request()->has('employee_number');
-            @endphp
-            @if($isViewingOwnProfile && !$isSupervisorViewingTeam)
-            <div class="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-                <div class="flex items-center mb-4">
-                    <div class="bg-white p-3 rounded-full shadow-sm mr-3">
-                        <i class="fas fa-lightbulb text-[#110484]"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-[#110484]">Quick Tips</h3>
-                        <p class="text-sm text-gray-600">Best practices for performance appraisals</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-green-100 p-2 rounded mr-3">
-                                <i class="fas fa-check text-green-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Submit on Time</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Ensure you submit your appraisals before the deadline to avoid penalties.</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-blue-100 p-2 rounded mr-3">
-                                <i class="fas fa-edit text-blue-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Save Drafts</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Save your work as draft if you need to complete it later. Drafts can be edited anytime.</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-purple-100 p-2 rounded mr-3">
-                                <i class="fas fa-chart-bar text-purple-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Track Progress</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Monitor your scores over time to identify areas for improvement.</p>
-                    </div>
-                </div>
-            </div>
-            @endif
-            
-            <!-- Supervisor Tips -->
-            @if(auth()->user()->user_type === 'supervisor' && $isSupervisorViewingTeam)
-            <div class="mt-8 bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-6">
-                <div class="flex items-center mb-4">
-                    <div class="bg-white p-3 rounded-full shadow-sm mr-3">
-                        <i class="fas fa-user-tie text-[#110484]"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-[#110484]">Multiple Supervisor Guidelines</h3>
-                        <p class="text-sm text-gray-600">Guidelines for rating with multiple supervisors</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-purple-100 p-2 rounded mr-3">
-                                <i class="fas fa-users text-purple-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Independent Ratings</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Each assigned supervisor provides independent ratings. Your rating is saved separately from others.</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-blue-100 p-2 rounded mr-3">
-                                <i class="fas fa-star text-blue-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Weighted Scoring</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Final scores are calculated as weighted averages of all supervisor ratings based on assigned weights.</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center mb-2">
-                            <div class="fas fa-chart-line text-green-500"></i>
-                            </div>
-                            <h4 class="font-medium text-[#110484]">Primary Supervisor Role</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Primary supervisors can approve appraisals, but all assigned supervisors can rate independently.</p>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 mt-8">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center mb-4 md:mb-0">
-                    <!-- MOIC Logo in footer -->
-                    <div class="bg-white p-1 rounded-md mr-3">
-                        <img class="h-6 w-auto" src="{{ asset('images/moic.png') }}" alt="MOIC Logo">
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Performance Appraisal System &copy; {{ date('Y') }} MOIC</p>
-                        <p class="text-xs text-gray-400">Version 1.0.0</p>
-                    </div>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-sm text-[#110484] hover:text-[#e7581c] font-medium">
-                        <i class="fas fa-question-circle mr-1"></i> Help Center
-                    </a>
-                    <a href="#" class="text-sm text-[#110484] hover:text-[#e7581c] font-medium">
-                        <i class="fas fa-shield-alt mr-1"></i> Privacy Policy
-                    </a>
-                    <a href="#" class="text-sm text-[#110484] hover:text-[#e7581c] font-medium">
-                        <i class="fas fa-file-contract mr-1"></i> Terms of Service
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Auto-dismiss success messages after 5 seconds
-        setTimeout(() => {
-            const successMsg = document.querySelector('[class*="bg-green-100"]');
-            if (successMsg) successMsg.style.display = 'none';
-        }, 5000);
-        
-        // Tooltip for truncated supervisor names
         document.addEventListener('DOMContentLoaded', function() {
-            const supervisorSpans = document.querySelectorAll('.truncate');
-            supervisorSpans.forEach(span => {
-                if (span.scrollWidth > span.clientWidth) {
-                    span.setAttribute('title', span.textContent);
-                    span.style.cursor = 'help';
-                }
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+            
+            // Add tooltips for truncated text
+            const truncatedElements = document.querySelectorAll('.truncate-tooltip');
+            truncatedElements.forEach(element => {
+                element.setAttribute('title', element.textContent);
+            });
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Handle image loading errors
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                });
             });
         });
     </script>

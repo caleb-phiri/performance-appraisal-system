@@ -28,6 +28,18 @@ class Appraisal extends Model
         'approved_by',
         'approved_at',
         'submitted_at', 
+         'resubmitted_at',        
+        'resubmitted_by',        
+        'resubmission_count',    
+        'agreement_option',      
+        'manager_reason',  
+        'pip_initiated',
+        'pip_start_date',
+        'pip_end_date',
+        'pip_plan',
+        'pip_supervisor_notes',
+        'pip_initiated_at',
+        'pip_initiated_by',      
     ];
     
     protected $casts = [
@@ -38,8 +50,41 @@ class Appraisal extends Model
         'supervisor_score' => 'decimal:2',
         'overall_score' => 'decimal:2',
         'submitted_at' => 'datetime',
+        'resubmitted_at' => 'datetime', 
+        'resubmission_count' => 'integer', 
+         'pip_initiated' => 'boolean',
+        'pip_start_date' => 'date',
+        'pip_end_date' => 'date',
+        'pip_initiated_at' => 'datetime',
+
     ];
     
+
+     // Relationship with user who initiated PIP
+    public function pipInitiator()
+    {
+        return $this->belongsTo(User::class, 'pip_initiated_by');
+    }
+
+    // Accessor to check if PIP is required based on score
+    public function getRequiresPipAttribute()
+    {
+        // Calculate total score (you may already have this method)
+        $totalScore = $this->calculateTotalScore(); // Implement based on your logic
+        return $totalScore < 75 && !$this->pip_initiated;
+    }
+
+    // Calculate total score (implement based on your KPA structure)
+    public function calculateTotalScore()
+    {
+        $totalScore = 0;
+        foreach ($this->kpas as $kpa) {
+            $kpi = $kpa->kpi ?: 4;
+            $finalRating = $kpa->supervisor_rating ?? $kpa->self_rating;
+            $totalScore += ($finalRating / $kpi) * $kpa->weight;
+        }
+        return $totalScore;
+    }
     /**
      * Automatically set dates before creating
      */
@@ -509,4 +554,368 @@ public function supervisorDashboard()
         'stats'
     ));
 }
+ // Relationships
+   
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'employee_number', 'employee_number');
+    }
+
+   
+
+    public function resubmittedBy()
+    {
+        return $this->belongsTo(User::class, 'resubmitted_by', 'employee_number');
+    }
+
+        /**
+     * ======================================================
+     * GRACE PERIOD IMPLEMENTATION METHODS
+     * ======================================================
+     * These methods handle the 20-day grace period after each quarter
+     * where employees can still submit appraisals.
+     */
+    
+    /**
+     * Get the grace period end date for a specific quarter
+     * 
+     * @param string $quarter Q1, Q2, Q3, or Q4
+     * @param int|null $year
+     * @return \Carbon\Carbon|null
+     */
+    public static function getGracePeriodEndDate($quarter, $year = null)
+    {
+        $year = $year ?? date('Y');
+        
+        $graceEndDates = [
+            'Q1' => $year . '-04-20',  // Q1 grace ends April 20
+            'Q2' => $year . '-07-20',  // Q2 grace ends July 20
+            'Q3' => $year . '-10-20',  // Q3 grace ends October 20
+            'Q4' => ($year + 1) . '-01-20', // Q4 grace ends January 20 of next year
+        ];
+        
+        if (!isset($graceEndDates[$quarter])) {
+            return null;
+        }
+        
+        return \Carbon\Carbon::parse($graceEndDates[$quarter]);
+    }
+    
+    /**
+     * Get the quarter period end date (without grace period)
+     * 
+     * @param string $quarter Q1, Q2, Q3, or Q4
+     * @param int|null $year
+     * @return \Carbon\Carbon|null
+     */
+    public static function getQuarterEndDate($quarter, $year = null)
+    {
+        $year = $year ?? date('Y');
+        
+        $quarterEndDates = [
+            'Q1' => $year . '-03-31',
+            'Q2' => $year . '-06-30',
+            'Q3' => $year . '-09-30',
+            'Q4' => $year . '-12-31',
+        ];
+        
+        if (!isset($quarterEndDates[$quarter])) {
+            return null;
+        }
+        
+        return \Carbon\Carbon::parse($quarterEndDates[$quarter]);
+    }
+    
+    /**
+     * Check if a quarter is currently in its grace period
+     * 
+     * @param string $quarter Q1, Q2, Q3, or Q4
+     * @param int|null $year
+     * @return bool
+     */
+    public static function isInGracePeriod($quarter, $year = null)
+    {
+        $now = now();
+        $quarterEnd = self::getQuarterEndDate($quarter, $year);
+        $graceEnd = self::getGracePeriodEndDate($quarter, $year);
+        
+        if (!$quarterEnd || !$graceEnd) {
+            return false;
+        }
+        
+        return $now->gt($quarterEnd) && $now->lte($graceEnd);
+    }
+    
+    /**
+     * Check if a quarter is still open for submission (including grace period)
+     * 
+     * @param string $quarter Q1, Q2, Q3, or Q4
+     * @param int|null $year
+     * @return bool
+     */
+    public static function isQuarterOpen($quarter, $year = null)
+    {
+        $now = now();
+        $graceEnd = self::getGracePeriodEndDate($quarter, $year);
+        
+        if (!$graceEnd) {
+            return false;
+        }
+        
+        return $now->lte($graceEnd);
+    }
+    
+    /**
+     * Check if a quarter has passed (including grace period)
+     * 
+     * @param string $quarter Q1, Q2, Q3, or Q4
+     * @param int|null $year
+     * @return bool
+     */
+    public static function isQuarterClosed($quarter, $year = null)
+    {
+        return !self::isQuarterOpen($quarter, $year);
+    }
+    
+    /**
+     * Get the current quarter based on today's date (grace period aware)
+     * If we're in a grace period, returns the quarter that just ended
+     * 
+     * @param int|null $year
+     * @return string Q1, Q2, Q3, or Q4
+     */
+    public static function getCurrentQuarterWithGrace($year = null)
+    {
+        $now = now();
+        $year = $year ?? $now->year;
+        
+        $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+        
+        foreach ($quarters as $quarter) {
+            $graceEnd = self::getGracePeriodEndDate($quarter, $year);
+            if ($graceEnd && $now->lte($graceEnd)) {
+                return $quarter;
+            }
+        }
+        
+        // If all quarters are past, return Q4 of the year
+        return 'Q4';
+    }
+    
+    /**
+     * Get the quarter that a specific date falls into (grace period aware)
+     * 
+     * @param \Carbon\Carbon|string $date
+     * @return string|null
+     */
+    public static function getQuarterForDate($date)
+    {
+        $date = \Carbon\Carbon::parse($date);
+        $year = $date->year;
+        
+        $quarters = [
+            'Q1' => ['start' => $year . '-01-01', 'grace_end' => $year . '-04-20'],
+            'Q2' => ['start' => $year . '-04-01', 'grace_end' => $year . '-07-20'],
+            'Q3' => ['start' => $year . '-07-01', 'grace_end' => $year . '-10-20'],
+            'Q4' => ['start' => $year . '-10-01', 'grace_end' => ($year + 1) . '-01-20'],
+        ];
+        
+        foreach ($quarters as $quarter => $dates) {
+            $startDate = \Carbon\Carbon::parse($dates['start']);
+            $graceEnd = \Carbon\Carbon::parse($dates['grace_end']);
+            
+            if ($date->between($startDate, $graceEnd)) {
+                return $quarter;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check if this appraisal was submitted during the grace period
+     * 
+     * @return bool
+     */
+    public function getIsSubmittedInGracePeriodAttribute()
+    {
+        if (!$this->submitted_at && !$this->created_at) {
+            return false;
+        }
+        
+        $submissionDate = $this->submitted_at ?? $this->created_at;
+        $quarterEnd = self::getQuarterEndDate($this->period, $this->quarterYear);
+        
+        if (!$quarterEnd) {
+            return false;
+        }
+        
+        return \Carbon\Carbon::parse($submissionDate)->gt($quarterEnd);
+    }
+    
+    /**
+     * Get the grace period deadline for this appraisal's quarter
+     * 
+     * @return \Carbon\Carbon|null
+     */
+    public function getGracePeriodDeadlineAttribute()
+    {
+        return self::getGracePeriodEndDate($this->period, $this->quarterYear);
+    }
+    
+    /**
+     * Get the quarter's actual end date (without grace period)
+     * 
+     * @return \Carbon\Carbon|null
+     */
+    public function getQuarterEndDateAttribute()
+    {
+        return self::getQuarterEndDate($this->period, $this->quarterYear);
+    }
+    
+    /**
+     * Check if this appraisal can still be edited/submitted
+     * (Open until grace period ends)
+     * 
+     * @return bool
+     */
+    public function getIsEditableAttribute()
+    {
+        // Already approved appraisals cannot be edited
+        if ($this->status === 'approved') {
+            return false;
+        }
+        
+        // Check if the quarter is still open
+        return self::isQuarterOpen($this->period, $this->quarterYear);
+    }
+    
+    /**
+     * Get the status of the quarter for this appraisal
+     * Returns: 'open', 'grace', or 'closed'
+     * 
+     * @return string
+     */
+    public function getQuarterStatusAttribute()
+    {
+        $now = now();
+        $quarterEnd = $this->quarterEndDate;
+        $graceEnd = $this->gracePeriodDeadline;
+        
+        if (!$quarterEnd || !$graceEnd) {
+            return 'unknown';
+        }
+        
+        if ($now->gt($graceEnd)) {
+            return 'closed';
+        } elseif ($now->gt($quarterEnd)) {
+            return 'grace';
+        } else {
+            return 'open';
+        }
+    }
+    
+    /**
+     * Scope to get appraisals that are still within their grace period
+     */
+    public function scopeInGracePeriod($query)
+    {
+        return $query->where(function($q) {
+            $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            $year = date('Y');
+            
+            foreach ($quarters as $quarter) {
+                $graceEnd = self::getGracePeriodEndDate($quarter, $year);
+                $quarterEnd = self::getQuarterEndDate($quarter, $year);
+                
+                if ($graceEnd && $quarterEnd) {
+                    $q->orWhere(function($q2) use ($quarter, $quarterEnd, $graceEnd, $year) {
+                        $q2->where('period', $quarter)
+                           ->whereYear('start_date', $year)
+                           ->whereRaw('? BETWEEN ? AND ?', [now(), $quarterEnd, $graceEnd]);
+                    });
+                }
+            }
+        });
+    }
+    
+    /**
+     * Scope to get appraisals that are still open for submission
+     */
+    public function scopeOpenForSubmission($query)
+    {
+        return $query->where(function($q) {
+            $quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            $year = date('Y');
+            
+            foreach ($quarters as $quarter) {
+                $graceEnd = self::getGracePeriodEndDate($quarter, $year);
+                
+                if ($graceEnd) {
+                    $q->orWhere(function($q2) use ($quarter, $graceEnd, $year) {
+                        $q2->where('period', $quarter)
+                           ->whereYear('start_date', $year)
+                           ->whereRaw('? <= ?', [now(), $graceEnd]);
+                    });
+                }
+            }
+        });
+    }
+    
+    /**
+     * Get days remaining until grace period deadline
+     * 
+     * @return int|null
+     */
+    public function getDaysRemainingInGraceAttribute()
+    {
+        $graceEnd = $this->gracePeriodDeadline;
+        
+        if (!$graceEnd) {
+            return null;
+        }
+        
+        $now = now();
+        
+        if ($now->gt($graceEnd)) {
+            return 0;
+        }
+        
+        return $now->diffInDays($graceEnd, false);
+    }
+    
+    /**
+     * Get a human-readable status of the submission window
+     * 
+     * @return string
+     */
+    public function getSubmissionWindowStatusAttribute()
+    {
+        $quarterStatus = $this->quarterStatus;
+        
+        if ($this->status === 'approved') {
+            return 'Approved';
+        }
+        
+        if ($this->submitted_at) {
+            if ($this->isSubmittedInGracePeriod) {
+                return 'Submitted (Grace Period)';
+            }
+            return 'Submitted (On Time)';
+        }
+        
+        switch ($quarterStatus) {
+            case 'open':
+                return 'Open for Submission';
+            case 'grace':
+                $daysLeft = $this->daysRemainingInGrace;
+                return "Grace Period - {$daysLeft} day(s) remaining";
+            case 'closed':
+                return 'Submission Closed';
+            default:
+                return 'Unknown';
+        }
+    }
+
 }
