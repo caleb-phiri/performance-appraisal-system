@@ -488,6 +488,99 @@
             checkExistingSearch();
         });
 
+        
+// ==============================================
+// PIP ACCESS MANAGEMENT FUNCTIONS
+// ==============================================
+
+async function updatePipAccess(selectElement, userName) {
+    const employeeNumber = selectElement.dataset.employeeNumber;
+    const userId = selectElement.dataset.userId;
+    const newAccessLevel = selectElement.value;
+    
+    // Store previous value for rollback
+    const previousValue = selectElement.getAttribute('data-previous-value') || 'none';
+    
+    // Show loading state
+    const originalHTML = selectElement.innerHTML;
+    selectElement.disabled = true;
+    selectElement.style.opacity = '0.6';
+    
+    // Map access level to display text
+    const accessText = {
+        'none': 'No Access',
+        'view': 'View Only', 
+        'manage': 'Full Manage'
+    };
+    
+    const accessDescription = {
+        'none': '❌ User will NOT be able to see any Performance Improvement Plans',
+        'view': '👁️ User can VIEW PIPs but cannot create, edit, or complete them',
+        'manage': '✏️ User can VIEW, CREATE, EDIT, and COMPLETE all PIPs'
+    };
+    
+    // Confirm with user
+    const confirmMessage = `Set PIP access for "${userName}" to: ${accessText[newAccessLevel]}?\n\n${accessDescription[newAccessLevel]}`;
+    
+    if (!confirm(confirmMessage)) {
+        // Revert selection
+        selectElement.value = previousValue;
+        selectElement.disabled = false;
+        selectElement.style.opacity = '1';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/users/update-pip-access', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_number: employeeNumber,
+                user_id: userId,
+                pip_access_level: newAccessLevel
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Update styling based on new access level
+            selectElement.classList.remove('border-gray-300', 'bg-white', 'border-blue-400', 'bg-blue-50', 'border-green-400', 'bg-green-50');
+            
+            if (newAccessLevel === 'manage') {
+                selectElement.classList.add('border-green-400', 'bg-green-50');
+            } else if (newAccessLevel === 'view') {
+                selectElement.classList.add('border-blue-400', 'bg-blue-50');
+            } else {
+                selectElement.classList.add('border-gray-300', 'bg-white');
+            }
+            
+            selectElement.setAttribute('data-previous-value', newAccessLevel);
+            showToast(`✅ PIP access for "${userName}" updated to: ${accessText[newAccessLevel]}`, 'success');
+        } else {
+            throw new Error(data.message || 'Failed to update PIP access');
+        }
+    } catch (error) {
+        console.error('PIP access update error:', error);
+        showToast(error.message || 'Error updating PIP access', 'error');
+        // Revert selection
+        selectElement.value = previousValue;
+    } finally {
+        selectElement.disabled = false;
+        selectElement.style.opacity = '1';
+    }
+}
+
+// Initialize previous values on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pip-access-select').forEach(select => {
+        select.setAttribute('data-previous-value', select.value);
+    });
+});
         // ==============================================
         // MAKE SUPERVISOR FUNCTIONS
         // ==============================================

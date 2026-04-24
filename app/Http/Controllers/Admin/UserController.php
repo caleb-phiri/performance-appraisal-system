@@ -15,47 +15,85 @@ use App\Imports\UsersImport;
 
 class UserController extends Controller
 {
-    /**
- * Display a listing of active users.
- */
-public function index()
-{
-    try {
-        // Debug logging
-        Log::info('User index called, checking left_company column');
+  public function index(Request $request)
+    {
+        // Get the current logged-in user
+        $user = Auth::user();
         
-        // Check if left_company column exists
-        if (Schema::hasColumn('users', 'left_company')) {
-            Log::info('left_company column exists, filtering users');
+        // Build the query
+        $query = Pip::with(['user', 'pipInitiator']);
+        
+        // Check user permissions
+        $isAdmin = in_array($user->user_type, ['admin', 'Administrator', 'ADMIN']);
+        $isSupervisor = $user->user_type === 'supervisor';
+        $canViewAllPIPs = $user->can_view_pip ?? false;
+        $canManageAllPIPs = $user->can_manage_pip ?? false;
+        
+        // Determine what PIPs the user can see
+        if ($isAdmin || $canViewAllPIPs || $canManageAllPIPs) {
+            // Admin or user with PIP view/manage permission - see ALL PIPs
+            // No filtering needed
+        } 
+        elseif ($isSupervisor) {
+            // Supervisor - only see PIPs for employees they supervise
+            // Get all employee numbers under this supervisor
+            $supervisedEmployees = User::where('manager_id', $user->employee_number)
+                                       ->orWhere('supervisor_id', $user->id)
+                                       ->orWhere('reporting_to', $user->employee_number)
+                                       ->pluck('employee_number')
+                                       ->toArray();
             
-            // Get users who haven't left company AND are active
-            $users = User::where('left_company', false)
-                        ->orderBy('name')
-                        ->paginate(20);
-            
-            // Debug: Count how many users are marked as left
-            $leftCount = User::where('left_company', true)->count();
-            Log::info("Users marked as left company: {$leftCount}");
-            Log::info("Active users retrieved: " . $users->count());
-            
-        } else {
-            Log::warning('left_company column does not exist, showing all users');
-            // Fallback: show all users
-            $users = User::orderBy('name')->paginate(20);
+            // Also include PIPs created by this supervisor
+            $query->where(function($q) use ($supervisedEmployees, $user) {
+                $q->whereIn('employee_number', $supervisedEmployees)
+                  ->orWhere('initiated_by', $user->employee_number)
+                  ->orWhere('initiated_by_name', $user->name);
+            });
+        } 
+        else {
+            // Regular employee - only see their own PIPs
+            $query->where('employee_number', $user->employee_number);
         }
         
-        // Calculate FULL statistics (not just from the paginated collection)
-        $stats = $this->calculateFullStats();
+        // Apply filters
+        if ($request->has('status') && $request->status == 'active') {
+            $query->where('pip_end_date', '>=', now());
+        } elseif ($request->has('status') && $request->status == 'completed') {
+            $query->where('pip_end_date', '<', now());
+        }
         
-        return view('admin.users.index', compact('users', 'stats'));
-    } catch (\Exception $e) {
-        Log::error('Error fetching users: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString()
-        ]);
-        return redirect()->route('admin.dashboard')
-            ->with('error', 'Failed to load users. Please try again.');
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('employee_number', 'LIKE', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('employee_number', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+        
+        if ($request->has('department') && !empty($request->department)) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('department', $request->department);
+            });
+        }
+        
+        // Get paginated results
+        $pips = $query->orderBy('created_at', 'desc')->paginate(15);
+        
+        // Calculate statistics
+        $stats = [
+            'total' => Pip::count(),
+            'active' => Pip::where('pip_end_date', '>=', now())->count(),
+            'completed' => Pip::where('pip_end_date', '<', now())->count(),
+        ];
+        
+        // Get departments for filter (only from users the current user can see)
+        $departments = User::distinct()->pluck('department')->filter()->values()->toArray();
+        
+        return view('pip-management', compact('pips', 'stats', 'departments'));
     }
-}
 
 /**
  * Calculate full statistics from entire database
@@ -812,6 +850,69 @@ private function calculateFullStats()
             'success' => false,
             'message' => 'Failed to promote user: ' . $e->getMessage()
         ], 500);
+    }
+}
+
+public function updatePipAccess(Request $request)
+{
+    // Clear any output buffers that might exist
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    try {
+        $request->validate([
+            'employee_number' => 'required|string',
+            'pip_access_level' => 'required|in:none,view,manage'
+        ]);
+        
+        // Ensure columns exist
+        if (!Schema::hasColumn('users', 'pip_access_level')) {
+            Schema::table('users', function ($table) {
+                $table->string('pip_access_level')->default('none');
+                $table->boolean('can_view_pip')->default(false);
+                $table->boolean('can_manage_pip')->default(false);
+            });
+        }
+        
+        $user = User::where('employee_number', $request->employee_number)->first();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'User not found'
+            ])->header('Content-Type', 'application/json');
+        }
+        
+        // Update the PIP access fields
+        $user->pip_access_level = $request->pip_access_level;
+        $user->can_view_pip = in_array($request->pip_access_level, ['view', 'manage']);
+        $user->can_manage_pip = $request->pip_access_level === 'manage';
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'PIP access updated successfully',
+            'data' => [
+                'pip_access_level' => $user->pip_access_level,
+                'can_view_pip' => $user->can_view_pip,
+                'can_manage_pip' => $user->can_manage_pip
+            ]
+        ])->header('Content-Type', 'application/json');
+        
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed: ' . json_encode($e->errors())
+        ], 422)->header('Content-Type', 'application/json');
+        
+    } catch (\Exception $e) {
+        \Log::error('PIP access update error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating PIP access: ' . $e->getMessage()
+        ], 500)->header('Content-Type', 'application/json');
     }
 }
 }

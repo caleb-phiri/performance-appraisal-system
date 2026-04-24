@@ -43,21 +43,21 @@ class Appraisal extends Model
     ];
     
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'approved_at' => 'datetime',
-        'self_score' => 'decimal:2',
-        'supervisor_score' => 'decimal:2',
-        'overall_score' => 'decimal:2',
-        'submitted_at' => 'datetime',
-        'resubmitted_at' => 'datetime', 
-        'resubmission_count' => 'integer', 
-         'pip_initiated' => 'boolean',
-        'pip_start_date' => 'date',
-        'pip_end_date' => 'date',
-        'pip_initiated_at' => 'datetime',
-
-    ];
+    'start_date' => 'date',
+    'end_date' => 'date',
+    'approved_at' => 'datetime',
+    'self_score' => 'decimal:2',
+    'supervisor_score' => 'decimal:2',
+    'overall_score' => 'decimal:2',
+    'submitted_at' => 'datetime',
+    'resubmitted_at' => 'datetime', 
+    'resubmission_count' => 'integer', 
+    'pip_initiated' => 'boolean',
+    'pip_start_date' => 'date',
+    'pip_end_date' => 'date',
+    'pip_initiated_at' => 'datetime',
+    'pip_action_plan' => 'array',  // <-- ADD THIS LINE
+];
     
 
      // Relationship with user who initiated PIP
@@ -917,5 +917,13 @@ public function supervisorDashboard()
                 return 'Unknown';
         }
     }
-
+public function pipFollowups()
+{
+    return $this->hasMany(PIPFollowup::class, 'appraisal_id')->orderBy('created_at', 'desc');
+}
+// In App\Models\Appraisal.php
+public function pipActionPlans()
+{
+    return $this->hasMany(PipActionPlan::class)->orderBy('sort_order');
+}
 }

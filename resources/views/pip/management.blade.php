@@ -6,19 +6,16 @@
     <title>PIP Management - MOIC Performance Appraisal System</title>
     
     <!-- FAVICON - Using TK.png -->
-  <link rel="icon" type="image/png" href="{{ asset('images/TK.png') }}">
-  <link rel="shortcut icon" href="{{ asset('images/TK.png') }}">
-  <link rel="apple-touch-icon" href="{{ asset('images/TK.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/TK.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/TK.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/TK.png') }}">
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- Fonts & icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<!-- Apple Touch Icon (for iOS home screen) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Fonts & icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
@@ -197,41 +194,36 @@
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
         }
+        
+        .role-badge.viewer {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <!-- Include your navigation bar here -->
-   
-    
     <div class="container-fluid py-4">
         <div class="container-custom">
             
-           @php
-    // ROLE-BASED ACCESS CONTROL CONDITION
-    // Allowed roles: 'admin' and 'supervisor'
-    // Get user role from session/auth - this should be dynamically set by your Laravel auth system
-    $userRole = session('user_role', Auth::user()->user_role ?? 'employee');
-    $allowedRoles = ['admin', 'supervisor', 'Administrator', 'Supervisor', 'ADMIN', 'SUPERVISOR'];
-    $isAuthorized = in_array(strtolower($userRole), array_map('strtolower', $allowedRoles));
-    
-    // For demonstration in static HTML, we'll check a session variable or auth check
-    // In a real Laravel blade, you would use: @auth @if(auth()->user()->hasRole(['admin', 'supervisor']))
-    // This implementation supports both server-side role check and client-side fallback
-    if(!isset($isAuthorized) || $isAuthorized === false) {
-        // Additional check for common auth patterns
-        if(isset($currentUser) && in_array($currentUser->user_role ?? '', ['admin', 'supervisor'])) {
-            $isAuthorized = true;
-        } elseif(isset($authUser) && in_array($authUser->user_role ?? '', ['admin', 'supervisor'])) {
-            $isAuthorized = true;
-        } elseif(isset($loggedInUser) && in_array($loggedInUser->user_role ?? '', ['admin', 'supervisor'])) {
-            $isAuthorized = true;
-        }
-    }
-@endphp
+            @php
+                // ROLE-BASED ACCESS CONTROL WITH PIP PERMISSIONS
+                $userRole = session('user_role', Auth::user()->user_role ?? 'employee');
+                $pipAccessLevel = Auth::user()->pip_access_level ?? 'none';
+                $canViewPIP = Auth::user()->can_view_pip ?? false;
+                $canManagePIP = Auth::user()->can_manage_pip ?? false;
+                
+                $allowedRoles = ['admin', 'supervisor', 'Administrator', 'Supervisor', 'ADMIN', 'SUPERVISOR'];
+                $isAdminOrSupervisor = in_array(strtolower($userRole), array_map('strtolower', $allowedRoles));
+                
+                // Allow access if: admin/supervisor OR has pip view/manage permission
+                $isAuthorized = $isAdminOrSupervisor || $canViewPIP || $canManagePIP;
+                
+                // For edit capabilities (view-only users shouldn't see edit buttons)
+                $canEdit = $isAdminOrSupervisor || $canManagePIP;
+            @endphp
             
-            @if($isAuthorized ?? false)
-            <!-- AUTHORIZED CONTENT - Only visible to Supervisors and Admins -->
-            <!-- Header -->
+            @if($isAuthorized)
+            <!-- AUTHORIZED CONTENT -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold" style="color: var(--moic-navy);">
@@ -239,20 +231,33 @@
                         Performance Improvement Plans
                     </h2>
                     <p class="text-muted mb-0">
-                        <i class="fas fa-shield-alt me-1"></i> 
-                        Supervisor & Admin Access Only
-                        @if(isset($userRole))
-                        <span class="role-badge {{ strtolower($userRole) == 'admin' ? 'admin' : 'supervisor' }} ms-2">
-                            <i class="fas {{ strtolower($userRole) == 'admin' ? 'fa-crown' : 'fa-user-tie' }} me-1"></i>
-                            {{ ucfirst($userRole) }}
-                        </span>
-                        @endif
-                    </p>
+    <i class="fas fa-shield-alt me-1"></i> 
+    @if($isAdminOrSupervisor)
+        Supervisor & Admin Access
+    @elseif($canManagePIP)
+        <span class="text-success">PIP Manager Access</span>
+    @elseif($canViewPIP)
+        <span class="text-info">PIP Viewer Access (Read Only)</span>
+    @else
+        No PIP Access
+    @endif
+    <span class="role-badge {{ strtolower($userRole) == 'admin' ? 'admin' : (strtolower($userRole) == 'supervisor' ? 'supervisor' : 'viewer') }} ms-2">
+        <i class="fas {{ strtolower($userRole) == 'admin' ? 'fa-crown' : (strtolower($userRole) == 'supervisor' ? 'fa-user-tie' : 'fa-user') }} me-1"></i>
+        Role: {{ ucfirst($userRole) }}
+    </span>
+    @if($canManagePIP && !$isAdminOrSupervisor)
+        <span class="badge bg-success ms-1">PIP Manager</span>
+    @elseif($canViewPIP && !$isAdminOrSupervisor && !$canManagePIP)
+        <span class="badge bg-info ms-1">PIP Viewer</span>
+    @endif
+</p>
                 </div>
                 <div>
+                    @if($canEdit)
                     <a href="{{ route('pip.export') }}" class="btn btn-outline-success me-2">
                         <i class="fas fa-download me-2"></i>Export Report
                     </a>
+                    @endif
                     <button onclick="window.print()" class="btn btn-outline-secondary">
                         <i class="fas fa-print me-2"></i>Print
                     </button>
@@ -353,7 +358,9 @@
                                     <th class="px-3 py-3">Status</th>
                                     <th class="px-3 py-3">Progress</th>
                                     <th class="px-3 py-3">Initiated By</th>
+                                    @if($canEdit)
                                     <th class="px-3 py-3 text-center actions-column">Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -412,12 +419,12 @@
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
-                                     </td>
+                                    </td>
                                     <td class="px-3 py-3">
                                         <span class="fw-bold {{ $totalScore >= 75 ? 'text-success' : 'text-danger' }}">
                                             {{ number_format($totalScore, 1) }}%
                                         </span>
-                                     </td>
+                                    </td>
                                     <td class="px-3 py-3">
                                         @if($isActive)
                                             <span class="badge-pip-active">
@@ -428,7 +435,7 @@
                                                 <i class="fas fa-check-circle me-1"></i>Completed
                                             </span>
                                         @endif
-                                     </td>
+                                    </td>
                                     <td class="px-3 py-3" style="width: 150px;">
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="small fw-bold">{{ $progress }}%</span>
@@ -438,13 +445,14 @@
                                                      role="progressbar"></div>
                                             </div>
                                         </div>
-                                     </td>
+                                    </td>
                                     <td class="px-3 py-3">
                                         <div class="small">
                                             <div>{{ $pip->pipInitiator?->name ?? ($pip->initiated_by_name ?? 'System') }}</div>
                                             <small class="text-muted">{{ $pip->pip_initiated_at?->format('M d, Y') ?? ($pip->created_at?->format('M d, Y') ?? '—') }}</small>
                                         </div>
-                                     </td>
+                                    </td>
+                                    @if($canEdit)
                                     <td class="px-3 py-3 text-center actions-column">
                                         <a href="{{ route('appraisals.show', $pip->id) }}" 
                                            class="btn btn-sm btn-outline-primary me-1"
@@ -458,16 +466,17 @@
                                             <i class="fas fa-check"></i>
                                         </button>
                                         @endif
-                                     </td>
-                                 </tr>
+                                    </td>
+                                    @endif
+                                </tr>
                                 @empty
-                                32行
-                                    <td colspan="9" class="text-center py-5">
+                                <tr>
+                                    <td colspan="{{ $canEdit ? 9 : 8 }}" class="text-center py-5">
                                         <i class="fas fa-chart-line fa-3x text-muted mb-3 d-block"></i>
                                         <h5 class="text-muted">No Performance Improvement Plans Found</h5>
                                         <p class="text-muted">When appraisals score below 75%, PIPs will appear here.</p>
-                                     </td>
-                                 </tr>
+                                    </td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -481,7 +490,7 @@
             </div>
             
             @else
-            <!-- ACCESS DENIED - For non-supervisor and non-admin users -->
+            <!-- ACCESS DENIED -->
             <div class="access-denied-container">
                 <div class="access-denied-card">
                     <div class="access-denied-icon">
@@ -490,7 +499,7 @@
                     <h3 class="access-denied-title">Access Restricted</h3>
                     <div class="access-denied-message">
                         <p><i class="fas fa-shield-alt me-2" style="color: var(--moic-accent);"></i> 
-                        This section is only available to <strong>Supervisors</strong> and <strong>Administrators</strong>.</p>
+                        This section is only available to <strong>Supervisors</strong>, <strong>Administrators</strong>, or users with <strong>PIP View/Manage permissions</strong>.</p>
                         <p class="mb-0">Please contact your HR department or system administrator if you believe you need access to Performance Improvement Plans.</p>
                     </div>
                     <div class="mt-4">
@@ -502,12 +511,22 @@
                         </a>
                     </div>
                     <div class="mt-4 pt-3 border-top">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Current Role: 
-                            <span class="fw-semibold">{{ ucfirst($userRole ?? 'Employee') }}</span>
-                        </small>
-                    </div>
+    <small class="text-muted">
+        <i class="fas fa-info-circle me-1"></i>
+        Your Access Level: 
+        <span class="fw-semibold">
+            @if($isAdminOrSupervisor)
+                <span class="text-primary">Administrator/Supervisor</span>
+            @elseif($canManagePIP)
+                <span class="text-success">PIP Manager (Full Access)</span>
+            @elseif($canViewPIP)
+                <span class="text-info">PIP Viewer (Read Only)</span>
+            @else
+                <span class="text-muted">{{ ucfirst($userRole ?? 'Employee') }}</span>
+            @endif
+        </span>
+    </small>
+</div>
                 </div>
             </div>
             @endif
@@ -515,8 +534,8 @@
         </div>
     </div>
     
-    <!-- Update PIP Status Modal (Only shown if authorized) -->
-    @if($isAuthorized ?? false)
+    <!-- Update PIP Status Modal (Only shown if user can edit) -->
+    @if(isset($canEdit) && $canEdit)
     <div class="modal fade" id="updatePipModal" tabindex="-1" aria-labelledby="updatePipModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -574,8 +593,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Only initialize PIP management scripts if user is authorized
-        @if($isAuthorized ?? false)
+        // Only initialize PIP management scripts if user can edit
+        @if(isset($canEdit) && $canEdit)
         let currentPipId = null;
         let updateModal = null;
         

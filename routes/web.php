@@ -876,3 +876,68 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pip/export', [App\Http\Controllers\AppraisalController::class, 'exportPips'])
         ->name('pip.export');
 });
+
+Route::post('/admin/users/update-pip-access', [App\Http\Controllers\Admin\UserController::class, 'updatePipAccess'])
+    ->name('admin.users.update-pip-access')
+    ->middleware(['auth', 'role:admin']);
+
+    
+
+use App\Models\User;
+use Illuminate\Support\Facades\Schema;
+
+
+// Add this route FIRST - before any other routes
+Route::post('/admin/users/update-pip-access', function(Request $request) {
+    // Clear any output buffers
+    while (ob_get_level()) ob_end_clean();
+    
+    // Set JSON header
+    header('Content-Type: application/json');
+    
+    try {
+        $employeeNumber = $request->input('employee_number');
+        $accessLevel = $request->input('pip_access_level');
+        
+        if (!$employeeNumber || !in_array($accessLevel, ['none', 'view', 'manage'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data']);
+            return;
+        }
+        
+        // Ensure columns exist
+        if (!Schema::hasColumn('users', 'pip_access_level')) {
+            Schema::table('users', function ($table) {
+                $table->string('pip_access_level')->default('none');
+                $table->boolean('can_view_pip')->default(false);
+                $table->boolean('can_manage_pip')->default(false);
+            });
+        }
+        
+        $user = User::where('employee_number', $employeeNumber)->first();
+        
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+        
+        $user->pip_access_level = $accessLevel;
+        $user->can_view_pip = in_array($accessLevel, ['view', 'manage']);
+        $user->can_manage_pip = $accessLevel === 'manage';
+        $user->save();
+        
+        echo json_encode(['success' => true, 'message' => 'PIP access updated successfully']);
+        
+    } catch (\Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+});
+
+// PIP Follow-up routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/appraisals/{appraisal}/followup', [AppraisalController::class, 'addPIPFollowup'])
+        ->name('appraisals.followup.add');
+    Route::get('/appraisals/{appraisal}/followups', [AppraisalController::class, 'getPIPFollowups'])
+        ->name('appraisals.followup.get');
+});
+
+Route::post('/appraisals/{appraisal}/pip-action-plan', [AppraisalController::class, 'updatePIPActionPlan'])->name('appraisals.update-pip-action-plan');

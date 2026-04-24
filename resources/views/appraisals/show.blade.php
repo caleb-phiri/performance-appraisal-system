@@ -1237,6 +1237,45 @@
             font-size: 0.75rem;
             color: #9b7a62;
         }
+        /* 90-day PIP Action Table */
+        .pip-action-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .pip-action-table th,
+        .pip-action-table td {
+            border: 1px solid #f0e2d6;
+            padding: 0.75rem;
+            vertical-align: top;
+        }
+        .pip-action-table th {
+            background: #fefaf5;
+            font-weight: 700;
+            color: #4b2e1a;
+        }
+        /* Follow-up comments section */
+        .followup-section {
+            background: #fefcf8;
+            border-radius: 1rem;
+            border: 1px solid #f0e2d6;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+        .btn-submit-followup {
+            background: linear-gradient(135deg, #e7581c, #c2410c);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-submit-followup:hover {
+            background: #c2410c;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(231,88,28,0.3);
+        }
     </style>
 </head>
 <body>
@@ -2101,14 +2140,14 @@
                                                 @endif
                                             </div>
                                         </div>
-                                    </td>
-                                    <td data-label="Weight">{{ $kpa->weight }}%</td>
+                                    </div>
+                                    <td data-label="Weight">{{ $kpa->weight }}%</div>
                                     <td data-label="Self Rating">
                                         {{ $kpa->self_rating }}/{{ $kpi }}
                                         <small class="text-muted d-block d-md-none">
                                             {{ number_format(($kpa->self_rating / $kpi) * 100, 1) }}%
                                         </small>
-                                    </td>
+                                    </div>
                                     
                                     @if(isset($hasMultipleSupervisors) && $hasMultipleSupervisors)
                                         <!-- Multiple supervisors view -->
@@ -2203,7 +2242,7 @@
                                  <tr>
                                     <td colspan="{{ isset($hasMultipleSupervisors) && $hasMultipleSupervisors ? '3' : '2' }}" class="text-end">
                                         Total Score:
-                                     </td>
+                                     </div>
                                     <td colspan="2" class="{{ $totalScore < 75 ? 'text-danger' : 'text-success' }}">
                                         {{ number_format($totalScore, 1) }}%
                                         @if($totalScore < 75)
@@ -2211,7 +2250,7 @@
                                         @endif
                                       </div>
                                     @if($isAssignedSupervisor && $appraisal->status === 'submitted')
-                                        <td class="no-print"></td>
+                                        <td class="no-print"></div>
                                     @endif
                                  </tr>
                             </tfoot>
@@ -2398,48 +2437,140 @@
         </div>
     </div>
 
-     <!-- PIP Initiation Modal -->
+    <!-- PIP Initiation Modal with 90-Day Template Integration -->
     <div class="modal fade" id="pipModal" tabindex="-1" aria-hidden="false">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #e7581c, #c2410c); color: white;">
+        <div class="modal-dialog modal-xl" style="max-height: 90vh; margin: 1rem auto;">
+            <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #e7581c, #c2410c); color: white; flex-shrink: 0;">
                     <h5 class="modal-title">
-                        <i class="fas fa-file-contract me-2"></i>Initiate Performance Improvement Plan (PIP)
+                        <i class="fas fa-file-contract me-2"></i>Initiate 90-Day Performance Improvement Plan (PIP)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="pipForm" method="POST" action="{{ route('appraisals.initiate-pip', $appraisal->id) }}">
+                <form id="pipForm" method="POST" action="{{ route('appraisals.initiate-pip', $appraisal->id) }}" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
                     @csrf
-                    <div class="modal-body">
+                    <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 1.5rem;">
                         <div class="alert alert-warning mb-3">
                             <i class="fas fa-info-circle me-2"></i>
                             Employee final score: <strong>{{ number_format($totalScore, 1) }}%</strong> (below required 75% threshold).
                         </div>
+                        
+                        <!-- 90-Day PIP Supplementary Information Section -->
+                        <div class="card mb-3 border-pip">
+                            <div class="card-header bg-light fw-bold">PIP Supplementary Information (Ref PM018 | Rev 0, Aug 2024)</div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Employee Name</label>
+                                        <input type="text" class="form-control" value="{{ $appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}" readonly disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Date</label>
+                                        <input type="text" class="form-control" value="{{ now()->format('F d, Y') }}" readonly disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Job Title</label>
+                                        <input type="text" class="form-control" value="{{ $appraisal->job_title ?? $appraisal->position ?? 'Staff' }}" readonly disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Department</label>
+                                        <input type="text" class="form-control" value="{{ $appraisal->department ?? 'Operations' }}" readonly disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Manager Name</label>
+                                        <input type="text" class="form-control" value="{{ auth()->user()->name ?? 'Supervisor' }}" readonly disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Hired Date</label>
+                                        <input type="text" class="form-control" value="{{ $appraisal->hired_date ?? ($appraisal->start_date ?? 'N/A') }}" readonly disabled>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Area of Concern</label>
+                                        <textarea class="form-control" rows="2" readonly disabled>Performance score {{ number_format($totalScore, 1) }}% below 75% threshold. Specific KPAs require immediate improvement.</textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Goal or Plan for Improvement</label>
+                                        <input type="text" class="form-control" value="Achieve minimum 85% on all core KPIs by end of PIP period." readonly disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Plan Table -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light fw-bold">Action Plan & Objectives</div>
+                            <div class="card-body">
+                                <table class="pip-action-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr><th style="border: 1px solid #dee2e6; padding: 8px;">Action</th><th style="border: 1px solid #dee2e6; padding: 8px;">Objective</th><th style="border: 1px solid #dee2e6; padding: 8px;">Measurement</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="action_1" class="form-control" placeholder="e.g., Weekly progress reports" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="objective_1" class="form-control" placeholder="Objective" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="measure_1" class="form-control" placeholder="Measurement" value=""></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="action_2" class="form-control" placeholder="e.g., Attend skill enhancement workshop" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="objective_2" class="form-control" placeholder="Objective" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="measure_2" class="form-control" placeholder="Measurement" value=""></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="action_3" class="form-control" placeholder="e.g., Improve quality metrics" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="objective_3" class="form-control" placeholder="Objective" value=""></td>
+                                            <td style="border: 1px solid #dee2e6; padding: 8px;"><input type="text" name="measure_3" class="form-control" placeholder="Measurement" value=""></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <small class="text-muted">Customize actions, objectives and measurements as needed.</small>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label class="form-label fw-bold">PIP Start Date</label>
                             <input type="date" name="pip_start_date" class="form-control" value="{{ date('Y-m-d') }}" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">PIP End Date (Review Period)</label>
+                            <label class="form-label fw-bold">PIP End Date (90-Day Review Period)</label>
                             <input type="date" name="pip_end_date" class="form-control" value="{{ date('Y-m-d', strtotime('+90 days')) }}" required>
-                            <small class="text-muted">Typically 30-90 days for improvement period</small>
+                            <small class="text-muted">Standard 90-day improvement period</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Improvement Objectives & Action Plan</label>
-                            <textarea name="pip_plan" rows="5" class="form-control" required 
-                                placeholder="Example:&#10;1. Improve customer service response time from 24hrs to 4hrs&#10;2. Complete mandatory training on CRM system by [date]&#10;3. Weekly progress meetings with supervisor&#10;4. Achieve 90% quality score on monthly audits"></textarea>
-                            <small class="text-muted">List specific, measurable goals with clear deadlines</small>
+                            <label class="form-label fw-bold">Improvement Objectives & Action Plan (Detailed)</label>
+                            <textarea name="pip_plan" rows="4" class="form-control" required 
+                                placeholder=""></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Supervisor Comments / Expectations</label>
+                            <label class="form-label fw-bold">Supervisor Comments / Expectations & Follow-up Plan</label>
                             <textarea name="pip_supervisor_notes" rows="3" class="form-control" 
-                                placeholder="Additional expectations, support provided, meeting schedule, follow-up plan..."></textarea>
+                                placeholder=""></textarea>
+                        </div>
+                        
+                        <!-- Signatures section -->
+                        <div class="row mt-3 pt-2 border-top">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Employee Signature</label>
+                                <div class="border-bottom mt-1" style="width: 90%;">&nbsp;</div>
+                              <small class="text-muted">{{$appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Manager Signature</label>
+                                <div class="border-bottom mt-1" style="width: 90%;">&nbsp;</div>
+                                <small class="text-muted">{{ auth()->user()->name ?? 'Supervisor' }}</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Date</label>
+                                <div class="border-bottom mt-1" style="width: 90%;">&nbsp;</div>
+                                <small>{{ now()->format('M d, Y') }}</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-pip">
-                            <i class="fas fa-save me-2"></i>Submit PIP & Notify Employee
+                    <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 1rem; flex-shrink: 0;">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-pip" style="background: linear-gradient(135deg, #e7581c, #c2410c); border: none; padding: 0.5rem 1.5rem;">
+                            <i class="fas fa-save me-2"></i>Submit 90-Day PIP & Notify Employee
                         </button>
                     </div>
                 </form>
@@ -2447,100 +2578,255 @@
         </div>
     </div>
 
-    <!-- IMPROVED PIP DETAILS MODAL - Clean card layout, no <br> tags -->
-    <div class="modal fade" id="pipDetailsModal" tabindex="-1" aria-hidden="false">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #9a3412, #7c2d12); color: white;">
-                    <h5 class="modal-title">
-                        <i class="fas fa-clipboard-list me-2"></i>Performance Improvement Plan Details
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Timeline Card -->
-                    <div class="pip-detail-card">
-                        <div class="pip-detail-header">
-                            <i class="far fa-calendar-alt"></i>
-                            <span class="title">Plan Timeline</span>
+    <!-- IMPROVED PIP DETAILS MODAL - With Follow-up Comments and Prominent Submit Button -->
+<div class="modal fade" id="pipDetailsModal" tabindex="-1" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #9a3412, #7c2d12); color: white;">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-list me-2"></i>Performance Improvement Plan Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <!-- ============================================= -->
+                <!-- TOLL PLAZA OPERATIONS: SUPPLEMENTARY INFORMATION FILE (Ref PM018 | Rev 0, Aug 2024) -->
+                <!-- ============================================= -->
+                <div class="pip-detail-card" style="border-left: 4px solid #e7581c;">
+                    <div class="pip-detail-header" style="background: #f8f4f0;">
+                        <i class="fas fa-file-alt" style="color: #e7581c;"></i>
+                        <span class="title" style="color: #4b2e1a;">Toll Plaza Operations : Supplementary Information File, Ref PM018 | Rev 0, Aug 2024</span>
+                    </div>
+                    <div class="pip-detail-body">
+                        <!-- Header Row: Employee Name & Date -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Employee Name</label>
+                                <div class="border-bottom pb-1 fw-semibold">{{ $appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Date</label>
+                                <div class="border-bottom pb-1 fw-semibold">{{ now()->format('F d, Y') }}</div>
+                            </div>
                         </div>
-                        <div class="pip-detail-body">
-                            <div class="pip-meta-grid">
-                                <div class="pip-meta-item">
-                                    <span class="pip-meta-label"><i class="far fa-calendar-check me-1"></i> Start Date</span>
-                                    <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('F d, Y') }}</div>
-                                </div>
-                                <div class="pip-meta-item">
-                                    <span class="pip-meta-label"><i class="far fa-calendar-times me-1"></i> End Date</span>
-                                    <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('F d, Y') }}</div>
-                                </div>
-                                <div class="pip-meta-item">
-                                    <span class="pip-meta-label"><i class="fas fa-hourglass-half me-1"></i> Duration</span>
-                                    <div class="pip-meta-value">
-                                        @php
-                                            $start = \Carbon\Carbon::parse($appraisal->pip_start_date);
-                                            $end = \Carbon\Carbon::parse($appraisal->pip_end_date);
-                                            $days = $start->diffInDays($end);
-                                        @endphp
-                                        {{ $days }} days
-                                    </div>
+                        
+                        <!-- Row: Job Title & Department -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Job Title</label>
+                                <div class="border-bottom pb-1">{{ $appraisal->job_title ?? $appraisal->position ?? 'Staff' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Department</label>
+                                <div class="border-bottom pb-1">{{ $appraisal->department ?? 'Operations' }}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row: Manager Name & Hired Date -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Manager Name</label>
+                                <div class="border-bottom pb-1">{{ auth()->user()->name ?? 'Supervisor' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted mb-1">Hired Date</label>
+                                <div class="border-bottom pb-1">{{ $appraisal->hired_date ?? ($appraisal->start_date ?? 'N/A') }}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Area of Concern -->
+                        <div class="mb-3">
+                            <label class="fw-bold small text-muted mb-1">Area of Concern (Describe area of concern)</label>
+                            <div class="bg-light p-2 rounded" style="background: #fefaf5;">
+                                Performance score <strong>{{ number_format($totalScore, 1) }}%</strong> below 75% threshold. Specific KPAs require immediate improvement.
+                            </div>
+                        </div>
+                        
+                        <!-- Goal or Plan for Improvement -->
+                        <div class="mb-3">
+                            <label class="fw-bold small text-muted mb-1">Goal or Plan for Improvement (Overall aim of the plan)</label>
+                            <div class="bg-light p-2 rounded" style="background: #fefaf5;">
+                                Achieve minimum 85% on all core KPIs by end of PIP period.
+                            </div>
+                        </div>
+                        
+                        
+  @php
+    // Properly decode pip_action_plan from database
+    $actionPlanData = null;
+    if (!empty($appraisal->pip_action_plan)) {
+        if (is_string($appraisal->pip_action_plan)) {
+            $actionPlanData = json_decode($appraisal->pip_action_plan, true);
+        } else {
+            $actionPlanData = $appraisal->pip_action_plan;
+        }
+    }
+    
+    // Use saved data or default template
+    $actionPlan = (!empty($actionPlanData) && is_array($actionPlanData) && count($actionPlanData) > 0) 
+        ? $actionPlanData 
+        : [
+            ['action' => 'Submit weekly progress report every Friday', 'objective' => 'Track improvements and identify blockers', 'measurement' => 'Completion rate / quality audit'],
+            ['action' => 'Complete mandatory e-learning modules', 'objective' => 'Skill enhancement and process knowledge', 'measurement' => 'Certification achieved'],
+            ['action' => 'Achieve 90% quality score on monthly audits', 'objective' => 'Quality and compliance improvement', 'measurement' => 'Dashboard review / audit results']
+        ];
+    
+    $hasSavedActions = !empty($actionPlanData) && is_array($actionPlanData) && count($actionPlanData) > 0;
+@endphp
+
+<!-- Action Plan Table -->
+<div style="margin-bottom: 15px;">
+    <label style="font-size: 11px; font-weight: bold; color: #4b2e1a; display: block; margin-bottom: 8px;">
+        <i class="fas fa-tasks me-1"></i> Action Plan & Objectives
+    </label>
+    <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; background: white; table-layout: fixed;">
+        <colgroup>
+            <col style="width: 30%;">
+            <col style="width: 35%;">
+            <col style="width: 35%;">
+        </colgroup>
+        <thead>
+            <tr style="background: #fefaf5;">
+                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Action</th>
+                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Objective</th>
+                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Measurement</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($actionPlan as $index => $action)
+            <tr>
+                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
+                    <span style="display: block; line-height: 1.4;">{{ $action['action'] ?? $action['Action'] ?? $action['description'] ?? $action['task'] ?? '—' }}</span>
+                </td>
+                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
+                    <span style="display: block; line-height: 1.4;">{{ $action['objective'] ?? $action['Objective'] ?? $action['goal'] ?? $action['purpose'] ?? '—' }}</span>
+                </td>
+                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
+                    <span style="display: block; line-height: 1.4;">{{ $action['measurement'] ?? $action['Measurement'] ?? $action['metric'] ?? $action['kpi'] ?? '—' }}</span>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    
+    @if(!$hasSavedActions)
+    <div style="margin-top: 8px; padding: 8px; background: #fefaf5; border-radius: 4px; border-left: 3px solid #e7581c;">
+        <small style="color: #9b6a4b; font-size: 9px;">
+            <i class="fas fa-info-circle me-1"></i> No custom action plan has been saved. Default recommendations shown above.
+        </small>
+    </div>
+    @else
+    <div style="margin-top: 8px; padding: 8px; background: #ecfdf5; border-radius: 4px; border-left: 3px solid #10b981;">
+        <small style="color: #065f46; font-size: 9px;">
+            <i class="fas fa-check-circle me-1"></i> Custom action plan loaded from record ({{ count($actionPlan) }} items).
+        </small>
+    </div>
+    @endif
+</div>
+                    </div>
+                </div>
+
+                <!-- Timeline Card (Original) -->
+                <div class="pip-detail-card">
+                    <div class="pip-detail-header">
+                        <i class="far fa-calendar-alt"></i>
+                        <span class="title">Plan Timeline</span>
+                    </div>
+                    <div class="pip-detail-body">
+                        <div class="pip-meta-grid">
+                            <div class="pip-meta-item">
+                                <span class="pip-meta-label"><i class="far fa-calendar-check me-1"></i> Start Date</span>
+                                <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('F d, Y') }}</div>
+                            </div>
+                            <div class="pip-meta-item">
+                                <span class="pip-meta-label"><i class="far fa-calendar-times me-1"></i> End Date</span>
+                                <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('F d, Y') }}</div>
+                            </div>
+                            <div class="pip-meta-item">
+                                <span class="pip-meta-label"><i class="fas fa-hourglass-half me-1"></i> Duration</span>
+                                <div class="pip-meta-value">
+                                    @php
+                                        $start = \Carbon\Carbon::parse($appraisal->pip_start_date);
+                                        $end = \Carbon\Carbon::parse($appraisal->pip_end_date);
+                                        $days = $start->diffInDays($end);
+                                    @endphp
+                                    {{ $days }} days
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Improvement Plan Card -->
-                    <div class="pip-detail-card">
-                        <div class="pip-detail-header">
-                            <i class="fas fa-tasks"></i>
-                            <span class="title">Improvement Plan & Action Items</span>
-                        </div>
-                        <div class="pip-detail-body">
-                            <div class="pip-content-box">
-                                {!! nl2br(e($appraisal->pip_plan ?? 'No plan details available.')) !!}
-                            </div>
-                        </div>
+                <!-- Improvement Plan Card -->
+                <div class="pip-detail-card">
+                    <div class="pip-detail-header">
+                        <i class="fas fa-tasks"></i>
+                        <span class="title">Improvement Plan & Action Items</span>
                     </div>
-
-                    @if($appraisal->pip_supervisor_notes)
-                    <!-- Supervisor Notes Card -->
-                    <div class="pip-detail-card">
-                        <div class="pip-detail-header">
-                            <i class="fas fa-user-check"></i>
-                            <span class="title">Supervisor Notes & Expectations</span>
-                        </div>
-                        <div class="pip-detail-body">
-                            <div class="pip-content-box">
-                                {!! nl2br(e($appraisal->pip_supervisor_notes)) !!}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Footer Meta -->
-                    <div class="pip-footer-meta">
-                        <div>
-                            <i class="fas fa-flag-checked me-1"></i> Initiated on {{ \Carbon\Carbon::parse($appraisal->pip_initiated_at)->format('F d, Y') }}
-                            @if($appraisal->pip_initiated_by)
-                                by {{ $appraisal->pipInitiator?->name ?? 'Supervisor' }}
-                            @endif
-                        </div>
-                        <div>
-                            <span class="pip-badge-active">
-                                <i class="fas fa-chart-line"></i> Active PIP
-                            </span>
+                    <div class="pip-detail-body">
+                        <div class="pip-content-box">
+                            {!! nl2br(e($appraisal->pip_plan ?? 'No plan details available.')) !!}
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+
+                @if($appraisal->pip_supervisor_notes)
+                <!-- Supervisor Notes Card -->
+                <div class="pip-detail-card">
+                    <div class="pip-detail-header">
+                        <i class="fas fa-user-check"></i>
+                        <span class="title">Supervisor Notes & Expectations</span>
+                    </div>
+                    <div class="pip-detail-body">
+                        <div class="pip-content-box">
+                            {!! nl2br(e($appraisal->pip_supervisor_notes)) !!}
+                        </div>
+                    </div>
                 </div>
+                @endif
+
+                <!-- Follow-up Comments Section with VISIBLE SUBMIT BUTTON -->
+                <div class="followup-section">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-comment-dots me-2 moic-accent"></i>Follow-up Comments</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Add your follow-up comment:</label>
+                        <textarea id="followupComments" rows="4" class="form-control" placeholder="Add follow-up comments, progress notes, or additional feedback..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-submit-followup" id="submitFollowupBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Follow-up Comment
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-history me-2"></i>Previous Follow-ups</h6>
+                        <div id="followupHistory" class="mt-2">
+                            <div class="text-muted small fst-italic">No follow-up comments recorded yet.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Meta -->
+                <div class="pip-footer-meta mt-3">
+                    <div>
+                        <i class="fas fa-flag-checked me-1"></i> Initiated on {{ \Carbon\Carbon::parse($appraisal->pip_initiated_at)->format('F d, Y') }}
+                        @if($appraisal->pip_initiated_by)
+                            by {{ $appraisal->pipInitiator?->name ?? 'Supervisor' }}
+                        @endif
+                    </div>
+                    <div>
+                        <span class="pip-badge-active">
+                            <i class="fas fa-chart-line"></i> Active PIP
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-
-
-
+</div>
     <!-- Modals for rating (existing) -->
     @if($isAssignedSupervisor && $appraisal->status === 'submitted')
     <!-- KPA Rating Modal -->
@@ -2702,153 +2988,838 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ==============================================
-        // REPORT DOWNLOAD FUNCTION
-        // ==============================================
+// ==============================================
+// FINAL OPTIMIZED REPORT - Perfect Table Positioning, No Word Cutting
+// ==============================================
+
+async function downloadReport() {
+    const downloadBtn = document.getElementById('downloadReportBtn');
+    const originalText = downloadBtn.innerHTML;
+    
+    try {
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating Report...';
+        downloadBtn.disabled = true;
+        downloadBtn.classList.add('btn-download-loading');
         
-        async function downloadReport() {
-            const downloadBtn = document.getElementById('downloadReportBtn');
-            const originalText = downloadBtn.innerHTML;
-            
-            try {
-                downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating PDF...';
-                downloadBtn.disabled = true;
-                downloadBtn.classList.add('btn-download-loading');
-                
-                const reportContainer = document.getElementById('reportContainer');
-                const cloneContainer = reportContainer.cloneNode(true);
-                const noPrintElements = cloneContainer.querySelectorAll('.no-print');
-                noPrintElements.forEach(el => el.remove());
-                
-                const reportHeader = document.createElement('div');
-                reportHeader.style.textAlign = 'center';
-                reportHeader.style.marginBottom = '20px';
-                reportHeader.style.padding = '20px';
-                reportHeader.style.backgroundColor = '#110484';
-                reportHeader.style.color = 'white';
-                reportHeader.innerHTML = `
-                    <h2 style="margin: 0; font-size: 24px;">Performance Appraisal Report</h2>
-                    <p style="margin: 5px 0 0 0;">Generated on {{ $reportDate }}</p>
-                    <p style="margin: 5px 0 0 0;">Report ID: #{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}</p>
-                `;
-                cloneContainer.insertBefore(reportHeader, cloneContainer.firstChild);
-                
-                const opt = {
-                    margin: [0.5, 0.5, 0.5, 0.5],
-                    filename: `Appraisal_Report_#{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}_{{ $appraisal->employee_name ?? $appraisal->user->name ?? 'Employee' }}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, letterRendering: true, useCORS: true, logging: false },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-                
-                await html2pdf().set(opt).from(cloneContainer).save();
-                showMessage('Report downloaded successfully!', 'success');
-                
-            } catch (error) {
-                console.error('PDF generation error:', error);
-                showMessage('Error generating report. Please try again.', 'error');
-            } finally {
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-                downloadBtn.classList.remove('btn-download-loading');
+        // Fetch follow-up comments
+        const appraisalId = '{{ $appraisal->id }}';
+        let followupsData = [];
+        try {
+            const response = await fetch(`/appraisals/${appraisalId}/followups`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+            if (data.success && data.followups) {
+                followupsData = data.followups;
             }
+        } catch (e) {
+            console.log('No follow-ups found');
+        }
+        
+        // Create report container with proper width and overflow handling
+        const comprehensiveReport = document.createElement('div');
+        comprehensiveReport.style.padding = '15px';
+        comprehensiveReport.style.fontFamily = 'Arial, Helvetica, sans-serif';
+        comprehensiveReport.style.backgroundColor = 'white';
+        comprehensiveReport.style.lineHeight = '1.4';
+        comprehensiveReport.style.maxWidth = '100%';
+        comprehensiveReport.style.margin = '0 auto';
+        comprehensiveReport.style.overflow = 'visible';
+        comprehensiveReport.style.wordWrap = 'break-word';
+        comprehensiveReport.style.wordBreak = 'break-word';
+        comprehensiveReport.style.boxSizing = 'border-box';
+        
+        // Calculate values
+        const totalScore = {{ $totalScore ?? 0 }};
+        const totalSelfScore = {{ $totalSelfScore ?? 0 }};
+        const totalWeight = {{ $totalWeight ?? 100 }};
+        const performanceLevel = totalScore >= 90 ? 'Excellent' : (totalScore >= 70 ? 'Good' : (totalScore >= 50 ? 'Fair' : 'Needs Improvement'));
+        const performanceColor = totalScore >= 90 ? '#059669' : (totalScore >= 70 ? '#2563eb' : (totalScore >= 50 ? '#d97706' : '#dc2626'));
+        const kpaCount = {{ $appraisal->kpas->count() }};
+        
+        // Calculate font sizes based on KPA count - REDUCED SIZES FOR BETTER FIT
+        let kpaFontSize, headerFontSize, tablePadding;
+        if (kpaCount <= 4) {
+            kpaFontSize = '9px';
+            headerFontSize = '10px';
+            tablePadding = '6px';
+        } else if (kpaCount <= 6) {
+            kpaFontSize = '8.5px';
+            headerFontSize = '9.5px';
+            tablePadding = '5px';
+        } else {
+            kpaFontSize = '8px';
+            headerFontSize = '9px';
+            tablePadding = '4px';
+        }
+        
+        // ============ ADD GLOBAL STYLES FIRST ============
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Global PDF/Print Styles - Prevent word cutting */
+            * {
+                box-sizing: border-box;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            
+            /* Ensure all containers handle overflow properly */
+            div, p, span, td, th, li {
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            
+            /* Table specific fixes */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                word-wrap: break-word;
+                word-break: break-word;
+            }
+            
+            td, th {
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+            }
+            
+            /* Print media specific rules */
+            @media print {
+                body { 
+                    margin: 0; 
+                    padding: 0; 
+                    width: 100%;
+                }
+                
+                /* Allow natural page breaks but keep content together where appropriate */
+                h1, h2, h3, h4, h5, h6 {
+                    page-break-after: avoid;
+                    break-after: avoid;
+                }
+                
+                table { 
+                    page-break-inside: auto;
+                    break-inside: auto;
+                }
+                
+                tr { 
+                    page-break-inside: avoid; 
+                    break-inside: avoid;
+                    page-break-after: auto;
+                    break-after: auto;
+                }
+                
+                thead {
+                    display: table-header-group;
+                }
+                
+                tfoot {
+                    display: table-footer-group;
+                }
+                
+                /* Prevent orphaned content */
+                p, div:not(.no-break-inside) {
+                    orphans: 3;
+                    widows: 3;
+                }
+                
+                /* Allow page breaks within long sections */
+                .allow-break {
+                    page-break-inside: auto;
+                    break-inside: auto;
+                }
+                
+                /* Keep sections together when possible */
+                .keep-together {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+            }
+            
+            /* Specific styles for PDF generation */
+            .report-section {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            
+            .allow-page-break {
+                page-break-inside: auto;
+                break-inside: auto;
+            }
+            
+            /* Card styles */
+            .summary-card {
+                background: #f8fafc;
+                padding: 12px 8px;
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+            }
+            
+            .summary-card-value {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            
+            .summary-card-label {
+                font-size: 10px;
+                color: #475569;
+                text-transform: uppercase;
+            }
+            
+            /* KPA Table styles */
+            .kpa-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: ${kpaFontSize};
+                table-layout: fixed;
+            }
+            
+            .kpa-table th {
+                background: #110484;
+                color: white;
+                border: 1px solid #999;
+                padding: ${tablePadding} 4px;
+                font-size: ${headerFontSize};
+                text-align: center;
+                font-weight: 600;
+                word-wrap: break-word;
+            }
+            
+            .kpa-table td {
+                border: 1px solid #999;
+                padding: ${tablePadding} 4px;
+                vertical-align: top;
+                word-wrap: break-word;
+            }
+            
+            /* Column widths for KPA table */
+            .col-category { width: 10%; }
+            .col-kpa { width: 24%; }
+            .col-weight { width: 6%; }
+            .col-self { width: 7%; }
+            .col-sup { width: 7%; }
+            .col-score { width: 7%; }
+            .col-emp-comment { width: 19.5%; }
+            .col-sup-comment { width: 19.5%; }
+        `;
+        comprehensiveReport.appendChild(style);
+        
+        // ============ SECTION 1: HEADER ============
+        const headerSection = document.createElement('div');
+        headerSection.className = 'report-section keep-together';
+        headerSection.innerHTML = `
+            <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #110484, #1a0c9e); color: white; border-radius: 8px;">
+                <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Performance Appraisal Report</h1>
+                <p style="margin: 8px 0 0 0; font-size: 11px;">Generated: {{ $reportDate }} | Report ID: #{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}</p>
+                <p style="margin: 6px 0 0 0; font-size: 14px;"><strong>{{ $appraisal->user->name ?? $appraisal->employee_name }}</strong> | {{ $appraisal->employee_number }}</p>
+                <p style="margin: 4px 0 0 0; font-size: 11px;">{{ $appraisal->department ?? 'Not specified' }} | {{ $appraisal->job_title ?? $appraisal->position ?? 'Not specified' }}</p>
+                <p style="margin: 4px 0 0 0; font-size: 10px;">Period: {{ $appraisal->period }} ({{ \Carbon\Carbon::parse($appraisal->start_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($appraisal->end_date)->format('M d, Y') }}) | Status: {{ ucfirst($appraisal->status) }}</p>
+            </div>
+        `;
+        comprehensiveReport.appendChild(headerSection);
+        
+        // ============ SECTION 2: PERFORMANCE SUMMARY ============
+        const summarySection = document.createElement('div');
+        summarySection.className = 'report-section keep-together';
+        summarySection.innerHTML = `
+            <h2 style="background: #110484; color: white; padding: 8px 12px; border-radius: 5px; margin: 0 0 12px 0; font-size: 16px;">Performance Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+                <div class="summary-card">
+                    <div class="summary-card-label">Total Weight</div>
+                    <div class="summary-card-value" style="color: #110484;">${totalWeight}%</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Self Score</div>
+                    <div class="summary-card-value" style="color: #2563eb;">${totalSelfScore.toFixed(1)}%</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Final Score</div>
+                    <div class="summary-card-value" style="color: ${performanceColor};">${totalScore.toFixed(1)}%</div>
+                    <div style="font-size: 11px; color: ${performanceColor};">${performanceLevel}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">PIP Status</div>
+                    <div class="summary-card-value" style="color: {{ $pipActive ? '#e7581c' : '#10b981' }}; font-size: 20px;">
+                        {{ $pipActive ? 'Active' : 'Not Required' }}
+                    </div>
+                    @if($pipActive && $appraisal->pip_end_date)
+                    <div style="font-size: 9px;">Until {{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('M d, Y') }}</div>
+                    @endif
+                </div>
+            </div>
+            <div style="background: #f1f5f9; padding: 12px; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;">
+                    <span>Overall Performance Progress</span>
+                    <span><strong>${totalScore.toFixed(1)}%</strong></span>
+                </div>
+                <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="width: ${Math.min(totalScore, 100)}%; height: 100%; background: linear-gradient(90deg, #110484, #e7581c);"></div>
+                </div>
+            </div>
+        `;
+        comprehensiveReport.appendChild(summarySection);
+        
+        // ============ SECTION 3: KPAs TABLE with PROPER POSITIONING ============
+        const kpaSection = document.createElement('div');
+        kpaSection.className = 'report-section';
+        kpaSection.style.marginBottom = '20px';
+        kpaSection.style.width = '100%';
+        kpaSection.style.overflowX = 'visible';
+        
+        let kpaTableHtml = `
+            <h2 style="background: #110484; color: white; padding: 8px 12px; border-radius: 5px; margin: 0 0 12px 0; font-size: 16px;">Key Performance Areas (KPAs)</h2>
+            <div style="width: 100%; overflow-x: visible;">
+                <table class="kpa-table">
+                    <colgroup>
+                        <col class="col-category">
+                        <col class="col-kpa">
+                        <col class="col-weight">
+                        <col class="col-self">
+                        <col class="col-sup">
+                        <col class="col-score">
+                        <col class="col-emp-comment">
+                        <col class="col-sup-comment">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>KPA / Indicators</th>
+                            <th>Wt%</th>
+                            <th>Self<br>Rating</th>
+                            <th>Sup<br>Rating</th>
+                            <th>Score</th>
+                            <th>Employee<br>Comments</th>
+                            <th>Supervisor<br>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        @foreach($appraisal->kpas as $kpa)
+        @php
+            $kpi = $kpa->kpi ?: 4;
+            $finalRating = $kpa->supervisor_rating ?? $kpa->self_rating;
+            $individualScore = ($finalRating / $kpi) * $kpa->weight;
+            $scoreColor = $individualScore >= ($kpa->weight * 0.9) ? '#059669' : ($individualScore >= ($kpa->weight * 0.7) ? '#2563eb' : ($individualScore >= ($kpa->weight * 0.5) ? '#d97706' : '#dc2626'));
+            $employeeComment = $kpa->comments ?? '';
+            $supervisorComment = $kpa->supervisor_comments ?? '';
+        @endphp
+        kpaTableHtml += `
+            <tr>
+                <td style="background: #f9fafb;"><strong>{{ $kpa->category }}</strong></td>
+                <td>
+                    <strong>{{ $kpa->kpa }}</strong>
+                    @if($kpa->result_indicators)
+                    <div style="font-size: 8.5px; color: #555; margin-top: 3px;">📊 {{ $kpa->result_indicators }}</div>
+                    @endif
+                    @if($kpa->target || $kpa->actual_achievement)
+                    <div style="font-size: 8px; color: #777; margin-top: 2px;">🎯 {{ $kpa->target ?? 'N/A' }} | ✅ {{ $kpa->actual_achievement ?? 'N/A' }}</div>
+                    @endif
+                </td>
+                <td style="text-align: center; vertical-align: middle;">{{ $kpa->weight }}%</td>
+                <td style="text-align: center; vertical-align: middle;">{{ $kpa->self_rating }}/{{ $kpi }}</td>
+                <td style="text-align: center; vertical-align: middle;">{{ $kpa->supervisor_rating ?? '—' }}/{{ $kpi }}</td>
+                <td style="text-align: center; vertical-align: middle; font-weight: bold; color: {{ $scoreColor }};">{{ number_format($individualScore, 1) }}%</td>
+                <td style="background: #eff6ff;">
+                    @if(!empty($employeeComment))
+                    <span style="color: #1e40af;">📝</span> {{ $employeeComment }}
+                    @else
+                    <span style="color: #999;">—</span>
+                    @endif
+                </td>
+                <td style="background: #ecfdf5;">
+                    @if(!empty($supervisorComment))
+                    <span style="color: #10b981;">👔</span> {{ $supervisorComment }}
+                    @else
+                    <span style="color: #999;">—</span>
+                    @endif
+                </td>
+            </tr>
+        `;
+        @endforeach
+        
+        kpaTableHtml += `
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #f3f4f6;">
+                            <td colspan="7" style="border: 1px solid #999; padding: 8px; text-align: right; font-weight: bold; font-size: 13px;">TOTAL SCORE:</td>
+                            <td style="border: 1px solid #999; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; color: {{ $totalScore < 75 ? '#dc2626' : '#10b981' }};">{{ number_format($totalScore, 1) }}%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        `;
+        kpaSection.innerHTML = kpaTableHtml;
+        comprehensiveReport.appendChild(kpaSection);
+        
+        // ============ SECTION 4: ADDITIONAL COMMENTS ============
+        const additionalSection = document.createElement('div');
+        additionalSection.className = 'report-section keep-together';
+        additionalSection.innerHTML = `
+            <h2 style="background: #110484; color: white; padding: 8px 12px; border-radius: 5px; margin: 0 0 12px 0; font-size: 16px;">Additional Comments & Feedback</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <h3 style="color: #1e40af; margin: 0 0 8px 0; font-size: 13px;">📝 Employee Reflections</h3>
+                    <div style="margin-bottom: 12px;">
+                        <strong style="font-size: 11px;">Development Needs:</strong>
+                        <div style="background: white; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                            {{ $appraisal->development_needs ?: 'No development needs recorded.' }}
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="font-size: 11px;">Additional Comments:</strong>
+                        <div style="background: white; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                            {{ $appraisal->employee_comments ?: 'No additional comments.' }}
+                        </div>
+                    </div>
+                </div>
+                <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <h3 style="color: #10b981; margin: 0 0 8px 0; font-size: 13px;">👔 Supervisor Assessment</h3>
+                    <div>
+                        <strong style="font-size: 11px;">Feedback & Evaluation:</strong>
+                        <div style="background: white; padding: 8px; border-radius: 4px; margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                            {{ $appraisal->supervisor_comments ?: 'No supervisor feedback recorded.' }}
+                        </div>
+                    </div>
+                    @if($appraisal->approved_at)
+                    <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #666;">
+                        <div><strong>Approved By:</strong> {{ $appraisal->approved_by ?? 'Supervisor' }}</div>
+                        <div><strong>Approved On:</strong> {{ \Carbon\Carbon::parse($appraisal->approved_at)->format('M d, Y h:i A') }}</div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        `;
+        comprehensiveReport.appendChild(additionalSection);
+        
+        // ============ SECTION 5: PIP INFORMATION (if active) ============
+        @if($pipActive)
+        const pipSection = document.createElement('div');
+        pipSection.className = 'report-section';
+        pipSection.style.pageBreakBefore = 'auto';
+        pipSection.innerHTML = `
+            <h2 style="background: #e7581c; color: white; padding: 8px 12px; border-radius: 5px; margin: 0 0 12px 0; font-size: 16px;">📋 Performance Improvement Plan (PIP)</h2>
+            
+            <div style="background: #fefaf5; border: 1px solid #f0e2d6; border-radius: 6px; margin-bottom: 15px; overflow: hidden;">
+                <div style="background: #f0e2d6; padding: 8px 12px; border-bottom: 1px solid #e2d5c8;">
+                    <strong style="font-size: 12px; color: #4b2e1a;">Toll Plaza Operations : Supplementary Information File, Ref PM018 | Rev 0, Aug 2024</strong>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Employee Name</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 12px;">{{ $appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Date</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 12px;">{{ now()->format('F d, Y') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Job Title</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ $appraisal->job_title ?? $appraisal->position ?? 'Staff' }}</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Department</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ $appraisal->department ?? 'Operations' }}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Manager Name</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ auth()->user()->name ?? 'Supervisor' }}</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Hired Date</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ $appraisal->hired_date ?? ($appraisal->start_date ?? 'N/A') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Area of Concern</label>
+                        <div style="background: #fff8f0; padding: 8px; border-radius: 4px; font-size: 10px; border: 1px solid #f0e2d6;">
+                            Performance score <strong>{{ number_format($totalScore, 1) }}%</strong> below 75% threshold. Specific KPAs require immediate improvement.
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Goal or Plan for Improvement</label>
+                        <div style="background: #fff8f0; padding: 8px; border-radius: 4px; font-size: 10px; border: 1px solid #f0e2d6;">
+                            Achieve minimum 85% on all core KPIs by end of PIP period.
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Plan Start Date</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('F d, Y') }}</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: bold; color: #9b6a4b; display: block;">Plan End Date</label>
+                            <div style="border-bottom: 1px solid #ddd; padding: 3px 0; font-size: 11px;">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('F d, Y') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 11px; font-weight: bold; color: #4b2e1a; display: block; margin-bottom: 8px;">Action Plan & Objectives</label>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; table-layout: fixed;">
+                            <thead>
+                                <tr style="background: #f0e2d6;">
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left; width: 30%;">Action</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left; width: 35%;">Objective</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left; width: 35%;">Measurement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Submit weekly progress report every Friday</td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Track improvements and identify blockers</td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Completion rate / quality audit</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Complete mandatory e-learning modules</td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Skill enhancement and process knowledge</td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;">Certification achieved</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 6px;"></td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;"></td>
+                                    <td style="border: 1px solid #ddd; padding: 6px;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #fefaf5; border: 1px solid #f0e2d6; border-radius: 6px; margin-bottom: 15px;">
+                <div style="background: #fffaf5; padding: 8px 12px; border-bottom: 1px solid #f3e9e0;">
+                    <strong style="font-size: 12px; color: #4b2e1a;">Plan Timeline</strong>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div style="background: #fefaf5; border-radius: 8px; padding: 8px; border: 1px solid #f3e7de;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #9b6a4b;">Start Date</div>
+                            <div style="font-size: 12px; font-weight: 600;">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('M d, Y') }}</div>
+                        </div>
+                        <div style="background: #fefaf5; border-radius: 8px; padding: 8px; border: 1px solid #f3e7de;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #9b6a4b;">End Date</div>
+                            <div style="font-size: 12px; font-weight: 600;">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('M d, Y') }}</div>
+                        </div>
+                        <div style="background: #fefaf5; border-radius: 8px; padding: 8px; border: 1px solid #f3e7de;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #9b6a4b;">Duration</div>
+                            <div style="font-size: 12px; font-weight: 600;">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->diffInDays(\Carbon\Carbon::parse($appraisal->pip_end_date)) }} days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #fefaf5; border: 1px solid #f0e2d6; border-radius: 6px; margin-bottom: 15px;">
+                <div style="background: #fffaf5; padding: 8px 12px; border-bottom: 1px solid #f3e9e0;">
+                    <strong style="font-size: 12px; color: #4b2e1a;">Improvement Plan & Action Items</strong>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="background: #fefcf8; border-radius: 8px; padding: 12px; border: 1px solid #f5eee7; line-height: 1.5; font-size: 10px;">
+                        {{ $appraisal->pip_plan ?: 'No plan details available.' }}
+                    </div>
+                </div>
+            </div>
+            
+            @if($appraisal->pip_supervisor_notes)
+            <div style="background: #fefaf5; border: 1px solid #f0e2d6; border-radius: 6px; margin-bottom: 15px;">
+                <div style="background: #fffaf5; padding: 8px 12px; border-bottom: 1px solid #f3e9e0;">
+                    <strong style="font-size: 12px; color: #4b2e1a;">Supervisor Notes & Expectations</strong>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="background: #fefcf8; border-radius: 8px; padding: 12px; border: 1px solid #f5eee7; line-height: 1.5; font-size: 10px;">
+                        {{ $appraisal->pip_supervisor_notes }}
+                    </div>
+                </div>
+            </div>
+            @endif
+            
+            <div style="background: #fefaf5; border: 1px solid #f0e2d6; border-radius: 6px; margin-top: 15px;">
+                <div style="background: #fffaf5; padding: 8px 12px; border-bottom: 1px solid #f3e9e0;">
+                    <strong style="font-size: 12px; color: #4b2e1a;">Signatures</strong>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div>
+                            <div style="font-size: 10px; font-weight: bold; color: #9b6a4b;">Employee Signature</div>
+                            <div style="border-bottom: 1px solid #ddd; margin-top: 6px; padding-bottom: 3px;">&nbsp;</div>
+                            <div style="font-size: 8px; color: #999; margin-top: 3px;">Will be collected upon submission</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; font-weight: bold; color: #9b6a4b;">Manager Signature</div>
+                            <div style="border-bottom: 1px solid #ddd; margin-top: 6px; padding-bottom: 3px;">{{ auth()->user()->name ?? 'Supervisor' }}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; font-weight: bold; color: #9b6a4b;">Date</div>
+                            <div style="border-bottom: 1px solid #ddd; margin-top: 6px; padding-bottom: 3px;">{{ now()->format('M d, Y') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0e2d6;">
+                <div style="font-size: 9px; color: #9b7a62;">
+                    Initiated on {{ \Carbon\Carbon::parse($appraisal->pip_initiated_at)->format('F d, Y') }}
+                    @if($appraisal->pip_initiated_by)
+                        by {{ $appraisal->pipInitiator?->name ?? 'Supervisor' }}
+                    @endif
+                </div>
+                <div style="background: #ffedd5; color: #9a3412; border-radius: 20px; padding: 3px 10px; font-size: 9px; font-weight: 600;">
+                    Active PIP
+                </div>
+            </div>
+        `;
+        comprehensiveReport.appendChild(pipSection);
+        @endif
+        
+        // ============ SECTION 6: FOLLOW-UP COMMENTS ============
+        if (followupsData.length > 0) {
+            const followupSection = document.createElement('div');
+            followupSection.className = 'report-section';
+            
+            let followupsHtml = `
+                <h2 style="background: #110484; color: white; padding: 8px 12px; border-radius: 5px; margin: 0 0 12px 0; font-size: 16px;">💬 PIP Follow-up Comments (${followupsData.length})</h2>
+                <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            `;
+            followupsData.forEach((f, index) => {
+                followupsHtml += `
+                    <div style="border-bottom: ${index === followupsData.length - 1 ? 'none' : '1px solid #e2e8f0'}; padding: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <strong style="font-size: 11px; color: #110484;">👤 ${escapeHtml(f.author)}</strong>
+                            <small style="font-size: 9px; color: #666;">${new Date(f.created_at).toLocaleString()}</small>
+                        </div>
+                        <div style="font-size: 10px; color: #333; line-height: 1.4; background: white; padding: 8px; border-radius: 4px;">
+                            ${escapeHtml(f.comment).replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+            });
+            followupsHtml += `</div>`;
+            followupSection.innerHTML = followupsHtml;
+            comprehensiveReport.appendChild(followupSection);
+        }
+        
+        // ============ FOOTER ============
+        const footer = document.createElement('div');
+        footer.style.marginTop = '15px';
+        footer.style.paddingTop = '10px';
+        footer.style.borderTop = '1px solid #e2e8f0';
+        footer.style.textAlign = 'center';
+        footer.style.color = '#666';
+        footer.style.fontSize = '9px';
+        footer.innerHTML = `
+            <p style="margin: 0;">MOIC Performance Appraisal System © {{ date('Y') }} | Report ID: #{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}</p>
+            <p style="margin: 3px 0 0 0; font-size: 8px;">This is an official system-generated report.</p>
+        `;
+        comprehensiveReport.appendChild(footer);
+        
+        // Configure html2pdf options
+        const opt = {
+            margin: [0.3, 0.3, 0.3, 0.3], // Reduced margins for more content space
+            filename: `Appraisal_Report_#{{ str_pad($appraisal->id, 5, '0', STR_PAD_LEFT) }}_{{ $appraisal->employee_name ?? $appraisal->user->name ?? 'Employee' }}.pdf`,
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { 
+                scale: 2,
+                letterRendering: true,
+                useCORS: true,
+                logging: false,
+                windowWidth: 1200,
+                allowTaint: false
+            },
+            jsPDF: { 
+                unit: 'in', 
+                format: 'a4', 
+                orientation: 'landscape',
+                compress: true
+            },
+            pagebreak: { 
+                mode: ['css', 'legacy'],
+                before: '.page-break-before',
+                after: '.page-break-after',
+                avoid: ['tr', 'td', 'th', '.keep-together']
+            }
+        };
+        
+        await html2pdf().set(opt).from(comprehensiveReport).save();
+        showMessage('Report downloaded successfully!', 'success');
+        
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        showMessage('Error generating report. Please try again.', 'error');
+    } finally {
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+        downloadBtn.classList.remove('btn-download-loading');
+    }
+}
+        // ==============================================
+        // PIP FUNCTIONS
+        // ==============================================
+
+        let pipModal = null;
+        let pipDetailsModal = null;
+
+        function initiatePIP() {
+            if (!pipModal) {
+                pipModal = new bootstrap.Modal(document.getElementById('pipModal'));
+            }
+            
+            const form = document.getElementById('pipForm');
+            if (form) {
+                form.reset();
+                const today = new Date().toISOString().split('T')[0];
+                const ninetyDaysLater = new Date();
+                ninetyDaysLater.setDate(ninetyDaysLater.getDate() + 90);
+                const endDate = ninetyDaysLater.toISOString().split('T')[0];
+                
+                const startDateInput = document.querySelector('input[name="pip_start_date"]');
+                const endDateInput = document.querySelector('input[name="pip_end_date"]');
+                if (startDateInput) startDateInput.value = today;
+                if (endDateInput) endDateInput.value = endDate;
+            }
+            
+            pipModal.show();
+        }
+
+        function viewPIPDetails() {
+            if (!pipDetailsModal) {
+                pipDetailsModal = new bootstrap.Modal(document.getElementById('pipDetailsModal'));
+            }
+            pipDetailsModal.show();
         }
 
         // ==============================================
-// PIP FUNCTIONS - IMPROVED VERSION
-// ==============================================
+        // PIP FOLLOW-UP FUNCTIONS - PERSISTENT STORAGE
+        // ==============================================
 
-let pipModal = null;
-let pipDetailsModal = null;
-
-function initiatePIP() {
-    if (!pipModal) {
-        pipModal = new bootstrap.Modal(document.getElementById('pipModal'));
-    }
-    
-    // Reset the form
-    const form = document.getElementById('pipForm');
-    if (form) {
-        form.reset();
-        // Set default dates
-        const today = new Date().toISOString().split('T')[0];
-        const ninetyDaysLater = new Date();
-        ninetyDaysLater.setDate(ninetyDaysLater.getDate() + 90);
-        const endDate = ninetyDaysLater.toISOString().split('T')[0];
-        
-        document.querySelector('input[name="pip_start_date"]').value = today;
-        document.querySelector('input[name="pip_end_date"]').value = endDate;
-    }
-    
-    pipModal.show();
-}
-
-function viewPIPDetails() {
-    if (!pipDetailsModal) {
-        pipDetailsModal = new bootstrap.Modal(document.getElementById('pipDetailsModal'));
-    }
-    pipDetailsModal.show();
-}
-
-// Handle PIP form submission with AJAX
-document.addEventListener('DOMContentLoaded', function() {
-    const pipForm = document.getElementById('pipForm');
-    if (pipForm) {
-        pipForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        async function loadFollowupHistory() {
+            const historyContainer = document.getElementById('followupHistory');
+            if (!historyContainer) return;
             
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Show loading state
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
-            submitBtn.disabled = true;
+            const appraisalId = '{{ $appraisal->id }}';
+            const endpoint = `/appraisals/${appraisalId}/followups`;
             
             try {
-                const formData = new FormData(this);
-                const url = this.action;
+                historyContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-muted"></div><p class="small text-muted mt-2">Loading comments...</p></div>';
                 
-                const response = await fetch(url, {
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.followups && data.followups.length > 0) {
+                    let html = '';
+                    data.followups.forEach(f => {
+                        const authorBadge = f.author_type === 'supervisor' 
+                            ? '<span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">Supervisor</span>'
+                            : (f.author_type === 'hr' ? '<span class="badge bg-info text-dark ms-2" style="font-size: 0.6rem;">HR</span>' : '');
+                        
+                        html += `
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                    <div class="d-flex align-items-center">
+                                        <strong class="small">${escapeHtml(f.author)}</strong>
+                                        ${authorBadge}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>${escapeHtml(f.formatted_date || new Date(f.created_at).toLocaleString())}
+                                    </small>
+                                </div>
+                                <div class="mt-2 small" style="color: #2c1c10; line-height: 1.5; white-space: pre-wrap;">
+                                    ${escapeHtml(f.comment).replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    historyContainer.innerHTML = html;
+                } else {
+                    historyContainer.innerHTML = '<div class="text-muted small fst-italic text-center py-3"><i class="fas fa-comment-slash me-2"></i>No follow-up comments recorded yet.</div>';
+                }
+            } catch (error) {
+                console.error('Error loading follow-ups:', error);
+                historyContainer.innerHTML = '<div class="text-muted small fst-italic text-center py-3"><i class="fas fa-exclamation-triangle me-2"></i>Unable to load comments. Please refresh and try again.</div>';
+            }
+        }
+
+        async function submitFollowupComment() {
+            const commentTextarea = document.getElementById('followupComments');
+            const comment = commentTextarea?.value.trim();
+            
+            if (!comment) {
+                showMessage('Please enter a follow-up comment.', 'warning');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitFollowupBtn');
+            const originalText = submitBtn?.innerHTML;
+            
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                submitBtn.disabled = true;
+            }
+            
+            const appraisalId = '{{ $appraisal->id }}';
+            const endpoint = `/appraisals/${appraisalId}/followup`;
+            
+            try {
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: formData
+                    body: JSON.stringify({ comment: comment })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showMessage(data.message || 'PIP initiated successfully!', 'success');
-                    
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('pipModal'));
-                    if (modal) modal.hide();
-                    
-                    // Reload the page after 2 seconds to show updated data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                    showMessage('Follow-up comment saved successfully!', 'success');
+                    if (commentTextarea) commentTextarea.value = '';
+                    await loadFollowupHistory();
                 } else {
-                    let errorMessage = data.message || 'Error initiating PIP';
-                    if (data.errors) {
-                        const errors = Object.values(data.errors).flat();
-                        errorMessage = errors.join(', ');
-                    }
-                    showMessage(errorMessage, 'error');
+                    showMessage(data.message || 'Error saving comment. Please try again.', 'error');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('Network error. Please try again.', 'error');
+                console.error('Error saving follow-up:', error);
+                showMessage('Network error. Please check your connection and try again.', 'error');
             } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
             }
-        });
-    }
-});
+        }
 
         // ==============================================
         // COMMENT MODAL FUNCTIONS
@@ -2933,7 +3904,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // ==============================================
-        // KPA RATING MODAL FUNCTIONS (existing)
+        // KPA RATING MODAL FUNCTIONS
         // ==============================================
 
         let currentKpaModal = null;
@@ -3305,7 +4276,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 5000);
         }
 
-        // Document ready
+        // ==============================================
+        // INITIALIZE FOLLOW-UP EVENT LISTENERS
+        // ==============================================
+
+        // Initialize event listeners when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up follow-up comment button
+            const submitFollowupBtn = document.getElementById('submitFollowupBtn');
+            if (submitFollowupBtn) {
+                // Remove any existing listeners to prevent duplicates
+                const newBtn = submitFollowupBtn.cloneNode(true);
+                submitFollowupBtn.parentNode.replaceChild(newBtn, submitFollowupBtn);
+                newBtn.addEventListener('click', submitFollowupComment);
+            }
+            
+            // Load follow-up history if PIP details modal exists
+            if (document.getElementById('pipDetailsModal')) {
+                loadFollowupHistory();
+            }
+            
+            // Also reload history when modal is opened
+            const pipDetailsModal = document.getElementById('pipDetailsModal');
+            if (pipDetailsModal) {
+                pipDetailsModal.addEventListener('shown.bs.modal', function() {
+                    loadFollowupHistory();
+                });
+            }
+        });
+
+        // Document ready for other modals
         document.addEventListener('DOMContentLoaded', function() {
             commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
             pipModal = new bootstrap.Modal(document.getElementById('pipModal'));

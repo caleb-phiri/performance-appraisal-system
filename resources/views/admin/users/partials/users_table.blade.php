@@ -8,13 +8,14 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIP Access</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
                 @foreach($users->take(10) as $user)
-                <tr class="user-row hover:bg-gray-50 transition-all duration-200">
+                <tr class="user-row hover:bg-gray-50 transition-all duration-200" data-user-id="{{ $user->id }}" data-employee-number="{{ $user->employee_number }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">{{ $user->employee_number }}</div>
                     </td>
@@ -51,6 +52,18 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
+                        <!-- PIP Access Dropdown -->
+                        <select 
+                            class="pip-access-select text-sm rounded-lg px-3 py-1.5 border {{ $user->pip_access_level === 'manage' ? 'border-green-400 bg-green-50' : ($user->pip_access_level === 'view' ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white') }}"
+                            data-user-id="{{ $user->id }}"
+                            data-employee-number="{{ $user->employee_number }}"
+                            onchange="updatePipAccess(this, '{{ addslashes($user->name) }}')">
+                            <option value="none" {{ ($user->pip_access_level ?? 'none') === 'none' ? 'selected' : '' }}>❌ No Access</option>
+                            <option value="view" {{ ($user->pip_access_level ?? 'none') === 'view' ? 'selected' : '' }}>👁️ View Only</option>
+                            <option value="manage" {{ ($user->pip_access_level ?? 'none') === 'manage' ? 'selected' : '' }}>✏️ Full Manage</option>
+                        </select>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
                         @if($user->left_company_at)
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                 <i class="fas fa-user-slash mr-1 text-xs"></i> Left Company
@@ -62,7 +75,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <div class="flex space-x-2">
+                        <div class="flex justify-end space-x-2">
                             @if($user->left_company_at)
                                 <!-- Reactivate Button -->
                                 <button onclick="openReactivateModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
@@ -100,7 +113,7 @@
             @if($users->count() > 10)
                 <tbody id="remainingUsers" class="hidden">
                     @foreach($users->skip(10) as $user)
-                    <tr class="user-row hover:bg-gray-50 transition-all duration-200">
+                    <tr class="user-row hover:bg-gray-50 transition-all duration-200" data-user-id="{{ $user->id }}" data-employee-number="{{ $user->employee_number }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $user->employee_number }}</div>
                         </td>
@@ -137,6 +150,18 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
+                            <!-- PIP Access Dropdown for remaining users -->
+                            <select 
+                                class="pip-access-select text-sm rounded-lg px-3 py-1.5 border {{ ($user->pip_access_level ?? 'none') === 'manage' ? 'border-green-400 bg-green-50' : (($user->pip_access_level ?? 'none') === 'view' ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white') }}"
+                                data-user-id="{{ $user->id }}"
+                                data-employee-number="{{ $user->employee_number }}"
+                                onchange="updatePipAccess(this, '{{ addslashes($user->name) }}')">
+                                <option value="none" {{ ($user->pip_access_level ?? 'none') === 'none' ? 'selected' : '' }}>❌ No Access</option>
+                                <option value="view" {{ ($user->pip_access_level ?? 'none') === 'view' ? 'selected' : '' }}>👁️ View Only</option>
+                                <option value="manage" {{ ($user->pip_access_level ?? 'none') === 'manage' ? 'selected' : '' }}>✏️ Full Manage</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             @if($user->left_company_at)
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                     <i class="fas fa-user-slash mr-1 text-xs"></i> Left Company
@@ -148,7 +173,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <div class="flex space-x-2">
+                            <div class="flex justify-end space-x-2">
                                 @if($user->left_company_at)
                                     <button onclick="openReactivateModal('{{ $user->employee_number }}', '{{ addslashes($user->name) }}')"
                                             class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-xs flex items-center">

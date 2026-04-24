@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Appraisal;
+use App\Models\PIPFollowup;
 use App\Models\AppraisalKpa;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -118,99 +119,180 @@ class AppraisalController extends Controller
     
 
     /**
-     * Initiate a Performance Improvement Plan
-     */
-    public function initiatePIP(Request $request, Appraisal $appraisal)
-    {
-        try {
-            // Log the request for debugging
-            Log::info('PIP Initiation Started', [
-                'appraisal_id' => $appraisal->id,
-                'request_data' => $request->all()
-            ]);
+ * Initiate a Performance Improvement Plan
+ */
+public function initiatePIP(Request $request, Appraisal $appraisal)
+{
+    try {
+        // Log the request for debugging
+        Log::info('PIP Initiation Started', [
+            'appraisal_id' => $appraisal->id,
+            'request_data' => $request->all()
+        ]);
 
-            // Validate the request
-            $validated = $request->validate([
-                'pip_start_date' => 'required|date',
-                'pip_end_date' => 'required|date|after:pip_start_date',
-                'pip_plan' => 'required|string|min:10',
-                'pip_supervisor_notes' => 'nullable|string',
-            ]);
+        // Validate the request - ADD action plan validation
+        $validated = $request->validate([
+            'pip_start_date' => 'required|date',
+            'pip_end_date' => 'required|date|after:pip_start_date',
+            'pip_plan' => 'required|string|min:10',
+            'pip_supervisor_notes' => 'nullable|string',
+            // Add action plan fields validation
+            'action_1' => 'nullable|string',
+            'objective_1' => 'nullable|string',
+            'measure_1' => 'nullable|string',
+            'action_2' => 'nullable|string',
+            'objective_2' => 'nullable|string',
+            'measure_2' => 'nullable|string',
+            'action_3' => 'nullable|string',
+            'objective_3' => 'nullable|string',
+            'measure_3' => 'nullable|string',
+        ]);
 
-            // Update the appraisal with PIP information
-            $appraisal->pip_initiated = true;
-            $appraisal->pip_start_date = $validated['pip_start_date'];
-            $appraisal->pip_end_date = $validated['pip_end_date'];
-            $appraisal->pip_plan = $validated['pip_plan'];
-            $appraisal->pip_supervisor_notes = $validated['pip_supervisor_notes'] ?? null;
-            $appraisal->pip_initiated_at = now();
-            $appraisal->pip_initiated_by = auth()->id();
-            $appraisal->pip_status = 'active';
+        // Build action plan array from form inputs
+        $actionPlan = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $action = $request->input('action_' . $i);
+            $objective = $request->input('objective_' . $i);
+            $measurement = $request->input('measure_' . $i);
             
-            // Save the appraisal
-            $saved = $appraisal->save();
-            
-            Log::info('PIP Save Result', [
-                'saved' => $saved,
-                'appraisal_id' => $appraisal->id,
-                'pip_initiated' => $appraisal->pip_initiated,
-                'pip_start_date' => $appraisal->pip_start_date,
-                'pip_end_date' => $appraisal->pip_end_date
-            ]);
-
-            if (!$saved) {
-                throw new \Exception('Failed to save PIP data to database');
+            // Only add if at least one field has content
+            if (!empty($action) || !empty($objective) || !empty($measurement)) {
+                $actionPlan[] = [
+                    'action' => $action ?? '',
+                    'objective' => $objective ?? '',
+                    'measurement' => $measurement ?? ''
+                ];
             }
-
-            // Send notification to employee (optional)
-            $this->sendPipNotification($appraisal);
-
-            // Check if request expects JSON (AJAX request)
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Performance Improvement Plan initiated successfully!',
-                    'data' => [
-                        'pip_start_date' => $appraisal->pip_start_date->format('Y-m-d'),
-                        'pip_end_date' => $appraisal->pip_end_date->format('Y-m-d'),
-                        'pip_plan' => $appraisal->pip_plan
-                    ]
-                ]);
-            }
-
-            // For regular form submission
-            return redirect()->back()->with('success', 'Performance Improvement Plan initiated successfully!');
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('PIP Validation Error', ['errors' => $e->errors()]);
-            
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-            
-            return redirect()->back()->withErrors($e->errors())->withInput();
-            
-        } catch (\Exception $e) {
-            Log::error('PIP Initiation Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to initiate PIP: ' . $e->getMessage()
-                ], 500);
-            }
-            
-            return redirect()->back()->with('error', 'Failed to initiate PIP: ' . $e->getMessage());
         }
-    }
+        
+        // If no action plan items were filled, use defaults
+        if (empty($actionPlan)) {
+            $actionPlan = [
+                [
+                    'action' => 'Submit weekly progress report every Friday',
+                    'objective' => 'Track improvements and identify blockers',
+                    'measurement' => 'Completion rate / quality audit'
+                ],
+                [
+                    'action' => 'Complete mandatory e-learning modules',
+                    'objective' => 'Skill enhancement and process knowledge',
+                    'measurement' => 'Certification achieved'
+                ],
+                [
+                    'action' => 'Achieve 90% quality score on monthly audits',
+                    'objective' => 'Quality and compliance improvement',
+                    'measurement' => 'Dashboard review / audit results'
+                ]
+            ];
+        }
 
+        // Update the appraisal with PIP information
+        $appraisal->pip_initiated = true;
+        $appraisal->pip_start_date = $validated['pip_start_date'];
+        $appraisal->pip_end_date = $validated['pip_end_date'];
+        $appraisal->pip_plan = $validated['pip_plan'];
+        $appraisal->pip_supervisor_notes = $validated['pip_supervisor_notes'] ?? null;
+        $appraisal->pip_initiated_at = now();
+        $appraisal->pip_initiated_by = auth()->id();
+        $appraisal->pip_status = 'active';
+        
+        // STORE THE ACTION PLAN AS JSON
+        $appraisal->pip_action_plan = json_encode($actionPlan);
+        
+        // Save the appraisal
+        $saved = $appraisal->save();
+        
+        Log::info('PIP Save Result', [
+            'saved' => $saved,
+            'appraisal_id' => $appraisal->id,
+            'pip_initiated' => $appraisal->pip_initiated,
+            'pip_start_date' => $appraisal->pip_start_date,
+            'pip_end_date' => $appraisal->pip_end_date,
+            'pip_action_plan' => $appraisal->pip_action_plan  // Log the saved action plan
+        ]);
+
+        if (!$saved) {
+            throw new \Exception('Failed to save PIP data to database');
+        }
+
+        // Send notification to employee (optional)
+        $this->sendPipNotification($appraisal);
+
+        // Check if request expects JSON (AJAX request)
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Performance Improvement Plan initiated successfully!',
+                'data' => [
+                    'pip_start_date' => $appraisal->pip_start_date->format('Y-m-d'),
+                    'pip_end_date' => $appraisal->pip_end_date->format('Y-m-d'),
+                    'pip_plan' => $appraisal->pip_plan,
+                    'pip_action_plan' => $actionPlan  // Return action plan in response
+                ]
+            ]);
+        }
+
+        // For regular form submission
+        return redirect()->back()->with('success', 'Performance Improvement Plan initiated successfully!');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('PIP Validation Error', ['errors' => $e->errors()]);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
+        
+        return redirect()->back()->withErrors($e->errors())->withInput();
+        
+    } catch (\Exception $e) {
+        Log::error('PIP Initiation Error', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to initiate PIP: ' . $e->getMessage()
+            ], 500);
+        }
+        
+        return redirect()->back()->with('error', 'Failed to initiate PIP: ' . $e->getMessage());
+    }
+}
+/**
+ * Update PIP Action Plan
+ */
+public function updatePIPActionPlan(Request $request, Appraisal $appraisal)
+{
+    try {
+        $request->validate([
+            'action_plan' => 'required|array',
+            'action_plan.*.action' => 'nullable|string',
+            'action_plan.*.objective' => 'nullable|string',
+            'action_plan.*.measurement' => 'nullable|string',
+        ]);
+        
+        $appraisal->pip_action_plan = json_encode($request->action_plan);
+        $appraisal->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Action plan updated successfully!',
+            'pip_action_plan' => $request->action_plan
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating action plan: ' . $e->getMessage()
+        ], 500);
+    }
+}
     /**
      * Send notification to employee about PIP
      */
@@ -1317,6 +1399,12 @@ public function index(Request $request)
             'isPrimarySupervisor',
             'isHigherLevelSupervisor'
         ));
+         \Log::info('PIP Action Plan in Show Method', [
+        'appraisal_id' => $appraisal->id,
+        'pip_action_plan_raw' => $appraisal->pip_action_plan,
+        'pip_action_plan_type' => gettype($appraisal->pip_action_plan),
+        'pip_initiated' => $appraisal->pip_initiated
+    ]);
     }
 
     /**
@@ -2619,4 +2707,90 @@ public function index(Request $request)
             ],
         ];
     }
+    
+
+public function addPIPFollowup(Request $request, Appraisal $appraisal)
+{
+    try {
+        $request->validate([
+            'comment' => 'required|string|min:1'
+        ]);
+        
+        if (!$appraisal->pip_initiated) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active PIP found for this appraisal.'
+            ], 400);
+        }
+        
+        $user = auth()->user();
+        
+        if (!$user || !$user->employee_number) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated or missing employee number.'
+            ], 401);
+        }
+        
+        $followup = PIPFollowup::create([
+            'appraisal_id' => $appraisal->id,
+            'employee_number' => $user->employee_number,
+            'comment' => $request->comment,
+            'author_name' => $user->name,
+            'author_type' => $user->user_type ?? 'supervisor'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Follow-up comment added successfully!',
+            'followup' => [
+                'id' => $followup->id,
+                'comment' => $followup->comment,
+                'author' => $followup->author_name,
+                'author_type' => $followup->author_type,
+                'created_at' => $followup->created_at->toISOString(),
+                'formatted_date' => $followup->created_at->format('M d, Y g:i A')
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error adding PIP follow-up: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error adding comment: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function getPIPFollowups(Appraisal $appraisal)
+{
+    try {
+        $followups = $appraisal->pipFollowups()->with('user')->get();
+        
+        $formattedFollowups = $followups->map(function($followup) {
+            return [
+                'id' => $followup->id,
+                'comment' => $followup->comment,
+                'author' => $followup->author_name ?? ($followup->user->name ?? 'System'),
+                'author_type' => $followup->author_type,
+                'created_at' => $followup->created_at->toISOString(),
+                'formatted_date' => $followup->created_at->format('M d, Y g:i A')
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'followups' => $formattedFollowups
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'followups' => [],
+            'message' => 'Error loading follow-ups'
+        ]);
+    }
+}
+
 }
