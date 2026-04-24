@@ -5,13 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PIP Management - MOIC Performance Appraisal System</title>
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- FAVICON - Using TK.png -->
+  <link rel="icon" type="image/png" href="{{ asset('images/TK.png') }}">
+  <link rel="shortcut icon" href="{{ asset('images/TK.png') }}">
+  <link rel="apple-touch-icon" href="{{ asset('images/TK.png') }}">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Apple Touch Icon (for iOS home screen) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
     <style>
         :root {
@@ -199,28 +206,28 @@
     <div class="container-fluid py-4">
         <div class="container-custom">
             
-            @php
-                // ROLE-BASED ACCESS CONTROL CONDITION
-                // Allowed roles: 'admin' and 'supervisor'
-                // Get user role from session/auth - this should be dynamically set by your Laravel auth system
-                $userRole = session('user_role', Auth::user()->role ?? 'employee'); // Fallback to 'employee' if not set
-                $allowedRoles = ['admin', 'supervisor', 'Administrator', 'Supervisor', 'ADMIN', 'SUPERVISOR'];
-                $isAuthorized = in_array(strtolower($userRole), array_map('strtolower', $allowedRoles));
-                
-                // For demonstration in static HTML, we'll check a session variable or auth check
-                // In a real Laravel blade, you would use: @auth @if(auth()->user()->hasRole(['admin', 'supervisor']))
-                // This implementation supports both server-side role check and client-side fallback
-                if(!isset($isAuthorized) || $isAuthorized === false) {
-                    // Additional check for common auth patterns
-                    if(isset($currentUser) && in_array($currentUser->role ?? '', ['admin', 'supervisor'])) {
-                        $isAuthorized = true;
-                    } elseif(isset($authUser) && in_array($authUser->role ?? '', ['admin', 'supervisor'])) {
-                        $isAuthorized = true;
-                    } elseif(isset($loggedInUser) && in_array($loggedInUser->role ?? '', ['admin', 'supervisor'])) {
-                        $isAuthorized = true;
-                    }
-                }
-            @endphp
+           @php
+    // ROLE-BASED ACCESS CONTROL CONDITION
+    // Allowed roles: 'admin' and 'supervisor'
+    // Get user role from session/auth - this should be dynamically set by your Laravel auth system
+    $userRole = session('user_role', Auth::user()->user_role ?? 'employee');
+    $allowedRoles = ['admin', 'supervisor', 'Administrator', 'Supervisor', 'ADMIN', 'SUPERVISOR'];
+    $isAuthorized = in_array(strtolower($userRole), array_map('strtolower', $allowedRoles));
+    
+    // For demonstration in static HTML, we'll check a session variable or auth check
+    // In a real Laravel blade, you would use: @auth @if(auth()->user()->hasRole(['admin', 'supervisor']))
+    // This implementation supports both server-side role check and client-side fallback
+    if(!isset($isAuthorized) || $isAuthorized === false) {
+        // Additional check for common auth patterns
+        if(isset($currentUser) && in_array($currentUser->user_role ?? '', ['admin', 'supervisor'])) {
+            $isAuthorized = true;
+        } elseif(isset($authUser) && in_array($authUser->user_role ?? '', ['admin', 'supervisor'])) {
+            $isAuthorized = true;
+        } elseif(isset($loggedInUser) && in_array($loggedInUser->user_role ?? '', ['admin', 'supervisor'])) {
+            $isAuthorized = true;
+        }
+    }
+@endphp
             
             @if($isAuthorized ?? false)
             <!-- AUTHORIZED CONTENT - Only visible to Supervisors and Admins -->

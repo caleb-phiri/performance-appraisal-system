@@ -4,13 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
   <title>Login • MOIC Enterprise Appraisal System</title>
+  <!-- FAVICON - Using TK.png -->
+  <link rel="icon" type="image/png" href="{{ asset('images/TK.png') }}">
+  <link rel="shortcut icon" href="{{ asset('images/TK.png') }}">
+  <link rel="apple-touch-icon" href="{{ asset('images/TK.png') }}">
 
-  <!-- Bootstrap 5 CSS (Production) -->
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   
   <!-- Fonts & icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Apple Touch Icon (for iOS home screen) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <style>
     /* MOIC Brand Colors - matching welcome page exactly */
