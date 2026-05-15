@@ -28,6 +28,62 @@ class AdminController extends Controller
     /**
      * Admin Dashboard
      */
+
+    /**
+ * Update an appraisal
+ */
+public function updateAppraisal(Request $request, $id)
+{
+    $appraisal = Appraisal::findOrFail($id);
+    
+    $validated = $request->validate([
+        'status' => 'required|in:draft,submitted,approved',
+        'development_needs' => 'nullable|string',
+        'employee_comments' => 'nullable|string',
+        'kpas.*.weight' => 'required|numeric|min:0|max:100',
+        'kpas.*.self_rating' => 'required|integer|min:1|max:4',
+        'kpas.*.comments' => 'nullable|string',
+    ]);
+    
+    try {
+        DB::beginTransaction();
+        
+        // Update appraisal
+        $appraisal->update([
+            'status' => $request->status,
+            'development_needs' => $request->development_needs,
+            'employee_comments' => $request->employee_comments,
+            'submitted_at' => $request->status === 'submitted' ? now() : $appraisal->submitted_at,
+        ]);
+        
+        // Update KPAs
+        foreach ($request->kpas as $kpaId => $kpaData) {
+            $kpa = \App\Models\Kpa::find($kpaId);
+            if ($kpa && $kpa->appraisal_id == $appraisal->id) {
+                $kpa->update([
+                    'weight' => $kpaData['weight'],
+                    'self_rating' => $kpaData['self_rating'],
+                    'comments' => $kpaData['comments'],
+                ]);
+            }
+        }
+        
+        DB::commit();
+        
+        $message = $request->status === 'submitted' 
+            ? 'Appraisal submitted successfully!' 
+            : 'Appraisal saved as draft.';
+        
+        return redirect()->route('admin.appraisals.edit', $appraisal->id)
+            ->with('success', $message);
+            
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error updating appraisal: ' . $e->getMessage());
+        
+        return back()->with('error', 'Failed to update appraisal: ' . $e->getMessage());
+    }
+}
     public function dashboard()
     {
         $user = Auth::user();

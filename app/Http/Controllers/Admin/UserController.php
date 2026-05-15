@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+// Remove: use App\Models\Pip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UsersExport;
 use App\Imports\UsersImport;
@@ -16,85 +18,58 @@ use App\Imports\UsersImport;
 class UserController extends Controller
 {
   public function index(Request $request)
-    {
+{
+    try {
         // Get the current logged-in user
-        $user = Auth::user();
+        $user = auth()->user();
         
-        // Build the query
-        $query = Pip::with(['user', 'pipInitiator']);
+        // Build the query for users
+        $query = User::query();
         
-        // Check user permissions
-        $isAdmin = in_array($user->user_type, ['admin', 'Administrator', 'ADMIN']);
-        $isSupervisor = $user->user_type === 'supervisor';
-        $canViewAllPIPs = $user->can_view_pip ?? false;
-        $canManageAllPIPs = $user->can_manage_pip ?? false;
-        
-        // Determine what PIPs the user can see
-        if ($isAdmin || $canViewAllPIPs || $canManageAllPIPs) {
-            // Admin or user with PIP view/manage permission - see ALL PIPs
-            // No filtering needed
-        } 
-        elseif ($isSupervisor) {
-            // Supervisor - only see PIPs for employees they supervise
-            // Get all employee numbers under this supervisor
-            $supervisedEmployees = User::where('manager_id', $user->employee_number)
-                                       ->orWhere('supervisor_id', $user->id)
-                                       ->orWhere('reporting_to', $user->employee_number)
-                                       ->pluck('employee_number')
-                                       ->toArray();
-            
-            // Also include PIPs created by this supervisor
-            $query->where(function($q) use ($supervisedEmployees, $user) {
-                $q->whereIn('employee_number', $supervisedEmployees)
-                  ->orWhere('initiated_by', $user->employee_number)
-                  ->orWhere('initiated_by_name', $user->name);
-            });
-        } 
-        else {
-            // Regular employee - only see their own PIPs
-            $query->where('employee_number', $user->employee_number);
+        // Only show active users by default (not left company)
+        if (Schema::hasColumn('users', 'left_company')) {
+            $query->where('left_company', false);
         }
         
-        // Apply filters
-        if ($request->has('status') && $request->status == 'active') {
-            $query->where('pip_end_date', '>=', now());
-        } elseif ($request->has('status') && $request->status == 'completed') {
-            $query->where('pip_end_date', '<', now());
-        }
-        
+        // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('employee_number', 'LIKE', "%{$search}%")
-                  ->orWhereHas('user', function($userQuery) use ($search) {
-                      $userQuery->where('name', 'LIKE', "%{$search}%")
-                                ->orWhere('employee_number', 'LIKE', "%{$search}%");
-                  });
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('employee_number', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('department', 'LIKE', "%{$search}%")
+                  ->orWhere('job_title', 'LIKE', "%{$search}%");
             });
         }
         
+        // Apply department filter
         if ($request->has('department') && !empty($request->department)) {
-            $query->whereHas('user', function($q) use ($request) {
-                $q->where('department', $request->department);
-            });
+            $query->where('department', $request->department);
+        }
+        
+        // Apply user type filter
+        if ($request->has('user_type') && !empty($request->user_type)) {
+            $query->where('user_type', $request->user_type);
         }
         
         // Get paginated results
-        $pips = $query->orderBy('created_at', 'desc')->paginate(15);
+        $users = $query->orderBy('name')->paginate(15);
         
         // Calculate statistics
-        $stats = [
-            'total' => Pip::count(),
-            'active' => Pip::where('pip_end_date', '>=', now())->count(),
-            'completed' => Pip::where('pip_end_date', '<', now())->count(),
-        ];
+        $stats = $this->calculateFullStats();
         
-        // Get departments for filter (only from users the current user can see)
+        // Get departments for filter
         $departments = User::distinct()->pluck('department')->filter()->values()->toArray();
         
-        return view('pip-management', compact('pips', 'stats', 'departments'));
+        // Return the users index view
+        return view('admin.users.index', compact('users', 'stats', 'departments'));
+        
+    } catch (\Exception $e) {
+        Log::error('Error in users index: ' . $e->getMessage());
+        return back()->with('error', 'Failed to load users. Please try again.');
     }
-
+}
 /**
  * Calculate full statistics from entire database
  */

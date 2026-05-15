@@ -941,3 +941,83 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::post('/appraisals/{appraisal}/pip-action-plan', [AppraisalController::class, 'updatePIPActionPlan'])->name('appraisals.update-pip-action-plan');
+
+
+// Add this route inside your authenticated routes group (where other appraisal routes are defined)
+Route::post('/appraisals/{appraisal}/save-pip-signature', [AppraisalController::class, 'savePipSignature'])
+    ->name('appraisals.save-pip-signature');
+
+
+    Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // User routes
+    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+    Route::get('users/inactive', [App\Http\Controllers\Admin\UserController::class, 'inactive'])->name('users.inactive');
+    // ... other user routes
+    
+    // PIP routes
+    Route::resource('pips', App\Http\Controllers\Admin\PipController::class);
+    Route::post('pips/update-access', [App\Http\Controllers\Admin\PipController::class, 'updateAccess'])->name('pips.update-access');
+});
+
+
+// Admin routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // User management routes
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{employee_number}', [UserController::class, 'show'])->name('admin.users.show');
+    Route::get('/users/{employeeNumber}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{employeeNumber}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{employeeNumber}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    
+    // Inactive users
+    Route::get('/users/inactive', [UserController::class, 'inactive'])->name('admin.users.inactive');
+    
+    // User management additional routes
+    Route::get('/users/{employeeNumber}/mark-left', [UserController::class, 'showMarkLeftForm'])->name('admin.users.mark-left');
+    Route::post('/users/{employeeNumber}/mark-left', [UserController::class, 'markAsLeft'])->name('admin.users.markAsLeft');
+    Route::post('/users/{employeeNumber}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
+    
+    // Password reset routes
+    Route::get('/users/{employeeNumber}/reset-password', [UserController::class, 'resetPassword'])->name('admin.users.reset-password');
+    Route::post('/users/{employeeNumber}/update-password', [UserController::class, 'updatePassword'])->name('admin.users.update-password');
+    
+    // Search, export, import
+    Route::get('/users/search', [UserController::class, 'search'])->name('admin.users.search');
+    Route::get('/users/export', [UserController::class, 'export'])->name('admin.users.export');
+    Route::get('/users/import/form', [UserController::class, 'showImportForm'])->name('admin.users.import-form');
+    Route::post('/users/import', [UserController::class, 'import'])->name('admin.users.import');
+    
+    // Statistics
+    Route::get('/users/statistics', [UserController::class, 'statistics'])->name('admin.users.statistics');
+    
+    // Debug
+    Route::get('/users/debug/schema', [UserController::class, 'debugSchema'])->name('admin.users.debug-schema');
+    
+    // Make supervisor
+    Route::post('/users/{employeeNumber}/make-supervisor', [UserController::class, 'makeSupervisor'])->name('admin.users.make-supervisor');
+    
+    // Force reset passwords
+    Route::post('/users/force-reset-passwords', [UserController::class, 'forceResetAllPasswords'])->name('admin.users.force-reset-passwords');
+    
+    // Team members
+    Route::get('/team-members', [UserController::class, 'teamMembers'])->name('admin.team-members');
+    
+    // PIP routes (if you have them)
+    Route::prefix('pips')->group(function () {
+        Route::get('/', [PipController::class, 'index'])->name('admin.pips.index');
+        Route::get('/create', [PipController::class, 'create'])->name('admin.pips.create');
+        Route::post('/', [PipController::class, 'store'])->name('admin.pips.store');
+        Route::get('/{id}', [PipController::class, 'show'])->name('admin.pips.show');
+        Route::get('/{id}/edit', [PipController::class, 'edit'])->name('admin.pips.edit');
+        Route::put('/{id}', [PipController::class, 'update'])->name('admin.pips.update');
+        Route::delete('/{id}', [PipController::class, 'destroy'])->name('admin.pips.destroy');
+        Route::post('/update-access', [PipController::class, 'updateAccess'])->name('admin.pips.update-access');
+    });
+});

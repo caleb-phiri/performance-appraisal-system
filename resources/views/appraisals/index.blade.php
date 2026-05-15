@@ -793,9 +793,6 @@
                             <li><a href="{{ route('appraisals.quarterly-summary.download', request()->all()) }}" class="dropdown-item" target="_blank"><i class="fas fa-download me-2 moic-navy"></i> Download Excel</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-home me-2 moic-navy"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{{ route('leave.index') }}"><i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave</a></li>
-                            <li><a class="dropdown-item" href="{{ route('leave.balance') }}"><i class="fas fa-wallet me-2 moic-navy"></i> Balance</a></li>
-                            <li><a class="dropdown-item" href="{{ route('calendar.index') }}"><i class="fas fa-calendar me-2 moic-accent"></i> Calendar</a></li>
                             <li><a class="dropdown-item" href="{{ route('appraisals.index') }}"><i class="fas fa-file-alt me-2 moic-navy"></i> Appraisals</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
@@ -825,9 +822,6 @@
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-home me-2 moic-navy"></i> Dashboard</a></li>
                             <li><a class="dropdown-item" href="{{ route('appraisals.quarterly-summary.index', request()->all()) }}"><i class="fas fa-chart-bar me-2 moic-navy"></i> Quarterly Summary</a></li>
                             <li><a class="dropdown-item" href="{{ route('appraisals.quarterly-summary.download', request()->all()) }}" target="_blank"><i class="fas fa-download me-2 moic-navy"></i> Download Excel</a></li>
-                            <li><a class="dropdown-item" href="{{ route('leave.index') }}"><i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave</a></li>
-                            <li><a class="dropdown-item" href="{{ route('leave.balance') }}"><i class="fas fa-wallet me-2 moic-navy"></i> Balance</a></li>
-                            <li><a class="dropdown-item" href="{{ route('calendar.index') }}"><i class="fas fa-calendar me-2 moic-accent"></i> Calendar</a></li>
                             <li><a class="dropdown-item" href="{{ route('appraisals.index') }}"><i class="fas fa-file-alt me-2 moic-navy"></i> Appraisals</a></li>
                             <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2 moic-navy"></i> Profile</a></li>
                             <li><a class="dropdown-item" href="{{ route('appraisals.create') }}"><i class="fas fa-plus me-2 text-success"></i> New Appraisal</a></li>

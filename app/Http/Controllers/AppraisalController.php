@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; 
 use App\Models\Appraisal;
 use App\Models\PIPFollowup;
 use App\Models\AppraisalKpa;
@@ -2793,4 +2794,70 @@ public function getPIPFollowups(Appraisal $appraisal)
     }
 }
 
+public function savePipSignature(Request $request, Appraisal $appraisal)
+{
+    try {
+        $request->validate([
+            'signature_role' => 'required|in:employee,supervisor',
+            'signature_data' => 'required|string',
+        ]);
+
+        $signatureData = $request->signature_data;
+        $role = $request->signature_role;
+        
+        // Remove the data URL prefix
+        $signatureData = preg_replace('/^data:image\/\w+;base64,/', '', $signatureData);
+        $signatureData = base64_decode($signatureData);
+        
+        if (!$signatureData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid signature data'
+            ], 400);
+        }
+        
+        // Create directory if it doesn't exist
+        $signatureDir = storage_path('app/public/signatures');
+        if (!file_exists($signatureDir)) {
+            mkdir($signatureDir, 0755, true);
+        }
+        
+        // Generate filename and save
+        $filename = 'pip_' . $role . '_signature_' . $appraisal->id . '_' . time() . '.png';
+        $filepath = $signatureDir . '/' . $filename;
+        file_put_contents($filepath, $signatureData);
+        
+        $path = 'signatures/' . $filename;
+        
+        // Update the appraisal
+        if ($role === 'employee') {
+            $appraisal->pip_employee_signed = true;
+            $appraisal->pip_employee_signed_at = now();
+            $appraisal->pip_employee_signature_path = $path;
+        } else {
+            $appraisal->pip_supervisor_signed = true;
+            $appraisal->pip_supervisor_signed_at = now();
+            $appraisal->pip_supervisor_signature_path = $path;
+        }
+        
+        $appraisal->save();
+        
+        // Generate the correct URL for the signature
+        $signatureUrl = asset('storage/' . $path);
+        
+        return response()->json([
+            'success' => true,
+            'message' => ucfirst($role) . ' signature saved successfully',
+            'signature_url' => $signatureUrl,
+            'path' => $path
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('PIP Signature Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving signature: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Appraisal Report - MOIC Performance Appraisal System</title>
-    
+    <!-- Signature Pad Library -->
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
    <!-- FAVICON - Using TK.png -->
   <link rel="icon" type="image/png" href="{{ asset('images/TK.png') }}">
   <link rel="shortcut icon" href="{{ asset('images/TK.png') }}">
@@ -1276,6 +1277,83 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(231,88,28,0.3);
         }
+
+        /* PIP Signature Styles */
+.pip-signature-card {
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #f0e2d6;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+}
+.pip-signature-header {
+    background: #fffaf5;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3e9e0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.pip-signature-header i {
+    font-size: 1.4rem;
+    color: #b45309;
+}
+.pip-signature-header .title {
+    font-weight: 700;
+    color: #4b2e1a;
+    font-size: 1.1rem;
+    margin: 0;
+}
+.pip-signature-body {
+    padding: 1.5rem;
+    background: #ffffff;
+}
+.signature-canvas {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background: white;
+    cursor: crosshair;
+    width: 100%;
+    height: 150px;
+    touch-action: none;
+}
+.signature-pad-container {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+}
+.signature-status {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+}
+.signature-status-signed {
+    background: #d1fae5;
+    color: #065f46;
+}
+.signature-status-pending {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.btn-submit-signature {
+    background: linear-gradient(135deg, #e7581c, #c2410c);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-submit-signature:hover {
+    background: #c2410c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(231,88,28,0.3);
+}
     </style>
 </head>
 <body>
@@ -1323,6 +1401,32 @@
     $pipActive = $appraisal->pip_initiated ?? false;
     $isSupervisor = auth()->user()->user_type === 'supervisor';
     
+    // PIP Signature statuses
+    $pipEmployeeSigned = $appraisal->pip_employee_signed ?? false;
+    $pipSupervisorSigned = $appraisal->pip_supervisor_signed ?? false;
+    $pipEmployeeSignedAt = $appraisal->pip_employee_signed_at ?? null;
+    $pipSupervisorSignedAt = $appraisal->pip_supervisor_signed_at ?? null;
+    
+    // ========== ADD THIS BLOCK ==========
+    // Action Plan Data for PIP Details Modal
+    $actionPlanData = null;
+    if (!empty($appraisal->pip_action_plan)) {
+        if (is_string($appraisal->pip_action_plan)) {
+            $actionPlanData = json_decode($appraisal->pip_action_plan, true);
+        } else {
+            $actionPlanData = $appraisal->pip_action_plan;
+        }
+    }
+    
+    $actionPlan = (!empty($actionPlanData) && is_array($actionPlanData) && count($actionPlanData) > 0) 
+        ? $actionPlanData 
+        : [
+            ['action' => 'Submit weekly progress report every Friday', 'objective' => 'Track improvements and identify blockers', 'measurement' => 'Completion rate / quality audit'],
+            ['action' => 'Complete mandatory e-learning modules', 'objective' => 'Skill enhancement and process knowledge', 'measurement' => 'Certification achieved'],
+            ['action' => 'Achieve 90% quality score on monthly audits', 'objective' => 'Quality and compliance improvement', 'measurement' => 'Dashboard review / audit results']
+        ];
+    // ========== END ADDED BLOCK ==========
+    
     // Prepare JSON-encoded content for modals
     $developmentNeedsJson = json_encode($appraisal->development_needs ?? '');
     $employeeCommentsJson = json_encode($appraisal->employee_comments ?? '');
@@ -1330,7 +1434,7 @@
     
     // Get current date for report
     $reportDate = now()->format('F d, Y');
-    @endphp
+@endphp
 
     <!-- Message Container -->
     <div id="messageContainer" class="message-container"></div>
@@ -2589,244 +2693,171 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
-                <!-- ============================================= -->
-                <!-- TOLL PLAZA OPERATIONS: SUPPLEMENTARY INFORMATION FILE (Ref PM018 | Rev 0, Aug 2024) -->
-                <!-- ============================================= -->
-                <div class="pip-detail-card" style="border-left: 4px solid #e7581c;">
-                    <div class="pip-detail-header" style="background: #f8f4f0;">
-                        <i class="fas fa-file-alt" style="color: #e7581c;"></i>
-                        <span class="title" style="color: #4b2e1a;">Toll Plaza Operations : Supplementary Information File, Ref PM018 | Rev 0, Aug 2024</span>
-                    </div>
-                    <div class="pip-detail-body">
-                        <!-- Header Row: Employee Name & Date -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Employee Name</label>
-                                <div class="border-bottom pb-1 fw-semibold">{{ $appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Date</label>
-                                <div class="border-bottom pb-1 fw-semibold">{{ now()->format('F d, Y') }}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Row: Job Title & Department -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Job Title</label>
-                                <div class="border-bottom pb-1">{{ $appraisal->job_title ?? $appraisal->position ?? 'Staff' }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Department</label>
-                                <div class="border-bottom pb-1">{{ $appraisal->department ?? 'Operations' }}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Row: Manager Name & Hired Date -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Manager Name</label>
-                                <div class="border-bottom pb-1">{{ auth()->user()->name ?? 'Supervisor' }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="fw-bold small text-muted mb-1">Hired Date</label>
-                                <div class="border-bottom pb-1">{{ $appraisal->hired_date ?? ($appraisal->start_date ?? 'N/A') }}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Area of Concern -->
-                        <div class="mb-3">
-                            <label class="fw-bold small text-muted mb-1">Area of Concern (Describe area of concern)</label>
-                            <div class="bg-light p-2 rounded" style="background: #fefaf5;">
-                                Performance score <strong>{{ number_format($totalScore, 1) }}%</strong> below 75% threshold. Specific KPAs require immediate improvement.
-                            </div>
-                        </div>
-                        
-                        <!-- Goal or Plan for Improvement -->
-                        <div class="mb-3">
-                            <label class="fw-bold small text-muted mb-1">Goal or Plan for Improvement (Overall aim of the plan)</label>
-                            <div class="bg-light p-2 rounded" style="background: #fefaf5;">
-                                Achieve minimum 85% on all core KPIs by end of PIP period.
-                            </div>
-                        </div>
-                        
-                        
-  @php
-    // Properly decode pip_action_plan from database
-    $actionPlanData = null;
-    if (!empty($appraisal->pip_action_plan)) {
-        if (is_string($appraisal->pip_action_plan)) {
-            $actionPlanData = json_decode($appraisal->pip_action_plan, true);
-        } else {
-            $actionPlanData = $appraisal->pip_action_plan;
-        }
-    }
-    
-    // Use saved data or default template
-    $actionPlan = (!empty($actionPlanData) && is_array($actionPlanData) && count($actionPlanData) > 0) 
-        ? $actionPlanData 
-        : [
-            ['action' => 'Submit weekly progress report every Friday', 'objective' => 'Track improvements and identify blockers', 'measurement' => 'Completion rate / quality audit'],
-            ['action' => 'Complete mandatory e-learning modules', 'objective' => 'Skill enhancement and process knowledge', 'measurement' => 'Certification achieved'],
-            ['action' => 'Achieve 90% quality score on monthly audits', 'objective' => 'Quality and compliance improvement', 'measurement' => 'Dashboard review / audit results']
-        ];
-    
-    $hasSavedActions = !empty($actionPlanData) && is_array($actionPlanData) && count($actionPlanData) > 0;
-@endphp
+    <!-- TOLL PLAZA OPERATIONS: SUPPLEMENTARY INFORMATION FILE -->
+    <div class="pip-detail-card" style="border-left: 4px solid #e7581c;">
+        <div class="pip-detail-header" style="background: #f8f4f0;">
+            <i class="fas fa-file-alt" style="color: #e7581c;"></i>
+            <span class="title" style="color: #4b2e1a;">Toll Plaza Operations : Supplementary Information File, Ref PM018 | Rev 0, Aug 2024</span>
+        </div>
+        <div class="pip-detail-body">
+            <!-- Header Row: Employee Name & Date -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Employee Name</label><div class="border-bottom pb-1 fw-semibold">{{ $appraisal->user->name ?? $appraisal->employee_name ?? 'System Employee' }}</div></div>
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Date</label><div class="border-bottom pb-1 fw-semibold">{{ now()->format('F d, Y') }}</div></div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Job Title</label><div class="border-bottom pb-1">{{ $appraisal->job_title ?? $appraisal->position ?? 'Staff' }}</div></div>
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Department</label><div class="border-bottom pb-1">{{ $appraisal->department ?? 'Operations' }}</div></div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Manager Name</label><div class="border-bottom pb-1">{{ auth()->user()->name ?? 'Supervisor' }}</div></div>
+                <div class="col-md-6"><label class="fw-bold small text-muted mb-1">Hired Date</label><div class="border-bottom pb-1">{{ $appraisal->hired_date ?? ($appraisal->start_date ?? 'N/A') }}</div></div>
+            </div>
+            
+            <div class="mb-3"><label class="fw-bold small text-muted mb-1">Area of Concern</label><div class="bg-light p-2 rounded" style="background: #fefaf5;">Performance score <strong>{{ number_format($totalScore, 1) }}%</strong> below 75% threshold. Specific KPAs require immediate improvement.</div></div>
+            <div class="mb-3"><label class="fw-bold small text-muted mb-1">Goal or Plan for Improvement</label><div class="bg-light p-2 rounded" style="background: #fefaf5;">Achieve minimum 85% on all core KPIs by end of PIP period.</div></div>
+            
+            <!-- Action Plan Table (keep existing) -->
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 11px; font-weight: bold; color: #4b2e1a; display: block; margin-bottom: 8px;"><i class="fas fa-tasks me-1"></i> Action Plan & Objectives</label>
+                <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; background: white; table-layout: fixed;">
+                    <thead><tr style="background: #fefaf5;"><th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left;">Action</th><th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left;">Objective</th><th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left;">Measurement</th></tr></thead>
+                    <tbody>
+                        @foreach($actionPlan as $item)
+                        <tr><td style="border: 1px solid #f0e2d6; padding: 8px 6px;">{{ $item['action'] ?? $item['Action'] ?? '—' }}</td><td style="border: 1px solid #f0e2d6; padding: 8px 6px;">{{ $item['objective'] ?? $item['Objective'] ?? '—' }}</td><td style="border: 1px solid #f0e2d6; padding: 8px 6px;">{{ $item['measurement'] ?? $item['Measurement'] ?? '—' }}</td></tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-<!-- Action Plan Table -->
-<div style="margin-bottom: 15px;">
-    <label style="font-size: 11px; font-weight: bold; color: #4b2e1a; display: block; margin-bottom: 8px;">
-        <i class="fas fa-tasks me-1"></i> Action Plan & Objectives
-    </label>
-    <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; background: white; table-layout: fixed;">
-        <colgroup>
-            <col style="width: 30%;">
-            <col style="width: 35%;">
-            <col style="width: 35%;">
-        </colgroup>
-        <thead>
-            <tr style="background: #fefaf5;">
-                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Action</th>
-                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Objective</th>
-                <th style="border: 1px solid #f0e2d6; padding: 8px 6px; text-align: left; font-weight: 600; color: #4b2e1a;">Measurement</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($actionPlan as $index => $action)
-            <tr>
-                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
-                    <span style="display: block; line-height: 1.4;">{{ $action['action'] ?? $action['Action'] ?? $action['description'] ?? $action['task'] ?? '—' }}</span>
-                </td>
-                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
-                    <span style="display: block; line-height: 1.4;">{{ $action['objective'] ?? $action['Objective'] ?? $action['goal'] ?? $action['purpose'] ?? '—' }}</span>
-                </td>
-                <td style="border: 1px solid #f0e2d6; padding: 8px 6px; vertical-align: top; word-wrap: break-word; background: #fefcf8;">
-                    <span style="display: block; line-height: 1.4;">{{ $action['measurement'] ?? $action['Measurement'] ?? $action['metric'] ?? $action['kpi'] ?? '—' }}</span>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    
-    @if(!$hasSavedActions)
-    <div style="margin-top: 8px; padding: 8px; background: #fefaf5; border-radius: 4px; border-left: 3px solid #e7581c;">
-        <small style="color: #9b6a4b; font-size: 9px;">
-            <i class="fas fa-info-circle me-1"></i> No custom action plan has been saved. Default recommendations shown above.
-        </small>
+    <!-- Timeline Card -->
+    <div class="pip-detail-card">
+        <div class="pip-detail-header"><i class="far fa-calendar-alt"></i><span class="title">Plan Timeline</span></div>
+        <div class="pip-detail-body"><div class="pip-meta-grid"><div class="pip-meta-item"><span class="pip-meta-label">Start Date</span><div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('F d, Y') }}</div></div><div class="pip-meta-item"><span class="pip-meta-label">End Date</span><div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('F d, Y') }}</div></div><div class="pip-meta-item"><span class="pip-meta-label">Duration</span><div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->diffInDays(\Carbon\Carbon::parse($appraisal->pip_end_date)) }} days</div></div></div></div>
     </div>
-    @else
-    <div style="margin-top: 8px; padding: 8px; background: #ecfdf5; border-radius: 4px; border-left: 3px solid #10b981;">
-        <small style="color: #065f46; font-size: 9px;">
-            <i class="fas fa-check-circle me-1"></i> Custom action plan loaded from record ({{ count($actionPlan) }} items).
-        </small>
-    </div>
+
+    <!-- Improvement Plan Card -->
+    <div class="pip-detail-card"><div class="pip-detail-header"><i class="fas fa-tasks"></i><span class="title">Improvement Plan & Action Items</span></div><div class="pip-detail-body"><div class="pip-content-box">{!! nl2br(e($appraisal->pip_plan ?? 'No plan details available.')) !!}</div></div></div>
+
+    @if($appraisal->pip_supervisor_notes)
+    <div class="pip-detail-card"><div class="pip-detail-header"><i class="fas fa-user-check"></i><span class="title">Supervisor Notes & Expectations</span></div><div class="pip-detail-body"><div class="pip-content-box">{!! nl2br(e($appraisal->pip_supervisor_notes)) !!}</div></div></div>
     @endif
-</div>
-                    </div>
-                </div>
 
-                <!-- Timeline Card (Original) -->
-                <div class="pip-detail-card">
-                    <div class="pip-detail-header">
-                        <i class="far fa-calendar-alt"></i>
-                        <span class="title">Plan Timeline</span>
+    <!-- ========== DUAL SIGNATURE SECTION WITHIN PIP ONLY ========== -->
+<div class="row mt-4 pt-3 border-top g-3">
+    <!-- EMPLOYEE SIGNATURE COLUMN -->
+    <div class="col-md-6">
+        <div class="pip-signature-card">
+            <div class="pip-signature-header">
+                <div><i class="fas fa-user-circle"></i><span class="title ms-2">Employee Acknowledgment</span></div>
+                <span class="signature-status {{ $pipEmployeeSigned ? 'signature-status-signed' : 'signature-status-pending' }}">
+                    <i class="fas {{ $pipEmployeeSigned ? 'fa-check-circle' : 'fa-clock' }} me-1"></i>{{ $pipEmployeeSigned ? 'Signed' : 'Pending' }}
+                </span>
+            </div>
+            <div class="pip-signature-body">
+                @if(!$pipEmployeeSigned)
+                    <div class="signature-pad-container">
+                        <canvas id="pipEmployeeSignatureCanvas" class="signature-canvas" width="500" height="150" style="width:100%; height:150px;"></canvas>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearPIPSignature('employee')"><i class="fas fa-eraser me-1"></i>Clear</button>
+                            <button type="button" class="btn btn-sm btn-submit-signature" onclick="submitPIPSignature('employee')"><i class="fas fa-save me-1"></i>Sign PIP</button>
+                        </div>
+                        <small class="text-muted d-block mt-2"><i class="fas fa-info-circle"></i> I acknowledge the PIP terms and commit to improvement.</small>
                     </div>
-                    <div class="pip-detail-body">
-                        <div class="pip-meta-grid">
-                            <div class="pip-meta-item">
-                                <span class="pip-meta-label"><i class="far fa-calendar-check me-1"></i> Start Date</span>
-                                <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_start_date)->format('F d, Y') }}</div>
+                @else
+                    <div class="text-center py-2">
+                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                        <p class="fw-bold mb-0 text-success">Electronically Signed by Employee</p>
+                        <p class="small text-muted">{{ $pipEmployeeSignedAt ? \Carbon\Carbon::parse($pipEmployeeSignedAt)->format('M d, Y h:i A') : 'Date recorded' }}</p>
+                        @if($appraisal->pip_employee_signature_data)
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <img src="{{ $appraisal->pip_employee_signature_data }}" style="max-height:60px; max-width:100%;" alt="Signature">
                             </div>
-                            <div class="pip-meta-item">
-                                <span class="pip-meta-label"><i class="far fa-calendar-times me-1"></i> End Date</span>
-                                <div class="pip-meta-value">{{ \Carbon\Carbon::parse($appraisal->pip_end_date)->format('F d, Y') }}</div>
+                        @elseif($appraisal->pip_employee_signature_path)
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <img src="{{ asset('storage/' . $appraisal->pip_employee_signature_path) }}" style="max-height:60px; max-width:100%;" alt="Signature">
                             </div>
-                            <div class="pip-meta-item">
-                                <span class="pip-meta-label"><i class="fas fa-hourglass-half me-1"></i> Duration</span>
-                                <div class="pip-meta-value">
-                                    @php
-                                        $start = \Carbon\Carbon::parse($appraisal->pip_start_date);
-                                        $end = \Carbon\Carbon::parse($appraisal->pip_end_date);
-                                        $days = $start->diffInDays($end);
-                                    @endphp
-                                    {{ $days }} days
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Improvement Plan Card -->
-                <div class="pip-detail-card">
-                    <div class="pip-detail-header">
-                        <i class="fas fa-tasks"></i>
-                        <span class="title">Improvement Plan & Action Items</span>
-                    </div>
-                    <div class="pip-detail-body">
-                        <div class="pip-content-box">
-                            {!! nl2br(e($appraisal->pip_plan ?? 'No plan details available.')) !!}
-                        </div>
-                    </div>
-                </div>
-
-                @if($appraisal->pip_supervisor_notes)
-                <!-- Supervisor Notes Card -->
-                <div class="pip-detail-card">
-                    <div class="pip-detail-header">
-                        <i class="fas fa-user-check"></i>
-                        <span class="title">Supervisor Notes & Expectations</span>
-                    </div>
-                    <div class="pip-detail-body">
-                        <div class="pip-content-box">
-                            {!! nl2br(e($appraisal->pip_supervisor_notes)) !!}
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                <!-- Follow-up Comments Section with VISIBLE SUBMIT BUTTON -->
-                <div class="followup-section">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-comment-dots me-2 moic-accent"></i>Follow-up Comments</h6>
-                    <div class="mb-3">
-                        <label class="form-label fw-medium">Add your follow-up comment:</label>
-                        <textarea id="followupComments" rows="4" class="form-control" placeholder="Add follow-up comments, progress notes, or additional feedback..."></textarea>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-submit-followup" id="submitFollowupBtn">
-                            <i class="fas fa-paper-plane me-2"></i>Submit Follow-up Comment
-                        </button>
-                    </div>
-                    <div class="mt-4">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-history me-2"></i>Previous Follow-ups</h6>
-                        <div id="followupHistory" class="mt-2">
-                            <div class="text-muted small fst-italic">No follow-up comments recorded yet.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer Meta -->
-                <div class="pip-footer-meta mt-3">
-                    <div>
-                        <i class="fas fa-flag-checked me-1"></i> Initiated on {{ \Carbon\Carbon::parse($appraisal->pip_initiated_at)->format('F d, Y') }}
-                        @if($appraisal->pip_initiated_by)
-                            by {{ $appraisal->pipInitiator?->name ?? 'Supervisor' }}
                         @endif
                     </div>
-                    <div>
-                        <span class="pip-badge-active">
-                            <i class="fas fa-chart-line"></i> Active PIP
-                        </span>
-                    </div>
-                </div>
+                @endif
             </div>
+        </div>
+    </div>
+    
+    <!-- SUPERVISOR SIGNATURE COLUMN -->
+    <div class="col-md-6">
+        <div class="pip-signature-card">
+            <div class="pip-signature-header">
+                <div><i class="fas fa-user-tie"></i><span class="title ms-2">Supervisor Approval</span></div>
+                <span class="signature-status {{ $pipSupervisorSigned ? 'signature-status-signed' : 'signature-status-pending' }}">
+                    <i class="fas {{ $pipSupervisorSigned ? 'fa-check-circle' : 'fa-clock' }} me-1"></i>{{ $pipSupervisorSigned ? 'Signed' : 'Pending' }}
+                </span>
+            </div>
+            <div class="pip-signature-body">
+                @if(!$pipSupervisorSigned && ($isSupervisor || auth()->user()->user_type === 'admin'))
+                    <div class="signature-pad-container">
+                        <canvas id="pipSupervisorSignatureCanvas" class="signature-canvas" width="500" height="150" style="width:100%; height:150px;"></canvas>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearPIPSignature('supervisor')"><i class="fas fa-eraser me-1"></i>Clear</button>
+                            <button type="button" class="btn btn-sm btn-submit-signature" onclick="submitPIPSignature('supervisor')"><i class="fas fa-save me-1"></i>Approve & Sign PIP</button>
+                        </div>
+                        <small class="text-muted d-block mt-2"><i class="fas fa-info-circle"></i> Authorized supervisor signature confirms the PIP plan.</small>
+                    </div>
+                @elseif($pipSupervisorSigned)
+                    <div class="text-center py-2">
+                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                        <p class="fw-bold mb-0 text-success">Signed by Supervisor</p>
+                        <p class="small text-muted">{{ $pipSupervisorSignedAt ? \Carbon\Carbon::parse($pipSupervisorSignedAt)->format('M d, Y h:i A') : 'Date recorded' }}</p>
+                        @if($appraisal->pip_supervisor_signature_data)
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <img src="{{ $appraisal->pip_supervisor_signature_data }}" style="max-height:60px; max-width:100%;" alt="Signature">
+                            </div>
+                        @elseif($appraisal->pip_supervisor_signature_path)
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <img src="{{ asset('storage/' . $appraisal->pip_supervisor_signature_path) }}" style="max-height:60px; max-width:100%;" alt="Signature">
+                            </div>
+                        @endif
+                    </div>
+                @elseif(!$isSupervisor && !$pipSupervisorSigned)
+                    <div class="alert alert-secondary text-center py-3 mb-0"><i class="fas fa-lock me-2"></i>Awaiting supervisor signature on PIP.</div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-light border small mt-3 no-print">
+    <i class="fas fa-gavel me-2 moic-accent"></i> By signing this Performance Improvement Plan, both parties acknowledge the action items and review schedule. Electronic signatures are legally binding.
+</div>
+  
+    <!-- Follow-up Comments Section -->
+    <div class="followup-section mt-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-comment-dots me-2 moic-accent"></i>Follow-up Comments</h6>
+        <div class="mb-3"><label class="form-label fw-medium">Add your follow-up comment:</label><textarea id="followupComments" rows="4" class="form-control" placeholder="Add follow-up comments, progress notes, or additional feedback..."></textarea></div>
+        <div class="d-flex justify-content-end"><button type="button" class="btn btn-submit-followup" id="submitFollowupBtn"><i class="fas fa-paper-plane me-2"></i>Submit Follow-up Comment</button></div>
+        <div class="mt-4"><h6 class="fw-bold mb-2"><i class="fas fa-history me-2"></i>Previous Follow-ups</h6><div id="followupHistory" class="mt-2"><div class="text-muted small fst-italic">No follow-up comments recorded yet.</div></div></div>
+    </div>
+
+    <!-- Footer Meta -->
+    <div class="pip-footer-meta mt-3"><div><i class="fas fa-flag-checked me-1"></i> Initiated on {{ \Carbon\Carbon::parse($appraisal->pip_initiated_at)->format('F d, Y') }} @if($appraisal->pip_initiated_by) by {{ $appraisal->pipInitiator?->name ?? 'Supervisor' }} @endif</div><div><span class="pip-badge-active"><i class="fas fa-chart-line"></i> Active PIP</span></div></div>
+</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Hidden form for PIP signature submission -->
+<form id="pipSignatureForm" method="POST" style="display:none;">
+    @csrf
+    <input type="hidden" name="signature_data" id="pipSignatureData">
+    <input type="hidden" name="signature_role" id="pipSignatureRole">
+    <input type="hidden" name="appraisal_id" value="{{ $appraisal->id }}">
+</form>
+
     <!-- Modals for rating (existing) -->
     @if($isAssignedSupervisor && $appraisal->status === 'submitted')
     <!-- KPA Rating Modal -->
@@ -4339,6 +4370,217 @@ async function downloadReport() {
             setTableDataLabels();
             window.addEventListener('resize', setTableDataLabels);
         });
+
+     // ==============================================
+// PIP SIGNATURE FUNCTIONS (for PIP section only)
+// ==============================================
+
+let pipEmployeePad = null;
+let pipSupervisorPad = null;
+
+// Initialize signature pads
+function initSignaturePads() {
+    console.log('Initializing signature pads...');
+    
+    const empCanvas = document.getElementById('pipEmployeeSignatureCanvas');
+    const supCanvas = document.getElementById('pipSupervisorSignatureCanvas');
+    
+    if (empCanvas) {
+        console.log('Employee canvas found');
+        // Clear canvas
+        empCanvas.width = empCanvas.clientWidth;
+        empCanvas.height = 150;
+        
+        if (typeof SignaturePad !== 'undefined') {
+            pipEmployeePad = new SignaturePad(empCanvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: '#110484',
+                minWidth: 1,
+                maxWidth: 2.5
+            });
+            console.log('Employee signature pad initialized');
+        } else {
+            console.error('SignaturePad library not loaded!');
+        }
+    } else {
+        console.log('Employee canvas not found (may not be visible yet)');
+    }
+    
+    if (supCanvas) {
+        console.log('Supervisor canvas found');
+        supCanvas.width = supCanvas.clientWidth;
+        supCanvas.height = 150;
+        
+        if (typeof SignaturePad !== 'undefined') {
+            pipSupervisorPad = new SignaturePad(supCanvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: '#e7581c',
+                minWidth: 1,
+                maxWidth: 2.5
+            });
+            console.log('Supervisor signature pad initialized');
+        }
+    } else {
+        console.log('Supervisor canvas not found (may not be visible yet)');
+    }
+}
+
+function clearPIPSignature(role) {
+    if (role === 'employee' && pipEmployeePad) {
+        pipEmployeePad.clear();
+        showMessage('Signature cleared', 'info');
+    } else if (role === 'supervisor' && pipSupervisorPad) {
+        pipSupervisorPad.clear();
+        showMessage('Signature cleared', 'info');
+    } else {
+        showMessage('Signature pad not ready', 'error');
+    }
+}
+
+async function submitPIPSignature(role) {
+    let pad = role === 'employee' ? pipEmployeePad : pipSupervisorPad;
+    
+    if (!pad) {
+        showMessage('Signature pad not ready. Please refresh the page.', 'error');
+        console.error('Signature pad not initialized for role:', role);
+        return;
+    }
+    
+    if (pad.isEmpty()) {
+        showMessage('Please draw your signature in the box above before submitting', 'warning');
+        return;
+    }
+    
+    try {
+        const signatureDataURL = pad.toDataURL('image/png');
+        if (!signatureDataURL || signatureDataURL === 'data:,') {
+            showMessage('Invalid signature data', 'error');
+            return;
+        }
+        
+        // Show loading state on button
+        let targetBtn = null;
+        const btns = document.querySelectorAll('.btn-submit-signature');
+        btns.forEach(btn => {
+            const btnText = btn.innerText || btn.textContent;
+            if (role === 'employee' && btnText.includes('Sign PIP')) {
+                targetBtn = btn;
+            } else if (role === 'supervisor' && btnText.includes('Approve')) {
+                targetBtn = btn;
+            }
+        });
+        
+        const originalText = targetBtn ? targetBtn.innerHTML : 'Submit';
+        if (targetBtn) {
+            targetBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            targetBtn.disabled = true;
+        }
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('signature_role', role);
+        formData.append('signature_data', signatureDataURL);
+        formData.append('appraisal_id', '{{ $appraisal->id }}');
+        
+        const appraisalId = '{{ $appraisal->id }}';
+        const url = `/appraisals/${appraisalId}/save-pip-signature`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage(`${role === 'employee' ? 'Employee' : 'Supervisor'} signature saved successfully!`, 'success');
+            
+            // Update the signature card to show the image
+            const signatureCard = role === 'employee' 
+                ? document.querySelector('.pip-signature-card:first-child')
+                : document.querySelector('.pip-signature-card:last-child');
+            
+            if (signatureCard) {
+                const signatureBody = signatureCard.querySelector('.pip-signature-body');
+                if (signatureBody) {
+                    signatureBody.innerHTML = `
+                        <div class="text-center py-2">
+                            <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                            <p class="fw-bold mb-0 text-success">Electronically Signed by ${role === 'employee' ? 'Employee' : 'Supervisor'}</p>
+                            <p class="small text-muted">${new Date().toLocaleString()}</p>
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <img src="${data.signature_url}" style="max-height:60px; max-width:100%;" alt="Signature">
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Update status badge
+                const statusSpan = signatureCard.querySelector('.signature-status');
+                if (statusSpan) {
+                    statusSpan.className = 'signature-status signature-status-signed';
+                    statusSpan.innerHTML = '<i class="fas fa-check-circle me-1"></i>Signed';
+                }
+            }
+            
+            // Reload after 2 seconds to show persisted data
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            showMessage(data.message || 'Failed to save signature', 'error');
+            if (targetBtn) {
+                targetBtn.innerHTML = originalText;
+                targetBtn.disabled = false;
+            }
+        }
+    } catch (error) {
+        console.error('Signature error:', error);
+        showMessage('Error: ' + error.message, 'error');
+        if (targetBtn) {
+            targetBtn.innerHTML = originalText;
+            targetBtn.disabled = false;
+        }
+    }
+}
+
+// Initialize when modal is opened (since canvases might not exist on page load)
+document.addEventListener('DOMContentLoaded', function() {
+    // Try to initialize immediately if canvases exist
+    if (document.getElementById('pipEmployeeSignatureCanvas') || document.getElementById('pipSupervisorSignatureCanvas')) {
+        initSignaturePads();
+    }
+    
+    // Also initialize when PIP details modal is opened
+    const pipDetailsModal = document.getElementById('pipDetailsModal');
+    if (pipDetailsModal) {
+        pipDetailsModal.addEventListener('shown.bs.modal', function() {
+            console.log('PIP Modal opened, initializing signature pads...');
+            setTimeout(initSignaturePads, 100); // Small delay to ensure canvas is rendered
+        });
+    }
+});
+
+// Show existing signature previews
+@if($pipEmployeeSigned && $appraisal->pip_employee_signature_path)
+    document.addEventListener('DOMContentLoaded', function() {
+        const empPreview = document.getElementById('pipEmployeeSignaturePreview');
+        if (empPreview) {
+            empPreview.innerHTML = '<img src="{{ asset($appraisal->pip_employee_signature_path) }}" style="max-height:60px;">';
+        }
+    });
+@endif
+@if($pipSupervisorSigned && $appraisal->pip_supervisor_signature_path)
+    document.addEventListener('DOMContentLoaded', function() {
+        const supPreview = document.getElementById('pipSupervisorSignaturePreview');
+        if (supPreview) {
+            supPreview.innerHTML = '<img src="{{ asset($appraisal->pip_supervisor_signature_path) }}" style="max-height:60px;">';
+        }
+    });
+@endif
     </script>
 </body>
 </html>

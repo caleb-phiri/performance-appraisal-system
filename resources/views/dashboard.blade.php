@@ -1189,21 +1189,7 @@
                                     <i class="fas fa-home me-2 moic-navy"></i> Dashboard
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('leave.index') }}">
-                                    <i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('leave.balance') }}">
-                                    <i class="fas fa-wallet me-2 moic-navy"></i> Balance
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('calendar.index') }}">
-                                    <i class="fas fa-calendar me-2 moic-accent"></i> Calendar
-                                </a>
-                            </li>
+                            
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
@@ -1247,21 +1233,7 @@
                                     <i class="fas fa-home me-2 moic-navy"></i> Dashboard
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('leave.index') }}">
-                                    <i class="fas fa-calendar-alt me-2 moic-accent"></i> Leave
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('leave.balance') }}">
-                                    <i class="fas fa-wallet me-2 moic-navy"></i> Balance
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('calendar.index') }}">
-                                    <i class="fas fa-calendar me-2 moic-accent"></i> Calendar
-                                </a>
-                            </li>
+                            
                             <li>
                                 <a class="dropdown-item" href="{{ route('profile.show') }}">
                                     <i class="fas fa-user-circle me-2 moic-navy"></i> My Profile
@@ -1616,68 +1588,12 @@
                             </a>
                         </div>
 
-                        <div class="col-md-6 col-lg-3">
-                            <a href="{{ route('leave.index') }}" 
-                               class="action-card" 
-                               style="background: linear-gradient(135deg, #110484, #1a0c9e);">
-                                <i class="fas fa-calendar-alt fa-lg mb-2"></i>
-                                <p class="fw-medium mb-1">Leave</p>
-                                <p class="small opacity-90 mb-0 desktop-only">Apply for leave</p>
-                            </a>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
 
-            <!-- Leave Status Section -->
-            @if(isset($pendingLeaves) && ($pendingLeaves > 0 || $upcomingApprovedLeaves > 0))
-            <div class="card card-moic mb-4 bg-gradient">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="h5 fw-bold moic-navy mb-0">
-                            <i class="fas fa-calendar-alt me-2"></i> Leave Status
-                        </h3>
-                        <a href="{{ route('leave.index') }}" class="btn btn-moic btn-sm">
-                            Manage <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                    
-                    <div class="row g-3">
-                        @if($pendingLeaves > 0)
-                        <div class="col-6">
-                            <div class="border rounded p-3 bg-yellow-50">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-yellow-100 p-2 rounded-circle me-2">
-                                        <i class="fas fa-clock text-warning"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-muted small mb-0">Pending Leave</p>
-                                        <p class="h5 mb-0 fw-bold">{{ $pendingLeaves }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-                        
-                        @if($upcomingApprovedLeaves > 0)
-                        <div class="col-6">
-                            <div class="border rounded p-3 bg-green-50">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-green-100 p-2 rounded-circle me-2">
-                                        <i class="fas fa-calendar-check text-success"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-muted small mb-0">Upcoming</p>
-                                        <p class="h5 mb-0 fw-bold">{{ $upcomingApprovedLeaves }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @endif
+          
 
             <!-- Recent Appraisals Table with Delete for Submitted -->
             <div class="card card-moic">
@@ -1910,26 +1826,6 @@
                                 
                                 <span class="text-muted opacity-25">|</span>
                                 
-                                <a href="{{ route('leave.index') }}" 
-                                   class="nav-link-footer {{ request()->routeIs('leave.index') ? 'active' : '' }}">
-                                    <i class="fas fa-calendar-alt me-1"></i> Leave
-                                </a>
-                                
-                                <span class="text-muted opacity-25">|</span>
-                                
-                                <a href="{{ route('leave.balance') }}" 
-                                   class="nav-link-footer {{ request()->routeIs('leave.balance') ? 'active' : '' }}">
-                                    <i class="fas fa-wallet me-1"></i> Balance
-                                </a>
-                                
-                                <span class="text-muted opacity-25">|</span>
-                                
-                                <a href="{{ route('calendar.index') }}" 
-                                   class="nav-link-footer {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
-                                    <i class="fas fa-calendar me-1"></i> Calendar
-                                </a>
-                                
-                                <span class="text-muted opacity-25">|</span>
                                 
                                 <a href="{{ route('profile.show') }}" 
                                    class="nav-link-footer {{ request()->routeIs('profile.show') ? 'active' : '' }}">
